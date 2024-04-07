@@ -14,9 +14,9 @@ plugins {
 rootProject.name = 'module-ballerinax-wso2.mi'
 
 include(':checkstyle')
-include ':mi-native'
-include ':mi-ballerina'
-include ':mi-compiler-plugin'
+include(':mi-native')
+include(':mi-ballerina')
+include(':mi-compiler-plugin')
 
 project(':checkstyle').projectDir = file("build-config${File.separator}checkstyle")
 project(':mi-native').projectDir = file('native')
