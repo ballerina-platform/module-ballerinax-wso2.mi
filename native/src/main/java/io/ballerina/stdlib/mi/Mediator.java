@@ -15,8 +15,8 @@ public class Mediator extends SimpleMediator {
     public void mediate(SimpleMessageContext context) {
         HashMap<String, Object> properties = new HashMap<String, Object>() {
             {
-                this.put("firstArgument", Mediator.this.getBXmlParameter(context, "param0"));
-                this.put("secondArgument", Mediator.this.getBXmlParameter(context, "param1"));
+                this.put("firstArgument", getBXmlParameter(context, "param0"));
+                this.put("secondArgument", getBXmlParameter(context, "param1"));
                 this.put("functionName", context.getProperty("paramFunctionName"));
             }
         };

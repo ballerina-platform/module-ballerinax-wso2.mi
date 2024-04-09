@@ -9,6 +9,7 @@ public class MICompilerPlugin extends CompilerPlugin {
     @Override
     public void init(CompilerPluginContext compilerPluginContext) {
         compilerPluginContext.addCodeAnalyzer(new BalMediatorCodeAnalyzer());
+        compilerPluginContext.addCompilerLifecycleListener(new BalLifecycleListner());
     }
 }
 
