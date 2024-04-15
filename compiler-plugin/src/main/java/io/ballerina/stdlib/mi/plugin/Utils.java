@@ -75,6 +75,16 @@ public class Utils {
                     outputStream.closeEntry();
                     return FileVisitResult.CONTINUE;
                 }
+
+                @Override
+                public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
+                    if (!dir.equals(sourceDir)) {
+                        Path targetDir = sourceDir.relativize(dir);
+                        outputStream.putNextEntry(new ZipEntry(targetDir.toString() + "/"));
+                        outputStream.closeEntry();
+                    }
+                    return FileVisitResult.CONTINUE;
+                }
             });
         }
     }
@@ -96,14 +106,16 @@ public class Utils {
         });
     }
 
-    public static void zipF(ClassLoader classLoader, String source, String destination) throws IOException, URISyntaxException {
-        String resourcePath = classLoader.getResource("connector-new").getPath();
+    public static void zipF(ClassLoader classLoader, String destination) throws IOException, URISyntaxException {
+        String input = "mediator-classes";
+        String resourcePath = classLoader.getResource(input).getPath();
         String replacedString = resourcePath.replace("!/connector-new", "");
         URI uri = URI.create("jar:"+replacedString);
         List<Path> paths = new ArrayList<>();
         FileSystem fs = FileSystems.newFileSystem(uri, Collections.emptyMap());
         try {
-            paths = Files.walk(fs.getPath("connector-new"))
+            // TODO: Change this to walk once
+            paths = Files.walk(fs.getPath("mediator-classes"))
                     .filter(f -> f.toString().contains(".class") || f.toString().contains(".jar") ||f.toString().contains(".png"))
                     .toList();
 
@@ -111,9 +123,29 @@ public class Utils {
             Files.createDirectories(zipOutPath); // Create destination directory if it doesn't exist
 
             for (Path path : paths) {
-                Path relativePath = fs.getPath("connector-new").relativize(path);
+                Path relativePath = fs.getPath(input).relativize(path);
                 Path outputPath = zipOutPath.resolve(relativePath.toString());
                 Files.createDirectories(outputPath.getParent()); // Create parent directories if they don't exist
+                InputStream inputStream = getFileFromResourceAsStream(classLoader, path.toString());
+                Files.copy(inputStream, outputPath);
+            }
+
+            paths = Files.walk(fs.getPath("icon"))
+                    .filter(f -> f.toString().contains(".png"))
+                    .toList();
+            for (Path path : paths) {
+                Path outputPath = zipOutPath.resolve(path.toString());
+                Files.createDirectories(outputPath.getParent());
+                InputStream inputStream = getFileFromResourceAsStream(classLoader, path.toString());
+                Files.copy(inputStream, outputPath);
+            }
+
+            paths = Files.walk(fs.getPath("lib"))
+                    .filter(f -> f.toString().contains(".jar"))
+                    .toList();
+            for (Path path : paths) {
+                Path outputPath = zipOutPath.resolve(path.toString());
+                Files.createDirectories(outputPath.getParent());
                 InputStream inputStream = getFileFromResourceAsStream(classLoader, path.toString());
                 Files.copy(inputStream, outputPath);
             }

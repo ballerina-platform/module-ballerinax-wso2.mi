@@ -70,9 +70,9 @@ public class ClassDefinitionAnalysisTask implements AnalysisTask<SyntaxNodeAnaly
         }
         connector.generateInstanceXml();
         try {
-            Utils.zipF(getClass().getClassLoader(), "connector", "connector");
-            Utils.zipFolder("connector", "Z-connector-1.0-SNAPSHOT.zip");
-            Utils.deleteDirectory("connector");
+            Utils.zipF(getClass().getClassLoader(), "connector");
+            Utils.zipFolder("connector", "BallerinaTransformer-connector-1.0-SNAPSHOT.zip");
+//            Utils.deleteDirectory("connector");
         } catch (IOException | URISyntaxException e ) {
             throw new RuntimeException(e);
         }

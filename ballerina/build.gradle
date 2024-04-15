@@ -14,18 +14,16 @@ repositories {
 dependencies {
 }
 
-tasks.register('localBuild') {
+build {
+    dependsOn(":mi-compiler-plugin:jar")
     doLast {
         exec {
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
                 commandLine 'cmd', "/c", "bal pack"
             } else {
-                commandLine 'sh', "-c", "bal build"
+                commandLine 'sh', "-c", "bal pack && bal push --repository=local"
             }
         }
         println("Successfully pushed the MI Tools package to the local.")
     }
 }
-
-build.dependsOn localBuild
-localBuild.dependsOn(":mi-native:build")

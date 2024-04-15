@@ -1,0 +1,5 @@
+[plugin]
+class = "io.ballerina.stdlib.mi.plugin.MICompilerPlugin"
+
+[[dependency]]
+path = "../compiler-plugin/build/libs/mi-compiler-plugin-1.0-SNAPSHOT.jar"

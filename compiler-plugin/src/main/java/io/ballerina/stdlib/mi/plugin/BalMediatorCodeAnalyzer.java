@@ -8,9 +8,8 @@ public class BalMediatorCodeAnalyzer extends CodeAnalyzer {
 
     @Override
     public void init(CodeAnalysisContext codeAnalysisContext) {
-
-
         codeAnalysisContext.addSyntaxNodeAnalysisTask(
-            new ClassDefinitionAnalysisTask(), SyntaxKind.CLASS_DEFINITION);
+                new FunctionDefinitionAnalysisTask(), SyntaxKind.FUNCTION_DEFINITION
+        );
     }
 }
