@@ -13,22 +13,22 @@ public class BalCompilerLifeCycleTask implements CompilerLifecycleTask<CompilerL
     @Override
     public void perform(CompilerLifecycleEventContext compilerLifecycleEventContext) {
         String sourcePathStr = compilerLifecycleEventContext.getGeneratedArtifactPath().get().toString();
-        String destinationPathStr = "connector" + File.separator + "lib" + File.separator;
 
         Path sourcePath = Paths.get(sourcePathStr);
-        Path destinationPath = Paths.get(destinationPathStr);
+        Path destinationPath = compilerLifecycleEventContext.currentPackage().project().sourceRoot().resolve("connector");
 
         try {
             // Copy the JAR file from source to destination
-            Files.copy(sourcePath, destinationPath.resolve(sourcePath.getFileName()));
+            Files.copy(sourcePath, destinationPath.resolve("lib").resolve(sourcePath.getFileName()));
             System.out.println("JAR file copied successfully.");
         } catch (IOException e) {
             System.err.println("Error occurred while copying the JAR file: " + e.getMessage());
         }
 
         try {
-            Utils.zipFolder("connector", "BallerinaTransformer-connector-1.0-SNAPSHOT.zip");
-//            Utils.deleteDirectory("connector");
+            // TODO : Parameterize the connector zip name
+            Utils.zipFolder(destinationPath, "BallerinaTransformer-connector-1.0-SNAPSHOT.zip");
+            Utils.deleteDirectory(destinationPath);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }

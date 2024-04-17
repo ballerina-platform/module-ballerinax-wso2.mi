@@ -12,8 +12,10 @@ import io.ballerina.stdlib.mi.plugin.model.Component;
 import io.ballerina.stdlib.mi.plugin.model.Connector;
 import io.ballerina.stdlib.mi.plugin.model.Param;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
+import java.nio.file.Path;
 import java.util.Map;
 
 public class FunctionDefinitionAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisContext> {
@@ -57,15 +59,17 @@ public class FunctionDefinitionAnalysisTask implements AnalysisTask<SyntaxNodeAn
         component.setParam(versionParam);
 
         connector.setComponent(component);
-        component.generateInstanceXml();
-        component.generateTemplateXml();
+        Path connectorFolderPath = context.currentPackage().project().sourceRoot().resolve(Constants.CONNECTOR);
+        File connectorFolder = new File(connectorFolderPath.toUri());
+        if (!connectorFolder.exists()) {
+            connectorFolder.mkdir();
+        }
+        component.generateInstanceXml(connectorFolder);
+        component.generateTemplateXml(connectorFolder);
 
-        connector.generateInstanceXml();
-
+        connector.generateInstanceXml(connectorFolder);
         try {
-            Utils.zipF(getClass().getClassLoader(), "connector");
-            Utils.zipFolder("connector", "BallerinaTransformer-connector-1.0-SNAPSHOT.zip");
-            Utils.deleteDirectory("connector");
+            Utils.zipF(getClass().getClassLoader(), connectorFolderPath);
         } catch (IOException | URISyntaxException e ) {
             throw new RuntimeException(e);
         }

@@ -62,8 +62,8 @@ public class Utils {
         }
     }
 
-    public static void zipFolder(String sourceDirPath, String zipFilePath) throws IOException {
-        Path sourceDir = Paths.get(sourceDirPath);
+    public static void zipFolder(Path sourceDirPath, String zipFilePath) throws IOException {
+        Path sourceDir = sourceDirPath;
         try (ZipOutputStream outputStream = new ZipOutputStream(Files.newOutputStream(Paths.get(zipFilePath)))) {
             Files.walkFileTree(sourceDir, new SimpleFileVisitor<Path>() {
                 @Override
@@ -89,8 +89,8 @@ public class Utils {
         }
     }
 
-    public static void deleteDirectory(String dirPath) throws IOException {
-        Path directory = Paths.get(dirPath);
+    public static void deleteDirectory(Path dirPath) throws IOException {
+        Path directory = dirPath;
         Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
@@ -106,7 +106,8 @@ public class Utils {
         });
     }
 
-    public static void zipF(ClassLoader classLoader, String destination) throws IOException, URISyntaxException {
+    // TODO: Refactor and rename
+    public static void zipF(ClassLoader classLoader, Path destination) throws IOException, URISyntaxException {
         String input = "mediator-classes";
         String resourcePath = classLoader.getResource(input).getPath();
         String replacedString = resourcePath.replace("!/connector-new", "");
@@ -119,7 +120,7 @@ public class Utils {
                     .filter(f -> f.toString().contains(".class") || f.toString().contains(".jar") ||f.toString().contains(".png"))
                     .toList();
 
-            Path zipOutPath = Paths.get(destination);
+            Path zipOutPath = destination;
             Files.createDirectories(zipOutPath); // Create destination directory if it doesn't exist
 
             for (Path path : paths) {
