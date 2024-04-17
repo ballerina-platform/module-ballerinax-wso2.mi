@@ -64,8 +64,8 @@ public class FunctionDefinitionAnalysisTask implements AnalysisTask<SyntaxNodeAn
 
         try {
             Utils.zipF(getClass().getClassLoader(), "connector");
-//            Utils.zipFolder("connector", "BallerinaTransformer-connector-1.0-SNAPSHOT.zip");
-//            Utils.deleteDirectory("connector");
+            Utils.zipFolder("connector", "BallerinaTransformer-connector-1.0-SNAPSHOT.zip");
+            Utils.deleteDirectory("connector");
         } catch (IOException | URISyntaxException e ) {
             throw new RuntimeException(e);
         }

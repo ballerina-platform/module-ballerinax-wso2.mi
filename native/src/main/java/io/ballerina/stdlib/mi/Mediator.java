@@ -10,11 +10,9 @@ import org.apache.axiom.om.OMElement;
 import org.wso2.carbon.module.core.SimpleMediator;
 import org.wso2.carbon.module.core.SimpleMessageContext;
 
-import java.util.HashMap;
-
 public class Mediator extends SimpleMediator {
-    private String firstArgument = "arg1";
-    private String secondArgument = "arg2";
+    private String firstArgument = "arg5";
+    private String secondArgument = "arg6";
     private String functionName = "foo";
 
     public void mediate(SimpleMessageContext context) {
@@ -32,7 +30,7 @@ public class Mediator extends SimpleMediator {
             }
         };
 
-        Module module = new Module(Constants.ORG_NAME, Constants.MODULE_NAME, "0");
+        Module module = new Module(Constants.ORG_NAME, Constants.MODULE_NAME, "1");
         Runtime rt = Runtime.from(module);
         Object[] args = new Object[2];
 
@@ -42,11 +40,6 @@ public class Mediator extends SimpleMediator {
 
         rt.start();
         rt.invokeMethodAsync(functionName, returnCallback, args);
-        try {
-            Thread.sleep(5000);
-        } catch (InterruptedException e) {
-            throw new RuntimeException(e);
-        }
     }
 
     public BXml getBXmlParameter(SimpleMessageContext context, String parameterName) {

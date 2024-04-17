@@ -1,0 +1,20 @@
+import org.apache.tools.ant.taskdefs.condition.Os
+
+tasks.register('localPublish') {
+    doLast {
+        // Push the MI Tools package to the local repository
+        exec {
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                commandLine 'cmd', "/c", "bal pack && bal push --repository=local"
+            } else {
+                commandLine 'sh', "-c", "bal pack && bal push --repository=local"
+            }
+        }
+        println("Successfully pushed the MI Tools package to the local.")
+    }
+}
+
+tasks.register('build') {
+    dependsOn localPublish
+    localPublish.dependsOn ":tool-mi-cli:build"
+}
