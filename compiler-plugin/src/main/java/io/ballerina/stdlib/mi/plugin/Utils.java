@@ -20,9 +20,9 @@ import java.nio.file.SimpleFileVisitor;
 import java.nio.file.FileVisitResult;
 
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
@@ -62,8 +62,8 @@ public class Utils {
         }
     }
 
-    public static void zipFolder(String sourceDirPath, String zipFilePath) throws IOException {
-        Path sourceDir = Paths.get(sourceDirPath);
+    public static void zipFolder(Path sourceDirPath, String zipFilePath) throws IOException {
+        Path sourceDir = sourceDirPath;
         try (ZipOutputStream outputStream = new ZipOutputStream(Files.newOutputStream(Paths.get(zipFilePath)))) {
             Files.walkFileTree(sourceDir, new SimpleFileVisitor<Path>() {
                 @Override
@@ -89,8 +89,8 @@ public class Utils {
         }
     }
 
-    public static void deleteDirectory(String dirPath) throws IOException {
-        Path directory = Paths.get(dirPath);
+    public static void deleteDirectory(Path dirPath) throws IOException {
+        Path directory = dirPath;
         Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
             @Override
             public FileVisitResult visitFile(Path file, BasicFileAttributes attrs) throws IOException {
@@ -106,25 +106,22 @@ public class Utils {
         });
     }
 
-    public static void zipF(ClassLoader classLoader, String destination) throws IOException, URISyntaxException {
+    // TODO: Refactor and rename
+    public static void copyResources(ClassLoader classLoader, Path destination) throws IOException, URISyntaxException {
         String input = "mediator-classes";
-        String resourcePath = classLoader.getResource(input).getPath();
+        String resourcePath = Objects.requireNonNull(classLoader.getResource(input)).getPath();
         String replacedString = resourcePath.replace("!/connector-new", "");
-        URI uri = URI.create("jar:"+replacedString);
-        List<Path> paths = new ArrayList<>();
+        URI uri = URI.create("jar:" + replacedString);
         FileSystem fs = FileSystems.newFileSystem(uri, Collections.emptyMap());
         try {
             // TODO: Change this to walk once
-            paths = Files.walk(fs.getPath("mediator-classes"))
+            List<Path> paths = Files.walk(fs.getPath("mediator-classes"))
                     .filter(f -> f.toString().contains(".class") || f.toString().contains(".jar") ||f.toString().contains(".png"))
                     .toList();
 
-            Path zipOutPath = Paths.get(destination);
-            Files.createDirectories(zipOutPath); // Create destination directory if it doesn't exist
-
             for (Path path : paths) {
                 Path relativePath = fs.getPath(input).relativize(path);
-                Path outputPath = zipOutPath.resolve(relativePath.toString());
+                Path outputPath = destination.resolve(relativePath.toString());
                 Files.createDirectories(outputPath.getParent()); // Create parent directories if they don't exist
                 InputStream inputStream = getFileFromResourceAsStream(classLoader, path.toString());
                 Files.copy(inputStream, outputPath);
@@ -134,7 +131,7 @@ public class Utils {
                     .filter(f -> f.toString().contains(".png"))
                     .toList();
             for (Path path : paths) {
-                Path outputPath = zipOutPath.resolve(path.toString());
+                Path outputPath = destination.resolve(path.toString());
                 Files.createDirectories(outputPath.getParent());
                 InputStream inputStream = getFileFromResourceAsStream(classLoader, path.toString());
                 Files.copy(inputStream, outputPath);
@@ -144,7 +141,7 @@ public class Utils {
                     .filter(f -> f.toString().contains(".jar"))
                     .toList();
             for (Path path : paths) {
-                Path outputPath = zipOutPath.resolve(path.toString());
+                Path outputPath = destination.resolve(path.toString());
                 Files.createDirectories(outputPath.getParent());
                 InputStream inputStream = getFileFromResourceAsStream(classLoader, path.toString());
                 Files.copy(inputStream, outputPath);

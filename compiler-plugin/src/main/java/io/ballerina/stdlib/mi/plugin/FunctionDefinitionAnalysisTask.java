@@ -1,9 +1,7 @@
 package io.ballerina.stdlib.mi.plugin;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.plugins.AnalysisTask;
@@ -12,21 +10,38 @@ import io.ballerina.stdlib.mi.plugin.model.Component;
 import io.ballerina.stdlib.mi.plugin.model.Connector;
 import io.ballerina.stdlib.mi.plugin.model.Param;
 
+import java.io.File;
 import java.io.IOException;
 import java.net.URISyntaxException;
-import java.util.Map;
+import java.nio.file.Path;
 
 public class FunctionDefinitionAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisContext> {
+    private static final Connector connector = new Connector();
+    private boolean isFirstIteration = true;
+    private File connectorFolder;
 
     @Override
     public void perform(SyntaxNodeAnalysisContext context) {
+        if (isFirstIteration) {
+            Path connectorFolderPath = context.currentPackage().project().sourceRoot().resolve(Constants.CONNECTOR);
+            connectorFolder = new File(connectorFolderPath.toUri());
+            if (!connectorFolder.exists()) {
+                connectorFolder.mkdir();
+            }
+            try {
+                Utils.copyResources(getClass().getClassLoader(), connectorFolderPath);
+            } catch (IOException | URISyntaxException e ) {
+                throw new RuntimeException(e);
+            }
+            isFirstIteration = false;
+        }
+
         PackageDescriptor descriptor = context.currentPackage().manifest().descriptor();
         String orgName = descriptor.org().value();
         String moduleName = descriptor.name().value();
         String version = String.valueOf(descriptor.version().value());
 
         FunctionDefinitionNode node = (FunctionDefinitionNode) context.node();
-        Connector connector = new Connector();
 
         SemanticModel semanticModel = context.compilation().getSemanticModel(context.moduleId());
         if (semanticModel.symbol(node).isEmpty()) return;
@@ -57,17 +72,9 @@ public class FunctionDefinitionAnalysisTask implements AnalysisTask<SyntaxNodeAn
         component.setParam(versionParam);
 
         connector.setComponent(component);
-        component.generateInstanceXml();
-        component.generateTemplateXml();
+        component.generateInstanceXml(connectorFolder);
+        component.generateTemplateXml(connectorFolder);
 
-        connector.generateInstanceXml();
-
-        try {
-            Utils.zipF(getClass().getClassLoader(), "connector");
-            Utils.zipFolder("connector", "BallerinaTransformer-connector-1.0-SNAPSHOT.zip");
-            Utils.deleteDirectory("connector");
-        } catch (IOException | URISyntaxException e ) {
-            throw new RuntimeException(e);
-        }
+        connector.generateInstanceXml(connectorFolder);
     }
 }

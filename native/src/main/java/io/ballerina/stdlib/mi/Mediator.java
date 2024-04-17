@@ -14,13 +14,21 @@ public class Mediator extends SimpleMediator {
     private String firstArgument = "arg5";
     private String secondArgument = "arg6";
     private String functionName = "foo";
+    private static final Module module = new Module(Constants.ORG_NAME, Constants.MODULE_NAME, "1");
+    private static final Runtime rt = Runtime.from(module);
+
+    public Mediator() {
+        System.out.println("Initializing Ballerina Mediator ....................");
+        rt.init();
+        rt.start();
+    }
 
     public void mediate(SimpleMessageContext context) {
         Callback returnCallback = new Callback() {
             public void notifySuccess(Object result) {
                 System.out.println("notifySuccess");
                 System.out.println(result);
-                context.setProperty(Constants.RESULT, result);
+                context.setProperty(Constants.RESULT, result.toString());
             }
 
             public void notifyFailure(BError result) {
@@ -30,15 +38,10 @@ public class Mediator extends SimpleMediator {
             }
         };
 
-        Module module = new Module(Constants.ORG_NAME, Constants.MODULE_NAME, "1");
-        Runtime rt = Runtime.from(module);
         Object[] args = new Object[2];
-
         args[0] = StringUtils.fromString(firstArgument);
         args[1] = StringUtils.fromString(secondArgument);
-        rt.init();
 
-        rt.start();
         rt.invokeMethodAsync(functionName, returnCallback, args);
     }
 

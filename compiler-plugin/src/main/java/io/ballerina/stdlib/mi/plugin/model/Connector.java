@@ -63,12 +63,7 @@ public class Connector extends ModelElement {
         return "connector";
     }
 
-    public void generateInstanceXml(){
-        File file = new File(getType());
-        if (!file.exists()) {
-            file.mkdir();
-        }
-
-        Utils.generateXml(this.getType(),getType()+File.separator+ this.getName(),this);
+    public void generateInstanceXml(File connectorFolder){
+        Utils.generateXml(this.getType(),connectorFolder + File.separator + this.getName(),this);
     }
 }

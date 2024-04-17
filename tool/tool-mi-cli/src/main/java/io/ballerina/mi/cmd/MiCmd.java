@@ -19,6 +19,9 @@
 package io.ballerina.mi.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JvmTarget;
+import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.ProjectLoader;
@@ -26,7 +29,9 @@ import picocli.CommandLine;
 
 import java.io.*;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.Files;
 import java.nio.file.Path;
+import java.util.Objects;
 
 @CommandLine.Command(name = "mi", description = "Generate MI connector")
 public class MiCmd implements BLauncherCmd {
@@ -54,10 +59,31 @@ public class MiCmd implements BLauncherCmd {
 
         Path path = Path.of(sourcePath);
         Project project = ProjectLoader.loadProject(path);
-        PackageCompilation packageCompilation = project.currentPackage().getCompilation();
+        Package pkg = project.currentPackage();
+        PackageCompilation packageCompilation = pkg.getCompilation();
+        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+        Path bin = path.resolve("target").resolve("bin");
+        try {
+            createBinFolder(bin);
+        } catch (IOException e) {
+            throw new RuntimeException(e);
+        }
+        Path executablePath = bin.resolve(pkg.descriptor().name().value() + ".jar");
+        jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, executablePath);
         if (packageCompilation.diagnosticResult().diagnosticCount() > 0) {
             printStream.println("Errors in compiling Ballerina project");
         }
+    }
+
+    private void createBinFolder(Path bin) throws IOException {
+        File[] files = bin.toFile().listFiles();
+        if (files != null) {
+            for (File file : Objects.requireNonNull(files)) {
+                file.delete();
+            }
+        }
+        Files.deleteIfExists(bin);
+        Files.createDirectory(bin);
     }
 
     @Override
