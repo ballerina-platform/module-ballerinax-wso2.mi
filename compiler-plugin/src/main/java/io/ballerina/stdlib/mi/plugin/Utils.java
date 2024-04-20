@@ -28,7 +28,10 @@ import java.util.zip.ZipOutputStream;
 
 public class Utils {
 
-    public static String readXml(String fileName) throws IOException {
+    /** 
+       These are private utility functions used in the generateXml method
+     */
+    private static String readXml(String fileName) throws IOException {
         InputStream inputStream = Utils.class.getClassLoader().getResourceAsStream(fileName);
         assert inputStream != null;
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
@@ -41,12 +44,23 @@ public class Utils {
         return xmlContent.toString();
     }
 
-    public static void writeXml(String fileName, String content) throws IOException {
+    /** 
+       These are private utility functions used in the generateXml method
+     */
+    private static void writeXml(String fileName, String content) throws IOException {
         FileWriter myWriter = new FileWriter(fileName);
         myWriter.write(content);
         myWriter.close();
     }
 
+    /**
+     * Generate XML file using the provided template and model element.
+     *
+     * @param templateName Name of the template file
+     * @param outputName Name of the output file
+     * @param element Model element(connector/component) to be used in the template
+     * @Note: This method generates the XMLs that is needed for the connector, which uses the ReadXml and WriteXml methods.
+     */
     public static void generateXml(String templateName, String outputName, ModelElement element){
         try {
             Handlebars handlebar = new Handlebars();
@@ -62,6 +76,14 @@ public class Utils {
         }
     }
 
+    /**
+     * Zip a folder and its contents.
+     *
+     * @param sourceDirPath Path to the source directory
+     * @param zipFilePath Path to the output ZIP file
+     * @throws IOException If an I/O error occurs
+     * @Note : This method is used to zip the Constants.CONNECTOR directory and create a zip file using the module name and Constants.ZIP_FILE_SUFFIX
+     */
     public static void zipFolder(Path sourceDirPath, String zipFilePath) throws IOException {
         Path sourceDir = sourceDirPath;
         try (ZipOutputStream outputStream = new ZipOutputStream(Files.newOutputStream(Paths.get(zipFilePath)))) {
@@ -89,6 +111,16 @@ public class Utils {
         }
     }
 
+    /**
+     * Delete a directory and all its contents.
+     *
+     * @param dirPath Path to the directory to be deleted
+     * @throws IOException If an I/O error occurs
+     *
+     *
+     * @Note : This method is used to delete the intermediate Constants.CONNECTOR directory
+     */
+
     public static void deleteDirectory(Path dirPath) throws IOException {
         Path directory = dirPath;
         Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
@@ -106,8 +138,17 @@ public class Utils {
         });
     }
 
-    // TODO: Refactor and rename
-    public static void zipF(ClassLoader classLoader, Path destination) throws IOException, URISyntaxException {
+    /**
+     * Move resources from the resources folder to the destination folder.
+     *
+     * @param classLoader Class loader to load the resources
+     * @param destination Path to the destination folder
+     * @throws IOException If an I/O error occurs
+     * @throws URISyntaxException If an URI syntax error occurs
+     *
+     * @Note : This method is used to move the resources from the resources folder to the Constants.CONNECTOR directory
+     */
+    public static void moveResources(ClassLoader classLoader, Path destination) throws IOException, URISyntaxException {
         String input = "mediator-classes";
         String resourcePath = classLoader.getResource(input).getPath();
         String replacedString = resourcePath.replace("!/connector-new", "");
@@ -155,6 +196,9 @@ public class Utils {
         }
     }
 
+    /**
+     * These are private utility functions used in the moveResources method
+     */
     private static InputStream getFileFromResourceAsStream(ClassLoader classLoader, String fileName) {
         // The class loader that loaded the class
         InputStream inputStream = classLoader.getResourceAsStream(fileName);

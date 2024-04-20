@@ -17,7 +17,7 @@
   ~ under the License.
   -->
 <connector>
-    <component name="BallerinaTransformer" package="io.ballerina.stdlib.mi">
+    <component name="{{name}}" package="io.ballerina.stdlib.mi">
         {{#each components ~}}
         <dependency component = "{{name}}"/>
         {{/each ~}}

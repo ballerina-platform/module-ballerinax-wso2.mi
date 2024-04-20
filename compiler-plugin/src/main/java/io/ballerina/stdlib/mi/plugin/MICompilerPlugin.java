@@ -2,6 +2,7 @@ package io.ballerina.stdlib.mi.plugin;
 
 import io.ballerina.projects.plugins.CompilerPlugin;
 import io.ballerina.projects.plugins.CompilerPluginContext;
+import io.ballerina.stdlib.mi.plugin.model.Connector;
 
 public class MICompilerPlugin extends CompilerPlugin {
 

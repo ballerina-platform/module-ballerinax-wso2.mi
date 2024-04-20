@@ -11,9 +11,7 @@ import org.wso2.carbon.module.core.SimpleMediator;
 import org.wso2.carbon.module.core.SimpleMessageContext;
 
 public class Mediator extends SimpleMediator {
-    private String firstArgument = "arg5";
-    private String secondArgument = "arg6";
-    private String functionName = "foo";
+
 
     public void mediate(SimpleMessageContext context) {
         Callback returnCallback = new Callback() {
@@ -30,19 +28,25 @@ public class Mediator extends SimpleMediator {
             }
         };
 
-        Module module = new Module(Constants.ORG_NAME, Constants.MODULE_NAME, "1");
-        Runtime rt = Runtime.from(module);
-        Object[] args = new Object[2];
+        Module module = new Module(context.getProperty(Constants.ORG_NAME).toString(), context.getProperty(Constants.MODULE_NAME).toString(), context.getProperty(Constants.MAJOR_VERSION).toString());
 
-        args[0] = StringUtils.fromString(firstArgument);
-        args[1] = StringUtils.fromString(secondArgument);
+        Runtime rt = Runtime.from(module);
         rt.init();
 
         rt.start();
-        rt.invokeMethodAsync(functionName, returnCallback, args);
+        rt.invokeMethodAsync(context.getProperty(Constants.FUNCTION_NAME).toString(), returnCallback, getParameters(context));
     }
 
-    public BXml getBXmlParameter(SimpleMessageContext context, String parameterName) {
+    private BXml getBXmlParameter(SimpleMessageContext context, String parameterName) {
         return OMElementConverter.toBXml((OMElement) context.getProperty((String) context.getProperty(parameterName)));
+    }
+
+    private Object[] getParameters(SimpleMessageContext context) {
+
+        Object[] args = new Object[Integer.parseInt(context.getProperty(Constants.SIZE).toString())];
+        for (int i = 0; i < args.length; i++) {
+            args[i] = getBXmlParameter(context, "param" + i);
+        }
+        return args;
     }
 }

@@ -25,10 +25,9 @@ public class FunctionDefinitionAnalysisTask implements AnalysisTask<SyntaxNodeAn
         PackageDescriptor descriptor = context.currentPackage().manifest().descriptor();
         String orgName = descriptor.org().value();
         String moduleName = descriptor.name().value();
-        String version = String.valueOf(descriptor.version().value());
+        String version = String.valueOf(descriptor.version().value().major());
 
         FunctionDefinitionNode node = (FunctionDefinitionNode) context.node();
-        Connector connector = new Connector();
 
         SemanticModel semanticModel = context.compilation().getSemanticModel(context.moduleId());
         if (semanticModel.symbol(node).isEmpty()) return;
@@ -58,20 +57,17 @@ public class FunctionDefinitionAnalysisTask implements AnalysisTask<SyntaxNodeAn
         component.setParam(moduleParam);
         component.setParam(versionParam);
 
+        Connector connector = Connector.getConnector();
         connector.setComponent(component);
-        Path connectorFolderPath = context.currentPackage().project().sourceRoot().resolve(Constants.CONNECTOR);
-        File connectorFolder = new File(connectorFolderPath.toUri());
-        if (!connectorFolder.exists()) {
-            connectorFolder.mkdir();
-        }
-        component.generateInstanceXml(connectorFolder);
-        component.generateTemplateXml(connectorFolder);
+//        Path connectorFolderPath = context.currentPackage().project().sourceRoot().resolve(Connector.TYPE_NAME);
+//        File connectorFolder = new File(connectorFolderPath.toUri());
+//        if (!connectorFolder.exists()) {
+//            connectorFolder.mkdir();
+//        }
+//        connector.setFolderPath(connectorFolderPath);
+//        component.generateInstanceXml(connectorFolder);
+//        component.generateTemplateXml(connectorFolder);
 
-        connector.generateInstanceXml(connectorFolder);
-        try {
-            Utils.zipF(getClass().getClassLoader(), connectorFolderPath);
-        } catch (IOException | URISyntaxException e ) {
-            throw new RuntimeException(e);
-        }
+
     }
 }

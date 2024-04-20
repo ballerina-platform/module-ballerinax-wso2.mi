@@ -7,6 +7,7 @@ import java.util.ArrayList;
 
 public class Component extends ModelElement {
 
+    public static final String TYPE_NAME = "component";
     private String name = "dummy";
     private String description = "just a description";
 
@@ -53,7 +54,7 @@ public class Component extends ModelElement {
         if (!file.exists()) {
             file.mkdir();
         }
-        Utils.generateXml(this.getType(), file + File.separator + "component",this);
+        Utils.generateXml(TYPE_NAME, file + File.separator + "component",this);
     }
 
     public void generateTemplateXml(File connectorFolder){
@@ -61,6 +62,6 @@ public class Component extends ModelElement {
         if (!file.exists()) {
             file.mkdir();
         }
-        Utils.generateXml(this.getType() + "_template", file + File.separator + this.getName() + "_template",this);
+        Utils.generateXml(TYPE_NAME + "_template", file + File.separator + this.getName() + "_template",this);
     }
 }
