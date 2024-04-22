@@ -1,9 +1,6 @@
 package io.ballerina.stdlib.mi;
 
 
-import java.io.File;
-import java.util.ArrayList;
-
 public class Constants {
 
     public static final String MAJOR_VERSION = "paramVersion";

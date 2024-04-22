@@ -3,22 +3,13 @@ package io.ballerina.stdlib.mi.plugin;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import io.ballerina.stdlib.mi.plugin.model.ModelElement;
-import java.io.BufferedReader;
-import java.io.FileWriter;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+
+import java.io.*;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.FileVisitResult;
-
+import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.ArrayList;
 import java.util.Collections;
@@ -28,8 +19,8 @@ import java.util.zip.ZipOutputStream;
 
 public class Utils {
 
-    /** 
-       These are private utility functions used in the generateXml method
+    /**
+     * These are private utility functions used in the generateXml method
      */
     private static String readXml(String fileName) throws IOException {
         InputStream inputStream = Utils.class.getClassLoader().getResourceAsStream(fileName);
@@ -44,8 +35,8 @@ public class Utils {
         return xmlContent.toString();
     }
 
-    /** 
-       These are private utility functions used in the generateXml method
+    /**
+     * These are private utility functions used in the generateXml method
      */
     private static void writeXml(String fileName, String content) throws IOException {
         FileWriter myWriter = new FileWriter(fileName);
@@ -57,11 +48,11 @@ public class Utils {
      * Generate XML file using the provided template and model element.
      *
      * @param templateName Name of the template file
-     * @param outputName Name of the output file
-     * @param element Model element(connector/component) to be used in the template
+     * @param outputName   Name of the output file
+     * @param element      Model element(connector/component) to be used in the template
      * @Note: This method generates the XMLs that is needed for the connector, which uses the ReadXml and WriteXml methods.
      */
-    public static void generateXml(String templateName, String outputName, ModelElement element){
+    public static void generateXml(String templateName, String outputName, ModelElement element) {
         try {
             Handlebars handlebar = new Handlebars();
             String templateFileName = String.format("%s.xml", templateName);
@@ -80,7 +71,7 @@ public class Utils {
      * Zip a folder and its contents.
      *
      * @param sourceDirPath Path to the source directory
-     * @param zipFilePath Path to the output ZIP file
+     * @param zipFilePath   Path to the output ZIP file
      * @throws IOException If an I/O error occurs
      * @Note : This method is used to zip the Constants.CONNECTOR directory and create a zip file using the module name and Constants.ZIP_FILE_SUFFIX
      */
@@ -116,8 +107,6 @@ public class Utils {
      *
      * @param dirPath Path to the directory to be deleted
      * @throws IOException If an I/O error occurs
-     *
-     *
      * @Note : This method is used to delete the intermediate Constants.CONNECTOR directory
      */
 
@@ -143,22 +132,21 @@ public class Utils {
      *
      * @param classLoader Class loader to load the resources
      * @param destination Path to the destination folder
-     * @throws IOException If an I/O error occurs
+     * @throws IOException        If an I/O error occurs
      * @throws URISyntaxException If an URI syntax error occurs
-     *
      * @Note : This method is used to move the resources from the resources folder to the Constants.CONNECTOR directory
      */
     public static void moveResources(ClassLoader classLoader, Path destination) throws IOException, URISyntaxException {
         String input = "mediator-classes";
         String resourcePath = classLoader.getResource(input).getPath();
         String replacedString = resourcePath.replace("!/connector-new", "");
-        URI uri = URI.create("jar:"+replacedString);
+        URI uri = URI.create("jar:" + replacedString);
         List<Path> paths = new ArrayList<>();
         FileSystem fs = FileSystems.newFileSystem(uri, Collections.emptyMap());
         try {
             // TODO: Change this to walk once
             paths = Files.walk(fs.getPath("mediator-classes"))
-                    .filter(f -> f.toString().contains(".class") || f.toString().contains(".jar") ||f.toString().contains(".png"))
+                    .filter(f -> f.toString().contains(".class") || f.toString().contains(".jar") || f.toString().contains(".png"))
                     .toList();
 
             Path zipOutPath = destination;

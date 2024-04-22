@@ -26,13 +26,6 @@ public class BXmlConverter {
         return Pair.of("", value);
     }
 
-    private boolean isNamespace(String value) {
-        // starts with XmlItem.XMLNS_NS_URI_PREFIX true else false
-        return value.startsWith(BXmlItem.XMLNS_NS_URI_PREFIX);
-    }
-
-
-
     public static OMElement toOMElement(BXml bXml) {
         BXmlItem xmlItem = (BXmlItem) bXml;
 
@@ -58,7 +51,7 @@ public class BXmlConverter {
                 //if this is a namespace
                 Pair<String, String> pair = extractNamespace(attribute.getKey().getValue());
                 OMNamespace ns = namespaceMap.get(pair.getLeft());
-                OMAttribute omattribute = factory.createOMAttribute(pair.getRight(), namespaceMap.get(pair.getLeft()),  attribute.getValue().getValue());
+                OMAttribute omattribute = factory.createOMAttribute(pair.getRight(), namespaceMap.get(pair.getLeft()), attribute.getValue().getValue());
                 rootElement.addAttribute(omattribute);
                 //TODO: previously used OMAttribute creation method research why it was changed to attribute.
             }
@@ -94,6 +87,11 @@ public class BXmlConverter {
                     break;
             }
         }
+    }
+
+    private boolean isNamespace(String value) {
+        // starts with XmlItem.XMLNS_NS_URI_PREFIX true else false
+        return value.startsWith(BXmlItem.XMLNS_NS_URI_PREFIX);
     }
 }
 

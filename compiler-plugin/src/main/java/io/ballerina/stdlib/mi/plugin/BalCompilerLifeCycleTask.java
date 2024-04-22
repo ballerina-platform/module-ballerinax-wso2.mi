@@ -15,6 +15,20 @@ import java.nio.file.Paths;
 
 public class BalCompilerLifeCycleTask implements CompilerLifecycleTask<CompilerLifecycleEventContext> {
 
+    private static void createXmlFiles(Path connectorFolderPath, Connector connector) {
+        File connectorFolder = new File(connectorFolderPath.toUri());
+        if (!connectorFolder.exists()) {
+            connectorFolder.mkdir();
+        }
+
+        connector.generateInstanceXml(connectorFolder); //This need to be done after all the function definitions are analyzed
+
+        for (Component component : connector.getComponents()) {
+            component.generateInstanceXml(connectorFolder);
+            component.generateTemplateXml(connectorFolder);
+        }
+    }
+
     @Override
     public void perform(CompilerLifecycleEventContext context) {
 
@@ -37,7 +51,7 @@ public class BalCompilerLifeCycleTask implements CompilerLifecycleTask<CompilerL
         // Copy the resources from the resources folder to the connector folder
         try {
             Utils.moveResources(getClass().getClassLoader(), destinationPath);
-        } catch (IOException | URISyntaxException e ) {
+        } catch (IOException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
 
@@ -56,20 +70,6 @@ public class BalCompilerLifeCycleTask implements CompilerLifecycleTask<CompilerL
             Utils.deleteDirectory(destinationPath);
         } catch (IOException e) {
             throw new RuntimeException(e);
-        }
-    }
-
-    private static void createXmlFiles(Path connectorFolderPath, Connector connector) {
-        File connectorFolder = new File(connectorFolderPath.toUri());
-        if (!connectorFolder.exists()) {
-            connectorFolder.mkdir();
-        }
-
-        connector.generateInstanceXml(connectorFolder); //This need to be done after all the function definitions are analyzed
-
-        for(Component component : connector.getComponents()){
-            component.generateInstanceXml(connectorFolder);
-            component.generateTemplateXml(connectorFolder);
         }
     }
 }

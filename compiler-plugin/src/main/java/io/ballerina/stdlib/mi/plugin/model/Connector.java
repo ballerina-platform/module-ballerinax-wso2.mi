@@ -3,34 +3,29 @@ package io.ballerina.stdlib.mi.plugin.model;
 import io.ballerina.stdlib.mi.plugin.Utils;
 
 import java.io.File;
-import java.nio.file.Path;
 import java.util.ArrayList;
 
 public class Connector extends ModelElement {
 
     public static final String TYPE_NAME = "connector";
-    private String name = "";
-
-    private String description = "helps to connect with external systems";
-
-    private String iconPath = "icon/icon-small.gif";
-
-    private String packageName = "";
-
-    private final ArrayList<Component> components= new ArrayList<>();
     private static final Connector connector = new Connector();
-
+    private final ArrayList<Component> components = new ArrayList<>();
+    private String name = "";
+    private String description = "helps to connect with external systems";
+    private String iconPath = "icon/icon-small.gif";
+    private String packageName = "";
     private String version = "1.0.0-SNAPSHOT";
 
-    private Connector(){
+    private Connector() {
     }
 
-    public static Connector getConnector(){
-        if (connector == null){
+    public static Connector getConnector() {
+        if (connector == null) {
             return new Connector();
         }
         return connector;
     }
+
     public String getName() {
         return name;
     }
@@ -76,17 +71,17 @@ public class Connector extends ModelElement {
     }
 
     public String getZipFileName() {
-        return this.name +"-"+TYPE_NAME+"-"+ this.version+ ".zip";
+        return this.name + "-" + TYPE_NAME + "-" + this.version + ".zip";
     }
 
     public void setVersion(String version) {
         this.version = version;
     }
 
-    public void generateInstanceXml(File folder){
+    public void generateInstanceXml(File folder) {
         if (folder == null) {
             return;
         }
-        Utils.generateXml(TYPE_NAME,folder + File.separator + TYPE_NAME,this);
+        Utils.generateXml(TYPE_NAME, folder + File.separator + TYPE_NAME, this);
     }
 }

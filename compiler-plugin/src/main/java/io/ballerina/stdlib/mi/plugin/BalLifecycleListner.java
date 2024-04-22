@@ -2,7 +2,6 @@ package io.ballerina.stdlib.mi.plugin;
 
 import io.ballerina.projects.plugins.CompilerLifecycleContext;
 import io.ballerina.projects.plugins.CompilerLifecycleListener;
-import io.ballerina.stdlib.mi.plugin.model.Connector;
 
 public class BalLifecycleListner extends CompilerLifecycleListener {
 

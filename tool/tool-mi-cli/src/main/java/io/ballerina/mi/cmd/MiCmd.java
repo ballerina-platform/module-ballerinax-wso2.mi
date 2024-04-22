@@ -33,18 +33,16 @@ import java.nio.file.Path;
 
 @CommandLine.Command(name = "mi", description = "Generate MI connector")
 public class MiCmd implements BLauncherCmd {
-    private final PrintStream printStream;
     private static final String CMD_NAME = "mi";
+    private final PrintStream printStream;
+    @CommandLine.Option(names = {"--help", "-h"}, usageHelp = true)
+    private boolean helpFlag;
+    @CommandLine.Option(names = {"--input", "-i"}, description = "Ballerina project path")
+    private String sourcePath;
 
     public MiCmd() {
         this.printStream = System.out;
     }
-
-    @CommandLine.Option(names = {"--help", "-h"}, usageHelp = true)
-    private boolean helpFlag;
-
-    @CommandLine.Option(names = {"--input", "-i"}, description = "Ballerina project path")
-    private String sourcePath;
 
     @Override
     public void execute() {

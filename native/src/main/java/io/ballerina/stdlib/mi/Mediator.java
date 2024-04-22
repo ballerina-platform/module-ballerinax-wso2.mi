@@ -3,7 +3,6 @@ package io.ballerina.stdlib.mi;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.Callback;
-import io.ballerina.runtime.api.utils.StringUtils;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BXml;
 import org.apache.axiom.om.OMElement;

@@ -19,7 +19,7 @@
 <connector>
     <component name="{{name}}" package="io.ballerina.stdlib.mi">
         {{#each components ~}}
-        <dependency component = "{{name}}"/>
+        <dependency component="{{name}}"/>
         {{/each ~}}
         <description>{{description}}</description>
     </component>

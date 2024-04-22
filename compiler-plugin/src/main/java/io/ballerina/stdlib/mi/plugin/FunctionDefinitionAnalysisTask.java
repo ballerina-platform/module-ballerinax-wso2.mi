@@ -1,9 +1,7 @@
 package io.ballerina.stdlib.mi.plugin;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.ClassSymbol;
 import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.MethodSymbol;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.projects.PackageDescriptor;
 import io.ballerina.projects.plugins.AnalysisTask;
@@ -11,12 +9,6 @@ import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.stdlib.mi.plugin.model.Component;
 import io.ballerina.stdlib.mi.plugin.model.Connector;
 import io.ballerina.stdlib.mi.plugin.model.Param;
-
-import java.io.File;
-import java.io.IOException;
-import java.net.URISyntaxException;
-import java.nio.file.Path;
-import java.util.Map;
 
 public class FunctionDefinitionAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisContext> {
 
@@ -59,15 +51,5 @@ public class FunctionDefinitionAnalysisTask implements AnalysisTask<SyntaxNodeAn
 
         Connector connector = Connector.getConnector();
         connector.setComponent(component);
-//        Path connectorFolderPath = context.currentPackage().project().sourceRoot().resolve(Connector.TYPE_NAME);
-//        File connectorFolder = new File(connectorFolderPath.toUri());
-//        if (!connectorFolder.exists()) {
-//            connectorFolder.mkdir();
-//        }
-//        connector.setFolderPath(connectorFolderPath);
-//        component.generateInstanceXml(connectorFolder);
-//        component.generateTemplateXml(connectorFolder);
-
-
     }
 }
