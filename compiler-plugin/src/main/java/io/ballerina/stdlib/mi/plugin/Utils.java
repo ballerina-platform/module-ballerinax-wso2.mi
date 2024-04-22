@@ -3,6 +3,7 @@ package io.ballerina.stdlib.mi.plugin;
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import io.ballerina.stdlib.mi.plugin.model.ModelElement;
+
 import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.IOException;
@@ -47,7 +48,7 @@ public class Utils {
         myWriter.close();
     }
 
-    public static void generateXml(String templateName, String outputName, ModelElement element){
+    public static void generateXml(String templateName, String outputName, ModelElement element) {
         try {
             Handlebars handlebar = new Handlebars();
             String templateFileName = String.format("%s.xml", templateName);
@@ -106,49 +107,46 @@ public class Utils {
         });
     }
 
-    // TODO: Refactor and rename
-    public static void copyResources(ClassLoader classLoader, Path destination) throws IOException, URISyntaxException {
-        String input = "mediator-classes";
-        String resourcePath = Objects.requireNonNull(classLoader.getResource(input)).getPath();
-        String replacedString = resourcePath.replace("!/connector-new", "");
-        URI uri = URI.create("jar:" + replacedString);
-        FileSystem fs = FileSystems.newFileSystem(uri, Collections.emptyMap());
-        try {
-            // TODO: Change this to walk once
-            List<Path> paths = Files.walk(fs.getPath("mediator-classes"))
-                    .filter(f -> f.toString().contains(".class") || f.toString().contains(".jar") ||f.toString().contains(".png"))
-                    .toList();
-
-            for (Path path : paths) {
-                Path relativePath = fs.getPath(input).relativize(path);
-                Path outputPath = destination.resolve(relativePath.toString());
-                Files.createDirectories(outputPath.getParent()); // Create parent directories if they don't exist
-                InputStream inputStream = getFileFromResourceAsStream(classLoader, path.toString());
-                Files.copy(inputStream, outputPath);
-            }
-
-            paths = Files.walk(fs.getPath("icon"))
-                    .filter(f -> f.toString().contains(".png"))
-                    .toList();
-            for (Path path : paths) {
-                Path outputPath = destination.resolve(path.toString());
-                Files.createDirectories(outputPath.getParent());
-                InputStream inputStream = getFileFromResourceAsStream(classLoader, path.toString());
-                Files.copy(inputStream, outputPath);
-            }
-
-            paths = Files.walk(fs.getPath("lib"))
-                    .filter(f -> f.toString().contains(".jar"))
-                    .toList();
-            for (Path path : paths) {
-                Path outputPath = destination.resolve(path.toString());
-                Files.createDirectories(outputPath.getParent());
-                InputStream inputStream = getFileFromResourceAsStream(classLoader, path.toString());
-                Files.copy(inputStream, outputPath);
-            }
-        } finally {
-            fs.close(); // Close the FileSystem
+    public static void copyResources(ClassLoader classLoader, Path destination, URI jarPath)
+            throws IOException, URISyntaxException {
+        URI uri = URI.create("jar:" + jarPath.toString());
+        try (FileSystem fs = FileSystems.newFileSystem(uri, Collections.emptyMap())) {
+            copyMediatorClasses(classLoader, fs, destination);
+            copyResources(classLoader, fs, destination, "icon", ".png");
+            copyResources(classLoader, fs, destination, "lib", ".jar");
         }
+    }
+
+    private static void copyMediatorClasses(ClassLoader classLoader, FileSystem fs, Path destination)
+            throws IOException {
+        List<Path> paths = Files.walk(fs.getPath("mediator-classes"))
+                .filter(f -> f.toString().contains(".class"))
+                .toList();
+
+        for (Path path : paths) {
+            Path relativePath = fs.getPath("mediator-classes").relativize(path);
+            Path outputPath = destination.resolve(relativePath.toString());
+            Files.createDirectories(outputPath.getParent()); // Create parent directories if they don't exist
+            InputStream inputStream = getFileFromResourceAsStream(classLoader, path.toString());
+            Files.copy(inputStream, outputPath);
+        }
+    }
+
+    private static void copyResources(ClassLoader classLoader, FileSystem fs, Path destination, String resourceFolder,
+                                      String fileExtension) throws IOException {
+        List<Path> paths = Files.walk(fs.getPath(resourceFolder))
+                .filter(f -> f.toString().contains(fileExtension))
+                .toList();
+        for (Path path : paths) {
+            copyResource(classLoader, path, destination);
+        }
+    }
+
+    private static void copyResource(ClassLoader classLoader, Path path, Path destination) throws IOException {
+        Path outputPath = destination.resolve(path.toString());
+        Files.createDirectories(outputPath.getParent());
+        InputStream inputStream = getFileFromResourceAsStream(classLoader, path.toString());
+        Files.copy(inputStream, outputPath);
     }
 
     private static InputStream getFileFromResourceAsStream(ClassLoader classLoader, String fileName) {

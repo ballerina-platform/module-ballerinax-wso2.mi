@@ -12,7 +12,9 @@ import io.ballerina.stdlib.mi.plugin.model.Param;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.file.Path;
 
 public class FunctionDefinitionAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisContext> {
@@ -29,7 +31,8 @@ public class FunctionDefinitionAnalysisTask implements AnalysisTask<SyntaxNodeAn
                 connectorFolder.mkdir();
             }
             try {
-                Utils.copyResources(getClass().getClassLoader(), connectorFolderPath);
+                URI jarPath = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
+                Utils.copyResources(getClass().getClassLoader(), connectorFolderPath, jarPath);
             } catch (IOException | URISyntaxException e ) {
                 throw new RuntimeException(e);
             }

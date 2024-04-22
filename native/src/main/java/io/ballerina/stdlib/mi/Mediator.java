@@ -11,8 +11,8 @@ import org.wso2.carbon.module.core.SimpleMediator;
 import org.wso2.carbon.module.core.SimpleMessageContext;
 
 public class Mediator extends SimpleMediator {
-    private String firstArgument = "arg5";
-    private String secondArgument = "arg6";
+    private String firstArgument = "arg7";
+    private String secondArgument = "arg8";
     private String functionName = "foo";
     private static final Module module = new Module(Constants.ORG_NAME, Constants.MODULE_NAME, "1");
     private static final Runtime rt = Runtime.from(module);
