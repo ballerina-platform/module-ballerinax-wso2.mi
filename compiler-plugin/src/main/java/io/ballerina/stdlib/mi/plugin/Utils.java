@@ -2,6 +2,7 @@ package io.ballerina.stdlib.mi.plugin;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
+import io.ballerina.stdlib.mi.plugin.model.Connector;
 import io.ballerina.stdlib.mi.plugin.model.ModelElement;
 
 import java.io.*;
@@ -73,7 +74,7 @@ public class Utils {
      * @param sourceDirPath Path to the source directory
      * @param zipFilePath   Path to the output ZIP file
      * @throws IOException If an I/O error occurs
-     * @Note : This method is used to zip the Constants.CONNECTOR directory and create a zip file using the module name and Constants.ZIP_FILE_SUFFIX
+     * @Note : This method is used to zip the Annotations.CONNECTOR directory and create a zip file using the module name and Annotations.ZIP_FILE_SUFFIX
      */
     public static void zipFolder(Path sourceDirPath, String zipFilePath) throws IOException {
         Path sourceDir = sourceDirPath;
@@ -107,7 +108,7 @@ public class Utils {
      *
      * @param dirPath Path to the directory to be deleted
      * @throws IOException If an I/O error occurs
-     * @Note : This method is used to delete the intermediate Constants.CONNECTOR directory
+     * @Note : This method is used to delete the intermediate Annotations.CONNECTOR directory
      */
 
     public static void deleteDirectory(Path dirPath) throws IOException {
@@ -134,7 +135,7 @@ public class Utils {
      * @param destination Path to the destination folder
      * @throws IOException        If an I/O error occurs
      * @throws URISyntaxException If an URI syntax error occurs
-     * @Note : This method is used to move the resources from the resources folder to the Constants.CONNECTOR directory
+     * @Note : This method is used to move the resources from the resources folder to the Annotations.CONNECTOR directory
      */
     public static void moveResources(ClassLoader classLoader, Path destination) throws IOException, URISyntaxException {
         String input = "mediator-classes";
@@ -145,40 +146,85 @@ public class Utils {
         FileSystem fs = FileSystems.newFileSystem(uri, Collections.emptyMap());
         try {
             // TODO: Change this to walk once
+
+            //Moving .class files of mediator
             paths = Files.walk(fs.getPath("mediator-classes"))
                     .filter(f -> f.toString().contains(".class") || f.toString().contains(".jar") || f.toString().contains(".png"))
                     .toList();
 
-            Path zipOutPath = destination;
-            Files.createDirectories(zipOutPath); // Create destination directory if it doesn't exist
+            Files.createDirectories(destination); // Create destination directory if it doesn't exist
+
 
             for (Path path : paths) {
                 Path relativePath = fs.getPath(input).relativize(path);
-                Path outputPath = zipOutPath.resolve(relativePath.toString());
+                Path outputPath = destination.resolve(relativePath.toString());
                 Files.createDirectories(outputPath.getParent()); // Create parent directories if they don't exist
                 InputStream inputStream = getFileFromResourceAsStream(classLoader, path.toString());
                 Files.copy(inputStream, outputPath);
             }
 
-            paths = Files.walk(fs.getPath("icon"))
-                    .filter(f -> f.toString().contains(".png"))
+            //Moving .jar files of dependencies
+            paths = Files.walk(fs.getPath(Connector.JAR_FOLDER_PATH))
+                    .filter(f -> f.toString().contains(".jar"))
                     .toList();
             for (Path path : paths) {
-                Path outputPath = zipOutPath.resolve(path.toString());
+                Path outputPath = destination.resolve(path.toString());
                 Files.createDirectories(outputPath.getParent());
                 InputStream inputStream = getFileFromResourceAsStream(classLoader, path.toString());
                 Files.copy(inputStream, outputPath);
             }
 
-            paths = Files.walk(fs.getPath("lib"))
-                    .filter(f -> f.toString().contains(".jar"))
-                    .toList();
-            for (Path path : paths) {
-                Path outputPath = zipOutPath.resolve(path.toString());
-                Files.createDirectories(outputPath.getParent());
-                InputStream inputStream = getFileFromResourceAsStream(classLoader, path.toString());
-                Files.copy(inputStream, outputPath);
+
+            //Moving .png files of icons
+            Connector connector = Connector.getConnector();
+            Path newPath = destination.getParent().resolve(connector.getIconPath());
+            newPath = newPath.normalize();
+
+            try {
+                if (!Files.exists(newPath)) {
+                    throw new RuntimeException("Icon path not found; Default icons used");
+                }
+                paths = Files.walk(newPath)
+                        .filter(f -> f.toString().contains(".png"))
+                        .toList();
+
+                if (paths.size() != 2) {
+                    throw new RuntimeException("Icons folder does not contain two icons; Default icons used");
+                }
+
+                Path smallOutputPath = destination.resolve(Connector.ICON_FOLDER).resolve(Connector.SMALL_ICON_NAME);
+                Path largeOutputPath = destination.resolve(Connector.ICON_FOLDER).resolve(Connector.LARGE_ICON_NAME);
+                Files.createDirectories(smallOutputPath.getParent());
+                if (Files.size(paths.get(0)) > Files.size(paths.get(1))) {
+                    InputStream inputStream = Files.newInputStream(paths.get(0));
+                    Files.copy(inputStream, largeOutputPath);
+                    inputStream = Files.newInputStream(paths.get(1));
+                    Files.copy(inputStream, smallOutputPath);
+                } else {
+                    InputStream inputStream = Files.newInputStream(paths.get(1));
+                    Files.copy(inputStream, largeOutputPath);
+                    inputStream = Files.newInputStream(paths.get(0));
+                    Files.copy(inputStream, smallOutputPath);
+                }
+
+            } catch (RuntimeException e) {
+                System.out.println(e.getMessage());
+                paths = Files.walk(fs.getPath(Connector.ICON_FOLDER))
+                        .filter(f -> f.toString().contains(".png"))
+                        .toList();
+                for (Path path : paths) {
+                    Path outputPath = destination.resolve(path.toString());
+                    Files.createDirectories(outputPath.getParent());
+                    InputStream inputStream = getFileFromResourceAsStream(classLoader, path.toString());
+                    Files.copy(inputStream, outputPath);
+                }
             }
+
+            if (paths.size() != 2) {
+                defaultIconCopy(destination);
+            }
+
+
         } finally {
             fs.close(); // Close the FileSystem
         }
@@ -196,5 +242,10 @@ public class Utils {
         } else {
             return inputStream;
         }
+    }
+
+    private static void defaultIconCopy(Path destination) throws IOException {
+        InputStream inputStream = Utils.class.getClassLoader().getResourceAsStream("icon/icon-small.gif");
+        Files.copy(inputStream, destination.resolve("icon/icon-small.gif"));
     }
 }
