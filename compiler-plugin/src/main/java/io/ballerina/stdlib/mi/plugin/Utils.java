@@ -11,7 +11,6 @@ import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
 import java.nio.file.*;
 import java.nio.file.attribute.BasicFileAttributes;
-import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.zip.ZipEntry;
@@ -128,60 +127,64 @@ public class Utils {
     }
 
     /**
-     * Move resources from the resources folder to the destination folder.
+     * Copy resources from the JAR file to the destination directory.
      *
-     * @param classLoader Class loader to load the resources
-     * @param destination Path to the destination folder
+     * @param classLoader Class loader to load resources
+     * @param destination Destination directory
+     * @param jarPath     Path to the JAR file
      * @throws IOException        If an I/O error occurs
-     * @throws URISyntaxException If an URI syntax error occurs
-     * @Note : This method is used to move the resources from the resources folder to the Constants.CONNECTOR directory
+     * @throws URISyntaxException If the URI is invalid
+     * @Note : This method is used to copy the resources(icons,jar files, mediator jar) to the Constants.CONNECTOR directory
      */
-    public static void moveResources(ClassLoader classLoader, Path destination) throws IOException, URISyntaxException {
-        String input = "mediator-classes";
-        String resourcePath = classLoader.getResource(input).getPath();
-        String replacedString = resourcePath.replace("!/connector-new", "");
-        URI uri = URI.create("jar:" + replacedString);
-        List<Path> paths = new ArrayList<>();
-        FileSystem fs = FileSystems.newFileSystem(uri, Collections.emptyMap());
-        try {
-            // TODO: Change this to walk once
-            paths = Files.walk(fs.getPath("mediator-classes"))
-                    .filter(f -> f.toString().contains(".class") || f.toString().contains(".jar") || f.toString().contains(".png"))
-                    .toList();
-
-            Path zipOutPath = destination;
-            Files.createDirectories(zipOutPath); // Create destination directory if it doesn't exist
-
-            for (Path path : paths) {
-                Path relativePath = fs.getPath(input).relativize(path);
-                Path outputPath = zipOutPath.resolve(relativePath.toString());
-                Files.createDirectories(outputPath.getParent()); // Create parent directories if they don't exist
-                InputStream inputStream = getFileFromResourceAsStream(classLoader, path.toString());
-                Files.copy(inputStream, outputPath);
-            }
-
-            paths = Files.walk(fs.getPath("icon"))
-                    .filter(f -> f.toString().contains(".png"))
-                    .toList();
-            for (Path path : paths) {
-                Path outputPath = zipOutPath.resolve(path.toString());
-                Files.createDirectories(outputPath.getParent());
-                InputStream inputStream = getFileFromResourceAsStream(classLoader, path.toString());
-                Files.copy(inputStream, outputPath);
-            }
-
-            paths = Files.walk(fs.getPath("lib"))
-                    .filter(f -> f.toString().contains(".jar"))
-                    .toList();
-            for (Path path : paths) {
-                Path outputPath = zipOutPath.resolve(path.toString());
-                Files.createDirectories(outputPath.getParent());
-                InputStream inputStream = getFileFromResourceAsStream(classLoader, path.toString());
-                Files.copy(inputStream, outputPath);
-            }
-        } finally {
-            fs.close(); // Close the FileSystem
+    public static void copyResources(ClassLoader classLoader, Path destination, URI jarPath)
+            throws IOException, URISyntaxException {
+        URI uri = URI.create("jar:" + jarPath.toString());
+        try (FileSystem fs = FileSystems.newFileSystem(uri, Collections.emptyMap())) {
+            copyMediatorClasses(classLoader, fs, destination);
+            copyResources(classLoader, fs, destination, "icon", ".png");
+            copyResources(classLoader, fs, destination, "lib", ".jar");
         }
+    }
+
+    /**
+     * This is mediator class copy private utility method
+     */
+    private static void copyMediatorClasses(ClassLoader classLoader, FileSystem fs, Path destination)
+            throws IOException {
+        List<Path> paths = Files.walk(fs.getPath("mediator-classes"))
+                .filter(f -> f.toString().contains(".class"))
+                .toList();
+
+        for (Path path : paths) {
+            Path relativePath = fs.getPath("mediator-classes").relativize(path);
+            Path outputPath = destination.resolve(relativePath.toString());
+            Files.createDirectories(outputPath.getParent()); // Create parent directories if they don't exist
+            InputStream inputStream = getFileFromResourceAsStream(classLoader, path.toString());
+            Files.copy(inputStream, outputPath);
+        }
+    }
+
+    /**
+     * This is mediator class copy private utility method
+     */
+    private static void copyResources(ClassLoader classLoader, FileSystem fs, Path destination, String resourceFolder,
+                                      String fileExtension) throws IOException {
+        List<Path> paths = Files.walk(fs.getPath(resourceFolder))
+                .filter(f -> f.toString().contains(fileExtension))
+                .toList();
+        for (Path path : paths) {
+            copyResource(classLoader, path, destination);
+        }
+    }
+
+    /**
+     * This is a private utility method without the specific file extension
+     */
+    private static void copyResource(ClassLoader classLoader, Path path, Path destination) throws IOException {
+        Path outputPath = destination.resolve(path.toString());
+        Files.createDirectories(outputPath.getParent());
+        InputStream inputStream = getFileFromResourceAsStream(classLoader, path.toString());
+        Files.copy(inputStream, outputPath);
     }
 
     /**

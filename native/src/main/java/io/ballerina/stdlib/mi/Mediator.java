@@ -11,6 +11,15 @@ import org.wso2.carbon.module.core.SimpleMessageContext;
 
 public class Mediator extends SimpleMediator {
 
+    //    private static final Module module = new Module(Constants.ORG_NAME, Constants.MODULE_NAME, "1");
+    private static Runtime rt = null;
+    private boolean isInitialized = false;
+
+//    public Mediator() {
+//        System.out.println("Initializing Ballerina Mediator ....................");
+//        rt.init();
+//        rt.start();
+//    }c
 
     public void mediate(SimpleMessageContext context) {
         Callback returnCallback = new Callback() {
@@ -27,12 +36,18 @@ public class Mediator extends SimpleMediator {
             }
         };
 
-        Module module = new Module(context.getProperty(Constants.ORG_NAME).toString(), context.getProperty(Constants.MODULE_NAME).toString(), context.getProperty(Constants.MAJOR_VERSION).toString());
+        if (!isInitialized) {
 
-        Runtime rt = Runtime.from(module);
-        rt.init();
+            Module module = new Module(context.getProperty(Constants.ORG_NAME).toString(), context.getProperty(Constants.MODULE_NAME).toString(), context.getProperty(Constants.MAJOR_VERSION).toString());
+            rt = Runtime.from(module);
 
-        rt.start();
+            System.out.println("Initializing Ballerina Mediator ....................");
+            rt.init();
+            rt.start();
+
+            isInitialized = true;
+        }
+
         rt.invokeMethodAsync(context.getProperty(Constants.FUNCTION_NAME).toString(), returnCallback, getParameters(context));
     }
 

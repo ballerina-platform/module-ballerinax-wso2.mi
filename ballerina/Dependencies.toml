@@ -5,18 +5,18 @@
 
 [ballerina]
 dependencies-toml-version = "2"
-distribution-version = "2201.8.6"
+distribution-version = "2201.9.0-SNAPSHOT"
 
 [[package]]
 org = "ballerina"
 name = "io"
 version = "1.6.0"
 dependencies = [
-    { org = "ballerina", name = "jballerina.java" },
-    { org = "ballerina", name = "lang.value" }
+	{org = "ballerina", name = "jballerina.java"},
+	{org = "ballerina", name = "lang.value"}
 ]
 modules = [
-    { org = "ballerina", packageName = "io", moduleName = "io" }
+	{org = "ballerina", packageName = "io", moduleName = "io"}
 ]
 
 [[package]]
@@ -29,7 +29,7 @@ org = "ballerina"
 name = "lang.value"
 version = "0.0.0"
 dependencies = [
-    { org = "ballerina", name = "jballerina.java" }
+	{org = "ballerina", name = "jballerina.java"}
 ]
 
 [[package]]
@@ -37,9 +37,9 @@ org = "ballerinax"
 name = "ballerina"
 version = "0.1.0"
 dependencies = [
-    { org = "ballerina", name = "io" }
+	{org = "ballerina", name = "io"}
 ]
 modules = [
-    { org = "ballerinax", packageName = "ballerina", moduleName = "ballerina" }
+	{org = "ballerinax", packageName = "ballerina", moduleName = "ballerina"}
 ]
 

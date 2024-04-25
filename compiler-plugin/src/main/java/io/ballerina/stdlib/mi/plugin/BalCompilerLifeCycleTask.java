@@ -8,6 +8,7 @@ import io.ballerina.stdlib.mi.plugin.model.Connector;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -50,12 +51,14 @@ public class BalCompilerLifeCycleTask implements CompilerLifecycleTask<CompilerL
 
         // Copy the resources from the resources folder to the connector folder
         try {
-            Utils.moveResources(getClass().getClassLoader(), destinationPath);
+            URI jarPath = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
+            Utils.copyResources(getClass().getClassLoader(), destinationPath, jarPath);
         } catch (IOException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
 
         // Copy the Ballerina JAR file to the connector folder
+        // NOTE: This jar creation must be done after creating lib file
         try {
             // Copy the JAR file from source to destination
             Files.copy(sourcePath, destinationPath.resolve("lib").resolve(sourcePath.getFileName()));

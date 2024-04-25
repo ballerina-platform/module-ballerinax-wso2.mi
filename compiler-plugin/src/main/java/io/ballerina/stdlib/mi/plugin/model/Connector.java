@@ -79,9 +79,6 @@ public class Connector extends ModelElement {
     }
 
     public void generateInstanceXml(File folder) {
-        if (folder == null) {
-            return;
-        }
         Utils.generateXml(TYPE_NAME, folder + File.separator + TYPE_NAME, this);
     }
 }
