@@ -10,10 +10,9 @@ public class Connector extends ModelElement {
     public static final String TYPE_NAME = "connector";
     private static final Connector connector = new Connector();
     private final ArrayList<Component> components = new ArrayList<>();
-    private String name = "";
+    private String name;
     private String description = "helps to connect with external systems";
     private String iconPath = "icon/icon-small.gif";
-    private String packageName = "";
     private String version = "1.0.0-SNAPSHOT";
 
     private Connector() {
@@ -48,14 +47,6 @@ public class Connector extends ModelElement {
 
     public void setIconPath(String iconPath) {
         this.iconPath = iconPath;
-    }
-
-    public String getPackageName() {
-        return packageName;
-    }
-
-    public void setPackageName(String packageName) {
-        this.packageName = packageName;
     }
 
     public ArrayList<Component> getComponents() {

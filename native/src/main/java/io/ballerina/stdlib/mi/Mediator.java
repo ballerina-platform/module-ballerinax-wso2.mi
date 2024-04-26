@@ -26,13 +26,13 @@ public class Mediator extends SimpleMediator {
             public void notifySuccess(Object result) {
                 System.out.println("notifySuccess");
                 System.out.println(result);
-                context.setProperty(Constants.RESULT, result);
+                context.setProperty(Constants.RESULT, result.toString());
             }
 
             public void notifyFailure(BError result) {
                 System.out.println("notifyFailure");
                 System.out.println(result);
-                context.setProperty(Constants.RESULT, result);
+                context.setProperty(Constants.RESULT, result.toString());
             }
         };
 
