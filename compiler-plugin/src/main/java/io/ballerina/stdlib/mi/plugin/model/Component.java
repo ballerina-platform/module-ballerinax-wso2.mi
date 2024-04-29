@@ -8,9 +8,8 @@ import java.util.ArrayList;
 public class Component extends ModelElement {
 
     public static final String TYPE_NAME = "component";
-    private String name = "dummy";
+    private String name;
     private String description = "just a description";
-
     private ArrayList<Param> params = new ArrayList<>();
 
     public Component(String name) {
