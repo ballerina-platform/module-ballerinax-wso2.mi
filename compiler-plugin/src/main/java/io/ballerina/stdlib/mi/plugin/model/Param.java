@@ -2,20 +2,17 @@ package io.ballerina.stdlib.mi.plugin.model;
 
 public class Param {
 
-    private String name = "dummyParam";
+    private String name;
 
-    private String description = "just a param";
+    private String description;
 
-    private String index = "0";
+    private String index;
 
-    public Param(String name){
-        this.name = name;
-    }
-
-    public Param(String index,String name){
+    public Param(String index, String name) {
         this.name = name;
         this.index = index;
     }
+
     public String getName() {
         return name;
     }

@@ -22,20 +22,20 @@ dependencies {
 task("copyFiles") {
     dependsOn ":mi-native:build"
     doLast {
-        mkdir ("src/main/resources/mediator-classes")
+        mkdir("src/main/resources/mediator-classes")
         copy {
-            from ("../native/build/classes/java/main")
-            into ("src/main/resources/mediator-classes")
+            from("../native/build/classes/java/main")
+            into("src/main/resources/mediator-classes")
         }
     }
 }
 
 jar {
     dependsOn("copyFiles")
-        duplicatesStrategy = DuplicatesStrategy.EXCLUDE
-        from('src/main/resources') {
-            include '**/*.class'
-        }
+    duplicatesStrategy = DuplicatesStrategy.EXCLUDE
+    from('src/main/resources') {
+        include '**/*.class'
+    }
 }
 
 task("deleteFolder") {

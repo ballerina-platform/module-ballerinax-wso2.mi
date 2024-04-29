@@ -7,15 +7,16 @@ import java.util.ArrayList;
 
 public class Component extends ModelElement {
 
-    private String name = "dummy";
+    public static final String TYPE_NAME = "component";
+    private String name;
     private String description = "just a description";
-
     private ArrayList<Param> params = new ArrayList<>();
 
-    public Component(String name){
+    public Component(String name) {
         this.name = name;
     }
-    public Component(String name,  ArrayList<Param> params) {
+
+    public Component(String name, ArrayList<Param> params) {
         this.name = name;
         this.params = params;
     }
@@ -48,19 +49,19 @@ public class Component extends ModelElement {
         return "component";
     }
 
-    public void generateInstanceXml(File connectorFolder){
+    public void generateInstanceXml(File connectorFolder) {
         File file = new File(connectorFolder, this.getName());
         if (!file.exists()) {
             file.mkdir();
         }
-        Utils.generateXml(this.getType(), file + File.separator + "component",this);
+        Utils.generateXml(TYPE_NAME, file + File.separator + "component", this);
     }
 
-    public void generateTemplateXml(File connectorFolder){
+    public void generateTemplateXml(File connectorFolder) {
         File file = new File(connectorFolder, this.getName());
         if (!file.exists()) {
             file.mkdir();
         }
-        Utils.generateXml(this.getType() + "_template", file + File.separator + this.getName() + "_template",this);
+        Utils.generateXml(TYPE_NAME + "_template", file + File.separator + this.getName() + "_template", this);
     }
 }

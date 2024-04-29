@@ -4,32 +4,33 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import io.ballerina.stdlib.mi.plugin.model.ModelElement;
 
-import java.io.BufferedReader;
 import java.io.FileWriter;
+import java.io.InputStreamReader;
+import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
-import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.charset.StandardCharsets;
-import java.nio.file.FileSystem;
-import java.nio.file.FileSystems;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
 import java.nio.file.SimpleFileVisitor;
 import java.nio.file.FileVisitResult;
-
+import java.nio.file.Paths;
+import java.nio.file.FileSystems;
+import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystem;
+import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.List;
-import java.util.Objects;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class Utils {
 
-    public static String readXml(String fileName) throws IOException {
+    /**
+     * These are private utility functions used in the generateXml method
+     */
+    private static String readXml(String fileName) throws IOException {
         InputStream inputStream = Utils.class.getClassLoader().getResourceAsStream(fileName);
         assert inputStream != null;
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
@@ -42,12 +43,23 @@ public class Utils {
         return xmlContent.toString();
     }
 
-    public static void writeXml(String fileName, String content) throws IOException {
+    /**
+     * These are private utility functions used in the generateXml method
+     */
+    private static void writeXml(String fileName, String content) throws IOException {
         FileWriter myWriter = new FileWriter(fileName);
         myWriter.write(content);
         myWriter.close();
     }
 
+    /**
+     * Generate XML file using the provided template and model element.
+     *
+     * @param templateName Name of the template file
+     * @param outputName   Name of the output file
+     * @param element      Model element(connector/component) to be used in the template
+     * @Note: This method generates the XMLs that is needed for the connector, which uses the ReadXml and WriteXml methods.
+     */
     public static void generateXml(String templateName, String outputName, ModelElement element) {
         try {
             Handlebars handlebar = new Handlebars();
@@ -63,6 +75,14 @@ public class Utils {
         }
     }
 
+    /**
+     * Zip a folder and its contents.
+     *
+     * @param sourceDirPath Path to the source directory
+     * @param zipFilePath   Path to the output ZIP file
+     * @throws IOException If an I/O error occurs
+     * @Note : This method is used to zip the Constants.CONNECTOR directory and create a zip file using the module name and Constants.ZIP_FILE_SUFFIX
+     */
     public static void zipFolder(Path sourceDirPath, String zipFilePath) throws IOException {
         Path sourceDir = sourceDirPath;
         try (ZipOutputStream outputStream = new ZipOutputStream(Files.newOutputStream(Paths.get(zipFilePath)))) {
@@ -90,6 +110,14 @@ public class Utils {
         }
     }
 
+    /**
+     * Delete a directory and all its contents.
+     *
+     * @param dirPath Path to the directory to be deleted
+     * @throws IOException If an I/O error occurs
+     * @Note : This method is used to delete the intermediate Constants.CONNECTOR directory
+     */
+
     public static void deleteDirectory(Path dirPath) throws IOException {
         Path directory = dirPath;
         Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
@@ -107,6 +135,16 @@ public class Utils {
         });
     }
 
+    /**
+     * Copy resources from the JAR file to the destination directory.
+     *
+     * @param classLoader Class loader to load resources
+     * @param destination Destination directory
+     * @param jarPath     Path to the JAR file
+     * @throws IOException        If an I/O error occurs
+     * @throws URISyntaxException If the URI is invalid
+     * @Note : This method is used to copy the resources(icons,jar files, mediator jar) to the Constants.CONNECTOR directory
+     */
     public static void copyResources(ClassLoader classLoader, Path destination, URI jarPath)
             throws IOException, URISyntaxException {
         URI uri = URI.create("jar:" + jarPath.toString());
@@ -117,6 +155,9 @@ public class Utils {
         }
     }
 
+    /**
+     * This is mediator class copy private utility method
+     */
     private static void copyMediatorClasses(ClassLoader classLoader, FileSystem fs, Path destination)
             throws IOException {
         List<Path> paths = Files.walk(fs.getPath("mediator-classes"))
@@ -132,6 +173,9 @@ public class Utils {
         }
     }
 
+    /**
+     * This is mediator class copy private utility method
+     */
     private static void copyResources(ClassLoader classLoader, FileSystem fs, Path destination, String resourceFolder,
                                       String fileExtension) throws IOException {
         List<Path> paths = Files.walk(fs.getPath(resourceFolder))
@@ -142,6 +186,9 @@ public class Utils {
         }
     }
 
+    /**
+     * This is a private utility method without the specific file extension
+     */
     private static void copyResource(ClassLoader classLoader, Path path, Path destination) throws IOException {
         Path outputPath = destination.resolve(path.toString());
         Files.createDirectories(outputPath.getParent());
@@ -149,6 +196,9 @@ public class Utils {
         Files.copy(inputStream, outputPath);
     }
 
+    /**
+     * These are private utility functions used in the moveResources method
+     */
     private static InputStream getFileFromResourceAsStream(ClassLoader classLoader, String fileName) {
         // The class loader that loaded the class
         InputStream inputStream = classLoader.getResourceAsStream(fileName);

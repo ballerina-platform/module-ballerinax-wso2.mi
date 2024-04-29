@@ -6,14 +6,7 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlItem;
-
-import org.apache.axiom.om.OMAttribute;
-import org.apache.axiom.om.OMComment;
-import org.apache.axiom.om.OMElement;
-import org.apache.axiom.om.OMNode;
-import org.apache.axiom.om.OMProcessingInstruction;
-import org.apache.axiom.om.OMText;
-import org.apache.axiom.om.OMNamespace;
+import org.apache.axiom.om.*;
 
 import javax.xml.namespace.QName;
 import java.util.ArrayList;
@@ -23,7 +16,7 @@ import java.util.Set;
 
 public class OMElementConverter {
 
-    public static BXml toBXml(OMElement omElement){
+    public static BXml toBXml(OMElement omElement) {
 //            System.out.println("hello world");
         return getXmlItem(omElement);
     }
@@ -67,8 +60,8 @@ public class OMElementConverter {
         // If prefix is not provided test case will fail
         if (omAttribute.getPrefix() == null) {
             return new QName(omAttribute.getNamespaceURI(), omAttribute.getLocalName());
-        }else{
-            return new QName(omAttribute.getNamespaceURI(),omAttribute.getLocalName(), omAttribute.getPrefix());
+        } else {
+            return new QName(omAttribute.getNamespaceURI(), omAttribute.getLocalName(), omAttribute.getPrefix());
         }
 
     }
@@ -86,13 +79,13 @@ public class OMElementConverter {
             QName qName = getQNameOMAttribute(attribute);
             //CHECK: Good to put break point here and check the values
             attributesMap.put(StringUtils.fromString(qName.toString()), StringUtils.fromString(attribute.getAttributeValue()));
-            if(attribute.getPrefix() != null) {
+            if (attribute.getPrefix() != null) {
                 if (!attribute.getPrefix().isEmpty()) {
                     usedNS.add(qName);
                 }
             }
         }
-        if (omElement.getQName().getPrefix() != null){
+        if (omElement.getQName().getPrefix() != null) {
             if (!omElement.getQName().getPrefix().isEmpty()) {
                 usedNS.add(getQNameOMElement(omElement));
             }
@@ -124,6 +117,7 @@ public class OMElementConverter {
             }
         }
     }
+
     private static BXml getXmlItem(OMElement omElement) {
         // TODO: find the issue that fail and put it here
         QName qName = getQNameOMElement(omElement);
@@ -138,7 +132,7 @@ public class OMElementConverter {
 //            var descendants = omElement.getDescendants(false);
         Iterator descendants = omElement.getChildren();
 
-        while  (descendants.hasNext()){
+        while (descendants.hasNext()) {
             OMNode childNode = (OMNode) descendants.next();
             if (childNode.getParent() == omElement) {
                 BXml childXml = toBXml(childNode);
