@@ -15,10 +15,9 @@ public class Connector extends ModelElement {
     public static final String JAR_FOLDER_PATH = "lib";
     private static final Connector connector = new Connector();
     private final ArrayList<Component> components = new ArrayList<>();
-    private String name = "";
+    private String name;
     private String description = "helps to connect with external systems";
     private String iconPath = "icon/icon-small.gif";
-    private String packageName = "";
     private String version = "1.0.0-SNAPSHOT";
 
     private Connector() {
@@ -55,14 +54,6 @@ public class Connector extends ModelElement {
         this.iconPath = iconPath;
     }
 
-    public String getPackageName() {
-        return packageName;
-    }
-
-    public void setPackageName(String packageName) {
-        this.packageName = packageName;
-    }
-
     public ArrayList<Component> getComponents() {
         return components;
     }
@@ -84,9 +75,6 @@ public class Connector extends ModelElement {
     }
 
     public void generateInstanceXml(File folder) {
-        if (folder == null) {
-            return;
-        }
         Utils.generateXml(TYPE_NAME, folder + File.separator + TYPE_NAME, this);
     }
 }

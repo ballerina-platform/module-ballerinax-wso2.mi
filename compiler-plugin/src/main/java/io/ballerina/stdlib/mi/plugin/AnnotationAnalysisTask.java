@@ -21,6 +21,8 @@ public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCo
 
         AnnotationNode node = (AnnotationNode) context.node();
         AnnotationSymbol annotationSymbol = (AnnotationSymbol) semanticModel.symbol(node).get();
+        if (annotationSymbol.getName().isEmpty()) return;
+
         if (!annotationSymbol.getName().get().equals(io.ballerina.stdlib.mi.plugin.Annotations.ANNOTATION_QUALIFIER))
             return;
 
@@ -34,8 +36,8 @@ public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCo
                 if (((SpecificFieldNode) field).valueExpr().isEmpty()) {
                     continue;
                 }
-                String fieldValue = ((SpecificFieldNode) field).valueExpr().get().toString();
-                fieldValue = fieldValue.substring(1, fieldValue.length() - 2);
+                String fieldValue = ((SpecificFieldNode) field).valueExpr().get().toString().trim();
+                fieldValue = fieldValue.substring(1, fieldValue.length() - 1);
                 if (fieldName.equals(io.ballerina.stdlib.mi.plugin.Annotations.ANNOTATION_NAME)) {
                     System.out.println("Annotation Name: " + fieldValue);
                 } else if (fieldName.equals(io.ballerina.stdlib.mi.plugin.Annotations.ICON_PATH)) {

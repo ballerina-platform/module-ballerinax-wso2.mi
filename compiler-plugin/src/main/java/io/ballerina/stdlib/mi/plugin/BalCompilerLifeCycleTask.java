@@ -8,6 +8,7 @@ import io.ballerina.stdlib.mi.plugin.model.Connector;
 
 import java.io.File;
 import java.io.IOException;
+import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -15,13 +16,13 @@ import java.nio.file.Paths;
 
 public class BalCompilerLifeCycleTask implements CompilerLifecycleTask<CompilerLifecycleEventContext> {
 
-    private static void createXmlFiles(Path connectorFolderPath, Connector connector) {
+    private static void generateXmlFiles(Path connectorFolderPath, Connector connector) {
         File connectorFolder = new File(connectorFolderPath.toUri());
         if (!connectorFolder.exists()) {
             connectorFolder.mkdir();
         }
 
-        connector.generateInstanceXml(connectorFolder); //This need to be done after all the function definitions are analyzed
+        connector.generateInstanceXml(connectorFolder);
 
         for (Component component : connector.getComponents()) {
             component.generateInstanceXml(connectorFolder);
@@ -37,38 +38,22 @@ public class BalCompilerLifeCycleTask implements CompilerLifecycleTask<CompilerL
         Path sourcePath = Paths.get(sourcePathStr);
 
         PackageDescriptor descriptor = context.currentPackage().manifest().descriptor();
-        String moduleName = descriptor.name().value();
-
-        Path destinationPath = context.currentPackage().project().sourceRoot().resolve(Connector.TEMP_FOLDER_PATH);
+        Path destinationPath = context.currentPackage().project().sourceRoot().resolve(Connector.TYPE_NAME);
 
         Connector connector = Connector.getConnector();
-        connector.setName(moduleName);
+        connector.setName(descriptor.name().value());
         connector.setVersion(descriptor.version().value().toString());
 
-        // Generate all the xml files
-        createXmlFiles(destinationPath, connector);
+        generateXmlFiles(destinationPath, connector);
 
-        // Copy the resources from the resources folder to the connector folder
         try {
-            Utils.moveResources(getClass().getClassLoader(), destinationPath);
-        } catch (IOException | URISyntaxException e) {
-            throw new RuntimeException(e);
-        }
-
-        // Copy the Ballerina JAR file to the connector folder
-        try {
-            // Copy the JAR file from source to destination
+            URI jarPath = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
+            Utils.copyResources(getClass().getClassLoader(), destinationPath, jarPath);
             Files.copy(sourcePath, destinationPath.resolve("lib").resolve(sourcePath.getFileName()));
-            System.out.println("JAR file copied successfully.");
-        } catch (IOException e) {
-            System.err.println("Error occurred while copying the JAR file: " + e.getMessage());
-        }
-
-        // Zip the connector folder and delete the folder
-        try {
             Utils.zipFolder(destinationPath, connector.getZipFileName());
             Utils.deleteDirectory(destinationPath);
-        } catch (IOException e) {
+
+        } catch (IOException | URISyntaxException e) {
             throw new RuntimeException(e);
         }
     }
