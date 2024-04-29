@@ -16,7 +16,7 @@ import java.nio.file.Paths;
 
 public class BalCompilerLifeCycleTask implements CompilerLifecycleTask<CompilerLifecycleEventContext> {
 
-    private static void createXmlFiles(Path connectorFolderPath, Connector connector) {
+    private static void generateXmlFiles(Path connectorFolderPath, Connector connector) {
         File connectorFolder = new File(connectorFolderPath.toUri());
         if (!connectorFolder.exists()) {
             connectorFolder.mkdir();
@@ -44,15 +44,14 @@ public class BalCompilerLifeCycleTask implements CompilerLifecycleTask<CompilerL
         connector.setName(descriptor.name().value());
         connector.setVersion(descriptor.version().value().toString());
 
-        // Generate all the xml files
-        createXmlFiles(destinationPath, connector);
+        generateXmlFiles(destinationPath, connector);
 
         try {
             URI jarPath = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
-            Utils.copyResources(getClass().getClassLoader(), destinationPath, jarPath); // Copy the resources from the resources folder to the connector folder
-            Files.copy(sourcePath, destinationPath.resolve("lib").resolve(sourcePath.getFileName())); // Copy the Ballerina JAR file to the connector folder
-            Utils.zipFolder(destinationPath, connector.getZipFileName()); // Zip the connector folder
-            Utils.deleteDirectory(destinationPath); // delete the folder
+            Utils.copyResources(getClass().getClassLoader(), destinationPath, jarPath);
+            Files.copy(sourcePath, destinationPath.resolve("lib").resolve(sourcePath.getFileName()));
+            Utils.zipFolder(destinationPath, connector.getZipFileName());
+            Utils.deleteDirectory(destinationPath);
 
         } catch (IOException | URISyntaxException e) {
             throw new RuntimeException(e);
