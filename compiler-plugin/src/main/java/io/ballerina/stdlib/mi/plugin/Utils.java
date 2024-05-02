@@ -151,7 +151,7 @@ public class Utils {
         try (FileSystem fs = FileSystems.newFileSystem(uri, Collections.emptyMap())) {
             copyMediatorClasses(classLoader, fs, destination);
             copyIcons(classLoader, fs, destination);
-            copyResources(classLoader, fs, destination, Connector.JAR_FOLDER_PATH, ".jar");
+            copyResources(classLoader, fs, destination, Connector.LIB_PATH, ".jar");
         }
     }
 

@@ -6,7 +6,6 @@ public function main() {
 
 public type ConnectorInformation record {|
     string iconPath = "";
-    string name = "";
 |};
 
 public const annotation ConnectorInformation ConnectorInfo on function;

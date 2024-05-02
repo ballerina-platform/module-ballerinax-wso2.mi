@@ -8,11 +8,11 @@ import java.util.ArrayList;
 public class Connector extends ModelElement {
 
     public static final String TYPE_NAME = "connector";
-    public static final String TEMP_FOLDER_PATH = "connector";
+    public static final String TEMP_PATH = "connector";
     public static final String ICON_FOLDER = "icon";
     public static final String SMALL_ICON_NAME = "icon-small.png";
     public static final String LARGE_ICON_NAME = "icon-large.png";
-    public static final String JAR_FOLDER_PATH = "lib";
+    public static final String LIB_PATH = "lib";
     private static final Connector connector = new Connector();
     private final ArrayList<Component> components = new ArrayList<>();
     private String name;

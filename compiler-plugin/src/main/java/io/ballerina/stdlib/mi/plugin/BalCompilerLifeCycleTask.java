@@ -38,7 +38,7 @@ public class BalCompilerLifeCycleTask implements CompilerLifecycleTask<CompilerL
         Path sourcePath = Paths.get(sourcePathStr);
 
         PackageDescriptor descriptor = context.currentPackage().manifest().descriptor();
-        Path destinationPath = context.currentPackage().project().sourceRoot().resolve(Connector.TYPE_NAME);
+        Path destinationPath = context.currentPackage().project().sourceRoot().resolve(Connector.TEMP_PATH);
 
         Connector connector = Connector.getConnector();
         connector.setName(descriptor.name().value());

@@ -38,10 +38,7 @@ public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCo
                 }
                 String fieldValue = ((SpecificFieldNode) field).valueExpr().get().toString().trim();
                 fieldValue = fieldValue.substring(1, fieldValue.length() - 1);
-                if (fieldName.equals(io.ballerina.stdlib.mi.plugin.Annotations.ANNOTATION_NAME)) {
-                    System.out.println("Annotation Name: " + fieldValue);
-                } else if (fieldName.equals(io.ballerina.stdlib.mi.plugin.Annotations.ICON_PATH)) {
-                    System.out.println("Icon Path: " + fieldValue);
+                if (fieldName.equals(io.ballerina.stdlib.mi.plugin.Annotations.ICON_PATH)) {
                     connector.setIconPath(fieldValue);
                 }
             }
