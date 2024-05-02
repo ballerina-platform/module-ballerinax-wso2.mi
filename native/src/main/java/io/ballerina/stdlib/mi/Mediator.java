@@ -11,27 +11,18 @@ import org.wso2.carbon.module.core.SimpleMessageContext;
 
 public class Mediator extends SimpleMediator {
 
-    //    private static final Module module = new Module(Constants.ORG_NAME, Constants.MODULE_NAME, "1");
     private static Runtime rt = null;
     private boolean isInitialized = false;
-
-//    public Mediator() {
-//        System.out.println("Initializing Ballerina Mediator ....................");
-//        rt.init();
-//        rt.start();
-//    }c
 
     public void mediate(SimpleMessageContext context) {
         Callback returnCallback = new Callback() {
             public void notifySuccess(Object result) {
                 System.out.println("notifySuccess");
-                System.out.println(result);
-                context.setProperty(Constants.RESULT, result.toString());
+                context.setProperty(Constants.RESULT, BXmlConverter.toOMElement((BXml) result));
             }
 
             public void notifyFailure(BError result) {
                 System.out.println("notifyFailure");
-                System.out.println(result);
                 context.setProperty(Constants.RESULT, result.toString());
             }
         };
