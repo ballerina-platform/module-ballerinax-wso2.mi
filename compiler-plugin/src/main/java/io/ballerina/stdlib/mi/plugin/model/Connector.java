@@ -7,6 +7,8 @@ import java.util.ArrayList;
 
 public class Connector extends ModelElement {
 
+    public static final String TOML_ICON_NODE = "path";
+    public static final String TOML_ICON_KEY = "iconPath";
     public static final String TYPE_NAME = "connector";
     public static final String TEMP_PATH = "connector";
     public static final String ICON_FOLDER = "icon";
