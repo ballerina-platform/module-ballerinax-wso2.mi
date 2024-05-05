@@ -184,20 +184,20 @@ public class Utils {
 
         try {
             if (!Files.exists(iconPath)) {
-                throw new RuntimeException("Icon path not found;");
+                throw new RuntimeException("Icon path not found");
             }
             paths = Files.walk(iconPath)
                     .filter(f -> f.toString().contains(".png"))
                     .toList();
 
             if (paths.size() != 2) {
-                throw new RuntimeException("Icons folder does not contain two icons;");
+                throw new RuntimeException("Icons folder does not contain two icons");
             }
 
             copyIcons(destination, paths);
             System.out.println("Icons copied successfully");
         } catch (RuntimeException | IOException e) {
-            System.out.print(e.getMessage());
+            System.out.println(e.getMessage());
             System.out.println("Copying default icons");
             copyResources(classLoader, fs, destination, Connector.ICON_FOLDER, ".png");
         }

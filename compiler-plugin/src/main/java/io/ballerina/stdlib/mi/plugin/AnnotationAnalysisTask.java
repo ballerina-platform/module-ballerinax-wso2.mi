@@ -69,11 +69,23 @@ public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCo
         TomlDocument tomlDocument = ballerinaToml.get().tomlDocument();
         TomlTableNode path = (TomlTableNode) tomlDocument.toml().rootNode().entries().get(Connector.TOML_ICON_NODE);
         if (path == null) return;
-        TomlKeyValueNode iconPath = (TomlKeyValueNode) path.entries().get(Connector.TOML_ICON_KEY);
 
+        TomlKeyValueNode iconPath = (TomlKeyValueNode) path.entries().get(Connector.TOML_ICON_KEY);
         if (iconPath == null) return;
+
         TomlStringValueNode valuePath = (TomlStringValueNode) iconPath.value();
         connector.setIconPath(valuePath.getValue());
+    }
+
+    private static AnnotationNode getAnnotationNode(SyntaxNodeAnalysisContext context, SemanticModel semanticModel) {
+        if (!(context.node() instanceof AnnotationNode annotationNode)) return null;
+        Optional<Symbol> symbol = semanticModel.symbol(annotationNode);
+        if (symbol.isEmpty()) return null;
+        if (!(symbol.get() instanceof AnnotationSymbol annotationSymbol)) return null;
+        Optional<String> annotationName = annotationSymbol.getName();
+        if (annotationName.isEmpty()) return null;
+        if (!annotationName.get().equals(Component.ANNOTATION_QUALIFIER)) return null;
+        return annotationNode;
     }
 
     @Override
@@ -81,13 +93,8 @@ public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCo
 
         SemanticModel semanticModel = context.compilation().getSemanticModel(context.moduleId());
 
-        if (!(context.node() instanceof AnnotationNode annotationNode)) return;
-        Optional<Symbol> symbol = semanticModel.symbol(annotationNode);
-        if (symbol.isEmpty()) return;
-        if (!(symbol.get() instanceof AnnotationSymbol annotationSymbol)) return;
-        Optional<String> annotationName = annotationSymbol.getName();
-        if (annotationName.isEmpty()) return;
-        if (!annotationName.get().equals(Component.ANNOTATION_QUALIFIER)) return;
+        AnnotationNode annotationNode = getAnnotationNode(context, semanticModel);
+        if (annotationNode == null) return;
 
         if (!(annotationNode.parent().parent() instanceof FunctionDefinitionNode functionNode)) return;
         Optional<Symbol> funcSymbol = semanticModel.symbol(functionNode);
