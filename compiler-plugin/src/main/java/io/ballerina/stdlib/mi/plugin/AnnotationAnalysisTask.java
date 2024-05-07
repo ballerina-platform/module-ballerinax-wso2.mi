@@ -54,19 +54,18 @@ public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCo
         }
 
         for (int i = 0; i < noOfParams; i++) {
-            if (params.get().get(i).getName().isEmpty()) continue;
-            Param param = new Param(Integer.toString(i), functionSymbol.typeDescriptor().params().get().get(i).getName().get());
+            ParameterSymbol parameterSymbol = params.get().get(i);
+            if (parameterSymbol.getName().isEmpty()) continue;
+            Param param = new Param(Integer.toString(i), parameterSymbol.getName().get());
             component.setParam(param);
         }
         Param sizeParam = new Param(SIZE, Integer.toString(noOfParams));
         component.setParam(sizeParam);
     }
 
-    private static void setIcon(SyntaxNodeAnalysisContext context, Connector connector) {
-        Optional<BallerinaToml> ballerinaToml = context.currentPackage().ballerinaToml();
-        if (ballerinaToml.isEmpty()) return;
-
-        TomlDocument tomlDocument = ballerinaToml.get().tomlDocument();
+    private static void setIcon(BallerinaToml ballerinaToml, Connector connector) {
+        if (connector.getIconPath() != null) return;
+        TomlDocument tomlDocument = ballerinaToml.tomlDocument();
         TomlTableNode path = (TomlTableNode) tomlDocument.toml().rootNode().entries().get(Connector.TOML_ICON_NODE);
         if (path == null) return;
 
@@ -77,7 +76,7 @@ public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCo
         connector.setIconPath(valuePath.getValue());
     }
 
-    private static AnnotationNode getAnnotationNode(SyntaxNodeAnalysisContext context, SemanticModel semanticModel) {
+    private static FunctionSymbol getFunctionSymbol(SyntaxNodeAnalysisContext context, SemanticModel semanticModel) {
         if (!(context.node() instanceof AnnotationNode annotationNode)) return null;
         Optional<Symbol> symbol = semanticModel.symbol(annotationNode);
         if (symbol.isEmpty()) return null;
@@ -85,7 +84,13 @@ public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCo
         Optional<String> annotationName = annotationSymbol.getName();
         if (annotationName.isEmpty()) return null;
         if (!annotationName.get().equals(Component.ANNOTATION_QUALIFIER)) return null;
-        return annotationNode;
+
+
+        if (!(annotationNode.parent().parent() instanceof FunctionDefinitionNode functionNode)) return null;
+        Optional<Symbol> funcSymbol = semanticModel.symbol(functionNode);
+        if (funcSymbol.isEmpty()) return null;
+        if (!(funcSymbol.get() instanceof FunctionSymbol functionSymbol)) return null;
+        return functionSymbol;
     }
 
     @Override
@@ -93,19 +98,17 @@ public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCo
 
         SemanticModel semanticModel = context.compilation().getSemanticModel(context.moduleId());
 
-        AnnotationNode annotationNode = getAnnotationNode(context, semanticModel);
-        if (annotationNode == null) return;
+        FunctionSymbol functionSymbol = getFunctionSymbol(context, semanticModel);
+        if (functionSymbol == null) return;
 
-        if (!(annotationNode.parent().parent() instanceof FunctionDefinitionNode functionNode)) return;
-        Optional<Symbol> funcSymbol = semanticModel.symbol(functionNode);
-        if (funcSymbol.isEmpty()) return;
-        if (!(funcSymbol.get() instanceof FunctionSymbol functionSymbol)) return;
-        Optional<String> functionName = functionSymbol.getName();
-        if (functionName.isEmpty()) return;
+        Optional<BallerinaToml> ballerinaToml = context.currentPackage().ballerinaToml();
+        if (ballerinaToml.isEmpty()) return;
 
         Connector connector = Connector.getConnector();
-        setIcon(context, connector);
+        setIcon(ballerinaToml.get(), connector);
 
+        Optional<String> functionName = functionSymbol.getName();
+        if (functionName.isEmpty()) return;
         Component component = new Component(functionName.get());
         setArguments(functionSymbol, component);
 

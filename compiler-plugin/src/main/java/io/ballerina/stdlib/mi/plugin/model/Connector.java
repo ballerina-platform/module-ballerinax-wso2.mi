@@ -19,7 +19,7 @@ public class Connector extends ModelElement {
     private final ArrayList<Component> components = new ArrayList<>();
     private String name;
     private String description = "helps to connect with external systems";
-    private String iconPath = "icon/icon-small.gif";
+    private String iconPath;
     private String version = "1.0.0-SNAPSHOT";
 
     private Connector() {

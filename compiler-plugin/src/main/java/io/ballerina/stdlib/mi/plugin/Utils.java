@@ -5,28 +5,31 @@ import com.github.jknack.handlebars.Template;
 import io.ballerina.stdlib.mi.plugin.model.Connector;
 import io.ballerina.stdlib.mi.plugin.model.ModelElement;
 
-import java.io.FileWriter;
 import java.io.BufferedReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Paths;
-import java.nio.file.FileSystems;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class Utils {
+
+    private static Logger logger;
 
     /**
      * These are private utility functions used in the generateXml method
@@ -177,30 +180,27 @@ public class Utils {
      * This is a private utility method to copy icons
      */
     private static void copyIcons(ClassLoader classLoader, FileSystem fs, Path destination) throws IOException {
-        List<Path> paths;
         Connector connector = Connector.getConnector();
-        Path iconPath = destination.getParent().resolve(connector.getIconPath());
-        iconPath = iconPath.normalize();
-
-        try {
-            if (!Files.exists(iconPath)) {
-                throw new RuntimeException("Icon path not found");
-            }
-            paths = Files.walk(iconPath)
-                    .filter(f -> f.toString().contains(".png"))
-                    .toList();
-
-            if (paths.size() != 2) {
-                throw new RuntimeException("Icons folder does not contain two icons");
-            }
-
-            copyIcons(destination, paths);
-            System.out.println("Icons copied successfully");
-        } catch (RuntimeException | IOException e) {
-            System.out.println(e.getMessage());
-            System.out.println("Copying default icons");
+        if (connector.getIconPath() == null) {
             copyResources(classLoader, fs, destination, Connector.ICON_FOLDER, ".png");
+            return;
         }
+
+        Path iconPath = destination.getParent().resolve(connector.getIconPath()).normalize();
+        if (!Files.exists(iconPath)) {
+            copyResources(classLoader, fs, destination, Connector.ICON_FOLDER, ".png");
+            return;
+        }
+
+        List<Path> paths = Files.walk(iconPath)
+                .filter(f -> f.toString().contains(".png"))
+                .toList();
+
+        if (paths.size() != 2) {
+            copyResources(classLoader, fs, destination, Connector.ICON_FOLDER, ".png");
+            return;
+        }
+        copyIcons(destination, paths);
     }
 
     /**
