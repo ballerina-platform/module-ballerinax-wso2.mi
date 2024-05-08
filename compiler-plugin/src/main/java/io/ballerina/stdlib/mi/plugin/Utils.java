@@ -64,7 +64,8 @@ public class Utils {
      * @param templateName Name of the template file
      * @param outputName   Name of the output file
      * @param element      Model element(connector/component) to be used in the template
-     * @Note: This method generates the XMLs that is needed for the connector, which uses the ReadXml and WriteXml methods.
+     * @Note: This method generates the XMLs that is needed for the connector, which uses the ReadXml and WriteXml
+     * methods.
      */
     public static void generateXml(String templateName, String outputName, ModelElement element) {
         try {
@@ -87,7 +88,8 @@ public class Utils {
      * @param sourceDirPath Path to the source directory
      * @param zipFilePath   Path to the output ZIP file
      * @throws IOException If an I/O error occurs
-     * @Note : This method is used to zip the Constants.CONNECTOR directory and create a zip file using the module name and Constants.ZIP_FILE_SUFFIX
+     * @Note : This method is used to zip the Constants.CONNECTOR directory and create a zip file using the module
+     * name and Constants.ZIP_FILE_SUFFIX
      */
     public static void zipFolder(Path sourceDirPath, String zipFilePath) throws IOException {
         Path sourceDir = sourceDirPath;
@@ -149,9 +151,11 @@ public class Utils {
      * @param jarPath     Path to the JAR file
      * @throws IOException        If an I/O error occurs
      * @throws URISyntaxException If the URI is invalid
-     * @Note : This method is used to copy the resources(icons,jar files, mediator jar) to the Constants.CONNECTOR directory
+     * @Note : This method is used to copy the resources(icons,jar files, mediator jar) to the Constants.CONNECTOR
+     * directory
      */
-    public static void copyResources(ClassLoader classLoader, Path destination, URI jarPath, String org, String module, String moduleVersion)
+    public static void copyResources(ClassLoader classLoader, Path destination, URI jarPath, String org,
+                                     String module, String moduleVersion)
             throws IOException, URISyntaxException {
         URI uri = URI.create("jar:" + jarPath.toString());
         try (FileSystem fs = FileSystems.newFileSystem(uri, Collections.emptyMap())) {
@@ -164,7 +168,8 @@ public class Utils {
     /**
      * This is mediator class copy private utility method
      */
-    private static void copyMediatorClasses(ClassLoader classLoader, FileSystem fs, Path destination, String org, String module, String moduleVersion)
+    private static void copyMediatorClasses(ClassLoader classLoader, FileSystem fs, Path destination, String org,
+                                            String module, String moduleVersion)
             throws IOException {
         List<Path> paths = Files.walk(fs.getPath("mediator-classes"))
                 .filter(f -> f.toString().contains(".class"))
@@ -184,12 +189,14 @@ public class Utils {
         }
     }
 
-    private static void updateConstants(InputStream inputStream, String outputPath, String org, String module, String moduleVersion) throws IOException {
+    private static void updateConstants(InputStream inputStream, String outputPath, String org, String module,
+                                        String moduleVersion) throws IOException {
         ClassReader classReader = new ClassReader(inputStream.readAllBytes());
         ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
         ClassVisitor classVisitor = new ClassVisitor(Opcodes.ASM7, classWriter) {
             @Override
-            public MethodVisitor visitMethod(int access, String name, String descriptor, String signature, String[] exceptions) {
+            public MethodVisitor visitMethod(int access, String name, String descriptor, String signature,
+                                             String[] exceptions) {
                 MethodVisitor mv = super.visitMethod(access, name, descriptor, signature, exceptions);
                 return new MethodVisitor(Opcodes.ASM7, mv) {
                     @Override

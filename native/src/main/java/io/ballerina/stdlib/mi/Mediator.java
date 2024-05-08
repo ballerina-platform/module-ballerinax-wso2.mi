@@ -36,7 +36,8 @@ public class Mediator extends SimpleMediator {
             }
         };
 
-        rt.invokeMethodAsync(context.getProperty(Constants.FUNCTION_NAME).toString(), returnCallback, getParameters(context));
+        rt.invokeMethodAsync(context.getProperty(Constants.FUNCTION_NAME).toString(), returnCallback,
+                getParameters(context));
     }
 
     private BXml getBXmlParameter(SimpleMessageContext context, String parameterName) {
