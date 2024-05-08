@@ -32,8 +32,6 @@ public class BalCompilerLifeCycleTask implements CompilerLifecycleTask<CompilerL
 
     @Override
     public void perform(CompilerLifecycleEventContext context) {
-
-
         String sourcePathStr = context.getGeneratedArtifactPath().get().toString();
         Path sourcePath = Paths.get(sourcePathStr);
 
@@ -48,7 +46,7 @@ public class BalCompilerLifeCycleTask implements CompilerLifecycleTask<CompilerL
 
         try {
             URI jarPath = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
-            Utils.copyResources(getClass().getClassLoader(), destinationPath, jarPath);
+            Utils.copyResources(getClass().getClassLoader(), destinationPath, jarPath, connector.getOrgName(), connector.getModuleName(), connector.getModuleVersion());
             Files.copy(sourcePath, destinationPath.resolve("lib").resolve(sourcePath.getFileName()));
             Utils.zipFolder(destinationPath, connector.getZipFileName());
             Utils.deleteDirectory(destinationPath);

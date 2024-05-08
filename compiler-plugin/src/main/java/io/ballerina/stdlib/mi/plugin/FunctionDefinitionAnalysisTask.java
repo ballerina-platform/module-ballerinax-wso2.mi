@@ -39,17 +39,13 @@ public class FunctionDefinitionAnalysisTask implements AnalysisTask<SyntaxNodeAn
 
         Param functionName = new Param("FunctionName", functionSymbol.getName().get());
         Param sizeParam = new Param("Size", Integer.toString(noOfParams));
-        Param orgParam = new Param("OrgName", orgName);
-        Param moduleParam = new Param("ModuleName", moduleName);
-        Param versionParam = new Param("Version", version);
-
         component.setParam(functionName);
         component.setParam(sizeParam);
-        component.setParam(orgParam);
-        component.setParam(moduleParam);
-        component.setParam(versionParam);
 
         Connector connector = Connector.getConnector();
+        connector.setOrgName(orgName);
+        connector.setModuleName(moduleName);
+        connector.setModuleVersion(version);
         connector.setComponent(component);
     }
 }

@@ -14,6 +14,33 @@ public class Connector extends ModelElement {
     private String description = "helps to connect with external systems";
     private String iconPath = "icon/icon-small.gif";
     private String version = "1.0.0-SNAPSHOT";
+    private String orgName;
+    private String moduleName;
+    private String moduleVersion;
+
+    public String getOrgName() {
+        return orgName;
+    }
+
+    public String getModuleName() {
+        return moduleName;
+    }
+
+    public String getModuleVersion() {
+        return moduleVersion;
+    }
+
+    public void setOrgName(String orgName) {
+        this.orgName = orgName;
+    }
+
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
+    }
+
+    public void setModuleVersion(String moduleVersion) {
+        this.moduleVersion = moduleVersion;
+    }
 
     private Connector() {
     }
