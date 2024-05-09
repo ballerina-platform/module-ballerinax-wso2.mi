@@ -23,6 +23,6 @@
         {{/each ~}}
         <description>{{description}}</description>
     </component>
-    <icon>{{iconPath}}</icon>
+    <icon>icon/icon-small.gif</icon>
     <type>module</type>
 </connector>
