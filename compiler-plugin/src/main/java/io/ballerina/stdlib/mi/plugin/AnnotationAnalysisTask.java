@@ -50,14 +50,15 @@ public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCo
         int noOfParams = 0;
         Optional<List<ParameterSymbol>> params = functionSymbol.typeDescriptor().params();
         if (params.isPresent()) {
-            noOfParams = params.get().size();
-        }
+            List<ParameterSymbol> parameterSymbols = params.get();
+            noOfParams = parameterSymbols.size();
 
-        for (int i = 0; i < noOfParams; i++) {
-            ParameterSymbol parameterSymbol = params.get().get(i);
-            if (parameterSymbol.getName().isEmpty()) continue;
-            Param param = new Param(Integer.toString(i), parameterSymbol.getName().get());
-            component.setParam(param);
+            for (int i = 0; i < noOfParams; i++) {
+                ParameterSymbol parameterSymbol = parameterSymbols.get(i);
+                if (parameterSymbol.getName().isEmpty()) continue;
+                Param param = new Param(Integer.toString(i), parameterSymbol.getName().get());
+                component.setParam(param);
+            }
         }
         Param sizeParam = new Param(SIZE, Integer.toString(noOfParams));
         component.setParam(sizeParam);
@@ -84,7 +85,6 @@ public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCo
         Optional<String> annotationName = annotationSymbol.getName();
         if (annotationName.isEmpty()) return null;
         if (!annotationName.get().equals(Component.ANNOTATION_QUALIFIER)) return null;
-
 
         if (!(annotationNode.parent().parent() instanceof FunctionDefinitionNode functionNode)) return null;
         Optional<Symbol> funcSymbol = semanticModel.symbol(functionNode);

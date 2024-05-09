@@ -32,7 +32,6 @@ public class BalCompilerLifeCycleTask implements CompilerLifecycleTask<CompilerL
 
     @Override
     public void perform(CompilerLifecycleEventContext context) {
-
         Optional<Path> generatedArtifactPath = context.getGeneratedArtifactPath();
         if (generatedArtifactPath.isEmpty()) {
             return;
