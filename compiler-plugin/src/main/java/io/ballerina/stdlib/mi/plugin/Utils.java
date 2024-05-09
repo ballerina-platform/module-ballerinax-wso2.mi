@@ -2,6 +2,7 @@ package io.ballerina.stdlib.mi.plugin;
 
 import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
+import io.ballerina.stdlib.mi.plugin.model.Connector;
 import io.ballerina.stdlib.mi.plugin.model.ModelElement;
 import org.objectweb.asm.ClassReader;
 import org.objectweb.asm.ClassVisitor;
@@ -9,29 +10,32 @@ import org.objectweb.asm.ClassWriter;
 import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
-import java.io.FileWriter;
-import java.io.InputStreamReader;
 import java.io.BufferedReader;
+import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
+import java.io.InputStreamReader;
 import java.io.FileOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
-import java.nio.file.SimpleFileVisitor;
-import java.nio.file.FileVisitResult;
-import java.nio.file.Paths;
-import java.nio.file.FileSystems;
 import java.nio.charset.StandardCharsets;
 import java.nio.file.FileSystem;
+import java.nio.file.FileSystems;
+import java.nio.file.FileVisitResult;
 import java.nio.file.Files;
 import java.nio.file.Path;
+import java.nio.file.Paths;
+import java.nio.file.SimpleFileVisitor;
 import java.nio.file.attribute.BasicFileAttributes;
 import java.util.Collections;
 import java.util.List;
+import java.util.logging.Logger;
 import java.util.zip.ZipEntry;
 import java.util.zip.ZipOutputStream;
 
 public class Utils {
+
+    private static Logger logger;
 
     /**
      * These are private utility functions used in the generateXml method
@@ -88,8 +92,8 @@ public class Utils {
      * @param sourceDirPath Path to the source directory
      * @param zipFilePath   Path to the output ZIP file
      * @throws IOException If an I/O error occurs
-     * @Note : This method is used to zip the Constants.CONNECTOR directory and create a zip file using the module
-     * name and Constants.ZIP_FILE_SUFFIX
+     * @Note : This method is used to zip the Annotations.CONNECTOR directory and create a zip file using the module
+     * name and Annotations.ZIP_FILE_SUFFIX
      */
     public static void zipFolder(Path sourceDirPath, String zipFilePath) throws IOException {
         Path sourceDir = sourceDirPath;
@@ -109,7 +113,7 @@ public class Utils {
                 public FileVisitResult preVisitDirectory(Path dir, BasicFileAttributes attrs) throws IOException {
                     if (!dir.equals(sourceDir)) {
                         Path targetDir = sourceDir.relativize(dir);
-                        outputStream.putNextEntry(new ZipEntry(targetDir.toString() + "/"));
+                        outputStream.putNextEntry(new ZipEntry(targetDir + "/"));
                         outputStream.closeEntry();
                     }
                     return FileVisitResult.CONTINUE;
@@ -123,9 +127,8 @@ public class Utils {
      *
      * @param dirPath Path to the directory to be deleted
      * @throws IOException If an I/O error occurs
-     * @Note : This method is used to delete the intermediate Constants.CONNECTOR directory
+     * @Note : This method is used to delete the intermediate Annotations.CONNECTOR directory
      */
-
     public static void deleteDirectory(Path dirPath) throws IOException {
         Path directory = dirPath;
         Files.walkFileTree(directory, new SimpleFileVisitor<Path>() {
@@ -160,8 +163,8 @@ public class Utils {
         URI uri = URI.create("jar:" + jarPath.toString());
         try (FileSystem fs = FileSystems.newFileSystem(uri, Collections.emptyMap())) {
             copyMediatorClasses(classLoader, fs, destination, org, module, moduleVersion);
-            copyResources(classLoader, fs, destination, "icon", ".png");
-            copyResources(classLoader, fs, destination, "lib", ".jar");
+            copyIcons(classLoader, fs, destination);
+            copyResources(classLoader, fs, destination, Connector.LIB_PATH, ".jar");
         }
     }
 
@@ -224,6 +227,62 @@ public class Utils {
     }
 
     /**
+     * This is a private utility method to copy icons
+     */
+    private static void copyIcons(ClassLoader classLoader, FileSystem fs, Path destination) throws IOException {
+        Connector connector = Connector.getConnector();
+        if (connector.getIconPath() == null) {
+            copyResources(classLoader, fs, destination, Connector.ICON_FOLDER, ".png");
+            return;
+        }
+
+        Path iconPath = destination.getParent().resolve(connector.getIconPath()).normalize();
+        if (!Files.exists(iconPath)) {
+            copyResources(classLoader, fs, destination, Connector.ICON_FOLDER, ".png");
+            return;
+        }
+
+        List<Path> paths = Files.walk(iconPath)
+                .filter(f -> f.toString().contains(".png"))
+                .toList();
+
+        if (paths.size() != 2) {
+            copyResources(classLoader, fs, destination, Connector.ICON_FOLDER, ".png");
+            return;
+        }
+        copyIcons(destination, paths);
+    }
+
+    /**
+     * This is a private utility method to copy icons with separating the small and large icons
+     */
+    private static void copyIcons(Path destination, List<Path> paths) throws IOException {
+        Path smallOutputPath = destination.resolve(Connector.ICON_FOLDER).resolve(Connector.SMALL_ICON_NAME);
+        Path largeOutputPath = destination.resolve(Connector.ICON_FOLDER).resolve(Connector.LARGE_ICON_NAME);
+        Path smallIconPath;
+        Path largeIconPath;
+        Files.createDirectories(smallOutputPath.getParent());
+        if (Files.size(paths.get(0)) > Files.size(paths.get(1))) {
+            smallIconPath = paths.get(1);
+            largeIconPath = paths.get(0);
+        } else {
+            smallIconPath = paths.get(0);
+            largeIconPath = paths.get(1);
+        }
+
+        copyIconToDestination(smallIconPath, smallOutputPath);
+        copyIconToDestination(largeIconPath, largeOutputPath);
+    }
+
+    /**
+     * This is a private utility method to copy png when input and output path given
+     */
+    private static void copyIconToDestination(Path iconPath, Path destination) throws IOException {
+        InputStream inputStream = Files.newInputStream(iconPath);
+        Files.copy(inputStream, destination);
+    }
+
+    /**
      * This is mediator class copy private utility method
      */
     private static void copyResources(ClassLoader classLoader, FileSystem fs, Path destination, String resourceFolder,
@@ -250,9 +309,7 @@ public class Utils {
      * These are private utility functions used in the moveResources method
      */
     private static InputStream getFileFromResourceAsStream(ClassLoader classLoader, String fileName) {
-        // The class loader that loaded the class
         InputStream inputStream = classLoader.getResourceAsStream(fileName);
-        // the stream holding the file content
         if (inputStream == null) {
             throw new IllegalArgumentException("file not found " + fileName);
         } else {

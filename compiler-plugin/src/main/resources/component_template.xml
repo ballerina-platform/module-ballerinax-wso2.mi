@@ -16,9 +16,6 @@
   ~ under the License.
   -->
 <template xmlns="http://ws.apache.org/ns/synapse" name="{{name}}">
-    {{#each params ~}}
-    <parameter name="param{{index}}" description="{{description}}"/>
-    {{/each ~}}
     <sequence>
         {{#each params ~}}
         <property name="param{{index}}" value="{{name}}"/>

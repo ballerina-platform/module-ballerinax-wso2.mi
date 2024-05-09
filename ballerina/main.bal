@@ -1,5 +1,4 @@
-import ballerina/io;
+public type ConnectorInformation record {|
+|};
 
-public function main() {
-    io:println("Hello, World!");
-}
+public const annotation ConnectorInformation ConnectorInfo on function;

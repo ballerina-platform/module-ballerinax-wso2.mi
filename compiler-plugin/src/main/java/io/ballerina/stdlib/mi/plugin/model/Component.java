@@ -7,7 +7,8 @@ import java.util.ArrayList;
 
 public class Component extends ModelElement {
 
-    public static final String TYPE_NAME = "component";
+    public static final String ANNOTATION_QUALIFIER = "ConnectorInfo";
+    private static final String TYPE_NAME = "component";
     private String name;
     private String description = "just a description";
     private ArrayList<Param> params = new ArrayList<>();
