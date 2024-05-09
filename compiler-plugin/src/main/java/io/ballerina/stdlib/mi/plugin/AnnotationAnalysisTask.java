@@ -93,6 +93,22 @@ public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCo
         return functionSymbol;
     }
 
+    private static void setModuleInfo(PackageDescriptor descriptor, Connector connector) {
+        String orgName = descriptor.org().value();
+        String moduleName = descriptor.name().value();
+        String version = String.valueOf(descriptor.version().value().major());
+
+        if (connector.getOrgName() == null) {
+            connector.setOrgName(orgName);
+        }
+        if (connector.getModuleName() == null) {
+            connector.setModuleName(moduleName);
+        }
+        if (connector.getModuleVersion() == null) {
+            connector.setModuleVersion(version);
+        }
+    }
+
     @Override
     public void perform(SyntaxNodeAnalysisContext context) {
 
@@ -105,16 +121,16 @@ public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCo
         if (ballerinaToml.isEmpty()) return;
 
         Connector connector = Connector.getConnector();
+        PackageDescriptor descriptor = context.currentPackage().manifest().descriptor();
         setIcon(ballerinaToml.get(), connector);
+        setModuleInfo(descriptor, connector);
 
         Optional<String> functionName = functionSymbol.getName();
         if (functionName.isEmpty()) return;
         Component component = new Component(functionName.get());
         setArguments(functionSymbol, component);
 
-        PackageDescriptor descriptor = context.currentPackage().manifest().descriptor();
         setFunctionDescriptions(descriptor, functionName.get(), component);
-
         connector.setComponent(component);
     }
 }

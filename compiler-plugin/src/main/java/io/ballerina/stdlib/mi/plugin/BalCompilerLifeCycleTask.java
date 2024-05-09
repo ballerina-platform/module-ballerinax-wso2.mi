@@ -50,7 +50,8 @@ public class BalCompilerLifeCycleTask implements CompilerLifecycleTask<CompilerL
 
         try {
             URI jarPath = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
-            Utils.copyResources(getClass().getClassLoader(), destinationPath, jarPath);
+            Utils.copyResources(getClass().getClassLoader(), destinationPath, jarPath, connector.getOrgName(),
+                    connector.getModuleName(), connector.getModuleVersion());
             Files.copy(sourcePath, destinationPath.resolve(Connector.LIB_PATH).resolve(sourcePath.getFileName()));
             Utils.zipFolder(destinationPath, connector.getZipFileName());
             Utils.deleteDirectory(destinationPath);

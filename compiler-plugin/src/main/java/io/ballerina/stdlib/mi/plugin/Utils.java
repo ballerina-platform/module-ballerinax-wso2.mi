@@ -4,12 +4,18 @@ import com.github.jknack.handlebars.Handlebars;
 import com.github.jknack.handlebars.Template;
 import io.ballerina.stdlib.mi.plugin.model.Connector;
 import io.ballerina.stdlib.mi.plugin.model.ModelElement;
+import org.objectweb.asm.ClassReader;
+import org.objectweb.asm.ClassVisitor;
+import org.objectweb.asm.ClassWriter;
+import org.objectweb.asm.MethodVisitor;
+import org.objectweb.asm.Opcodes;
 
 import java.io.BufferedReader;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
+import java.io.FileOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -62,7 +68,8 @@ public class Utils {
      * @param templateName Name of the template file
      * @param outputName   Name of the output file
      * @param element      Model element(connector/component) to be used in the template
-     * @Note: This method generates the XMLs that is needed for the connector, which uses the ReadXml and WriteXml methods.
+     * @Note: This method generates the XMLs that is needed for the connector, which uses the ReadXml and WriteXml
+     * methods.
      */
     public static void generateXml(String templateName, String outputName, ModelElement element) {
         try {
@@ -85,7 +92,8 @@ public class Utils {
      * @param sourceDirPath Path to the source directory
      * @param zipFilePath   Path to the output ZIP file
      * @throws IOException If an I/O error occurs
-     * @Note : This method is used to zip the Annotations.CONNECTOR directory and create a zip file using the module name and Annotations.ZIP_FILE_SUFFIX
+     * @Note : This method is used to zip the Annotations.CONNECTOR directory and create a zip file using the module
+     * name and Annotations.ZIP_FILE_SUFFIX
      */
     public static void zipFolder(Path sourceDirPath, String zipFilePath) throws IOException {
         Path sourceDir = sourceDirPath;
@@ -146,13 +154,15 @@ public class Utils {
      * @param jarPath     Path to the JAR file
      * @throws IOException        If an I/O error occurs
      * @throws URISyntaxException If the URI is invalid
-     * @Note : This method is used to copy the resources(icons,jar files, mediator jar) to the Constants.CONNECTOR directory
+     * @Note : This method is used to copy the resources(icons,jar files, mediator jar) to the Constants.CONNECTOR
+     * directory
      */
-    public static void copyResources(ClassLoader classLoader, Path destination, URI jarPath)
+    public static void copyResources(ClassLoader classLoader, Path destination, URI jarPath, String org,
+                                     String module, String moduleVersion)
             throws IOException, URISyntaxException {
         URI uri = URI.create("jar:" + jarPath.toString());
         try (FileSystem fs = FileSystems.newFileSystem(uri, Collections.emptyMap())) {
-            copyMediatorClasses(classLoader, fs, destination);
+            copyMediatorClasses(classLoader, fs, destination, org, module, moduleVersion);
             copyIcons(classLoader, fs, destination);
             copyResources(classLoader, fs, destination, Connector.LIB_PATH, ".jar");
         }
@@ -161,7 +171,8 @@ public class Utils {
     /**
      * This is mediator class copy private utility method
      */
-    private static void copyMediatorClasses(ClassLoader classLoader, FileSystem fs, Path destination)
+    private static void copyMediatorClasses(ClassLoader classLoader, FileSystem fs, Path destination, String org,
+                                            String module, String moduleVersion)
             throws IOException {
         List<Path> paths = Files.walk(fs.getPath("mediator-classes"))
                 .filter(f -> f.toString().contains(".class"))
@@ -172,8 +183,47 @@ public class Utils {
             Path outputPath = destination.resolve(relativePath.toString());
             Files.createDirectories(outputPath.getParent()); // Create parent directories if they don't exist
             InputStream inputStream = getFileFromResourceAsStream(classLoader, path.toString());
-            Files.copy(inputStream, outputPath);
+            if (path.getFileName().toString().contains("ModuleInfo.class")) {
+                updateConstants(inputStream, outputPath.toString(), org, module, moduleVersion);
+            } else {
+                Files.copy(inputStream, outputPath);
+            }
+            inputStream.close();
         }
+    }
+
+    private static void updateConstants(InputStream inputStream, String outputPath, String org, String module,
+                                        String moduleVersion) throws IOException {
+        ClassReader classReader = new ClassReader(inputStream.readAllBytes());
+        ClassWriter classWriter = new ClassWriter(ClassWriter.COMPUTE_MAXS);
+        ClassVisitor classVisitor = new ClassVisitor(Opcodes.ASM7, classWriter) {
+            @Override
+            public MethodVisitor visitMethod(int access, String name, String descriptor, String signature,
+                                             String[] exceptions) {
+                MethodVisitor mv = super.visitMethod(access, name, descriptor, signature, exceptions);
+                return new MethodVisitor(Opcodes.ASM7, mv) {
+                    @Override
+                    public void visitLdcInsn(Object value) {
+                        if ("BALLERINA_ORG_NAME".equals(value)) {
+                            super.visitLdcInsn(org);
+                        } else if ("BALLERINA_MODULE_NAME".equals(value)) {
+                            super.visitLdcInsn(module);
+                        } else if ("BALLERINA_MODULE_VERSION".equals(value)) {
+                            super.visitLdcInsn(moduleVersion);
+                        } else {
+                            super.visitLdcInsn(value);
+                        }
+                    }
+                };
+            }
+        };
+
+        classReader.accept(classVisitor, ClassReader.SKIP_DEBUG);
+        byte[] modifiedBytecode = classWriter.toByteArray();
+
+        FileOutputStream fos = new FileOutputStream(outputPath);
+        fos.write(modifiedBytecode);
+        fos.close();
     }
 
     /**
@@ -261,7 +311,7 @@ public class Utils {
     private static InputStream getFileFromResourceAsStream(ClassLoader classLoader, String fileName) {
         InputStream inputStream = classLoader.getResourceAsStream(fileName);
         if (inputStream == null) {
-            throw new IllegalArgumentException("file not found! " + fileName);
+            throw new IllegalArgumentException("file not found " + fileName);
         } else {
             return inputStream;
         }

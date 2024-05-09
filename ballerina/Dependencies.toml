@@ -9,9 +9,9 @@ distribution-version = "2201.9.0"
 
 [[package]]
 org = "ballerinax"
-name = "tool_mi"
+name = "ballerina"
 version = "0.1.0"
 modules = [
-	{org = "ballerinax", packageName = "tool_mi", moduleName = "tool_mi"}
+	{org = "ballerinax", packageName = "ballerina", moduleName = "ballerina"}
 ]
 
