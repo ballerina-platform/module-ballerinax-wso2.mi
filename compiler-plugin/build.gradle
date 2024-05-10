@@ -15,8 +15,10 @@ dependencies {
     implementation group: 'org.ballerinalang', name: 'ballerina-lang', version: "${ballerinaLangVersion}"
     implementation group: 'org.ballerinalang', name: 'ballerina-tools-api', version: "${ballerinaLangVersion}"
     implementation group: 'org.ballerinalang', name: 'ballerina-parser', version: "${ballerinaLangVersion}"
-    implementation group: 'com.github.jknack', name: 'handlebars', version: '4.0.6'
-    implementation 'org.apache.commons:commons-compress:1.26.1'
+    implementation group: 'org.ballerinalang', name: 'toml-parser', version: "${ballerinaLangVersion}"
+    implementation group: 'com.github.jknack', name: 'handlebars', version: "${handlebarsVersion}"
+    implementation group: 'org.apache.commons', name: 'commons-compress', version: "${commonsCompressVersion}"
+    implementation group: 'org.ow2.asm', name: 'asm', version: "${asmVersion}"
 }
 
 task("copyFiles") {

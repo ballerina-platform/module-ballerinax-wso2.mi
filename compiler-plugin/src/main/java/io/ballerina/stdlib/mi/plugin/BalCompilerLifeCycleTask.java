@@ -12,7 +12,7 @@ import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.util.Optional;
 
 public class BalCompilerLifeCycleTask implements CompilerLifecycleTask<CompilerLifecycleEventContext> {
 
@@ -32,13 +32,15 @@ public class BalCompilerLifeCycleTask implements CompilerLifecycleTask<CompilerL
 
     @Override
     public void perform(CompilerLifecycleEventContext context) {
+        Optional<Path> generatedArtifactPath = context.getGeneratedArtifactPath();
+        if (generatedArtifactPath.isEmpty()) {
+            return;
+        }
 
-
-        String sourcePathStr = context.getGeneratedArtifactPath().get().toString();
-        Path sourcePath = Paths.get(sourcePathStr);
+        Path sourcePath = generatedArtifactPath.get();
 
         PackageDescriptor descriptor = context.currentPackage().manifest().descriptor();
-        Path destinationPath = context.currentPackage().project().sourceRoot().resolve(Connector.TYPE_NAME);
+        Path destinationPath = context.currentPackage().project().sourceRoot().resolve(Connector.TEMP_PATH);
 
         Connector connector = Connector.getConnector();
         connector.setName(descriptor.name().value());
@@ -48,8 +50,9 @@ public class BalCompilerLifeCycleTask implements CompilerLifecycleTask<CompilerL
 
         try {
             URI jarPath = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
-            Utils.copyResources(getClass().getClassLoader(), destinationPath, jarPath);
-            Files.copy(sourcePath, destinationPath.resolve("lib").resolve(sourcePath.getFileName()));
+            Utils.copyResources(getClass().getClassLoader(), destinationPath, jarPath, connector.getOrgName(),
+                    connector.getModuleName(), connector.getModuleVersion());
+            Files.copy(sourcePath, destinationPath.resolve(Connector.LIB_PATH).resolve(sourcePath.getFileName()));
             Utils.zipFolder(destinationPath, connector.getZipFileName());
             Utils.deleteDirectory(destinationPath);
 

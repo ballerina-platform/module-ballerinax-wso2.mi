@@ -7,13 +7,47 @@ import java.util.ArrayList;
 
 public class Connector extends ModelElement {
 
+    public static final String TOML_ICON_NODE = "path";
+    public static final String TOML_ICON_KEY = "iconPath";
     public static final String TYPE_NAME = "connector";
+    public static final String TEMP_PATH = "connector";
+    public static final String ICON_FOLDER = "icon";
+    public static final String SMALL_ICON_NAME = "icon-small.png";
+    public static final String LARGE_ICON_NAME = "icon-large.png";
+    public static final String LIB_PATH = "lib";
     private static final Connector connector = new Connector();
     private final ArrayList<Component> components = new ArrayList<>();
     private String name;
     private String description = "helps to connect with external systems";
-    private String iconPath = "icon/icon-small.gif";
+    private String iconPath;
     private String version = "1.0.0-SNAPSHOT";
+    private String orgName;
+    private String moduleName;
+    private String moduleVersion;
+
+    public String getOrgName() {
+        return orgName;
+    }
+
+    public String getModuleName() {
+        return moduleName;
+    }
+
+    public String getModuleVersion() {
+        return moduleVersion;
+    }
+
+    public void setOrgName(String orgName) {
+        this.orgName = orgName;
+    }
+
+    public void setModuleName(String moduleName) {
+        this.moduleName = moduleName;
+    }
+
+    public void setModuleVersion(String moduleVersion) {
+        this.moduleVersion = moduleVersion;
+    }
 
     private Connector() {
     }
