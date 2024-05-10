@@ -6,11 +6,14 @@ import io.ballerina.runtime.api.async.Callback;
 import io.ballerina.runtime.api.values.BError;
 import io.ballerina.runtime.api.values.BXml;
 import org.apache.axiom.om.OMElement;
+import org.apache.commons.logging.Log;
+import org.apache.commons.logging.LogFactory;
 import org.wso2.carbon.module.core.SimpleMediator;
 import org.wso2.carbon.module.core.SimpleMessageContext;
 
 public class Mediator extends SimpleMediator {
 
+    private static final Log log = LogFactory.getLog(Mediator.class);
     private static Runtime rt = null;
 
     public Mediator() {
@@ -25,12 +28,12 @@ public class Mediator extends SimpleMediator {
     public void mediate(SimpleMessageContext context) {
         Callback returnCallback = new Callback() {
             public void notifySuccess(Object result) {
-                System.out.println("notifySuccess");
+                log.info("notifySuccess");
                 context.setProperty(Constants.RESULT, BXmlConverter.toOMElement((BXml) result));
             }
 
             public void notifyFailure(BError result) {
-                System.out.println("notifyFailure");
+                log.error("notifyFailure");
                 context.setProperty(Constants.RESULT, result.toString());
             }
         };
