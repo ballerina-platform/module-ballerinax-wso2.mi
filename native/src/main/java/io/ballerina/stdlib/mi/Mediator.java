@@ -21,17 +21,23 @@ public class Mediator extends SimpleMediator {
         rt.start();
     }
 
+    private static String getResultProperty(SimpleMessageContext context) {
+        String result = context.lookupTemplateParameter(Constants.RESULT).toString();
+        if (result != null) {
+            return result;
+        }
+        return Constants.RESULT;
+    }
+
     public void mediate(SimpleMessageContext context) {
         Callback returnCallback = new Callback() {
             public void notifySuccess(Object result) {
-                System.out.println("notifySuccess");
-                System.out.println(result);
-                context.setProperty(Constants.RESULT, result.toString());
+                log.info("Notify Success");
+                context.setProperty(getResultProperty(context), BXmlConverter.toOMElement((BXml) result));
             }
 
             public void notifyFailure(BError result) {
-                System.out.println("notifyFailure");
-                System.out.println(result);
+                log.info("Notify Failure");
                 context.setProperty(Constants.RESULT, result.toString());
             }
         };
@@ -41,15 +47,29 @@ public class Mediator extends SimpleMediator {
     }
 
     private BXml getBXmlParameter(SimpleMessageContext context, String parameterName) {
-        return OMElementConverter.toBXml((OMElement) context.getProperty((String) context.getProperty(parameterName)));
+        OMElement omElement = getOMElement(context, parameterName);
+        if (omElement == null) {
+            return null;
+        }
+        return OMElementConverter.toBXml(omElement);
     }
 
     private Object[] getParameters(SimpleMessageContext context) {
-
         Object[] args = new Object[Integer.parseInt(context.getProperty(Constants.SIZE).toString())];
         for (int i = 0; i < args.length; i++) {
             args[i] = getBXmlParameter(context, "param" + i);
         }
         return args;
     }
+
+    private OMElement getOMElement(SimpleMessageContext ctx, String value) {
+        String param = ctx.getProperty(value).toString();
+        if (ctx.lookupTemplateParameter(param) != null) {
+            return (OMElement) ctx.lookupTemplateParameter(param);
+        }
+        log.error("Error in getting the OMElement");
+        return null;
+    }
+
+
 }

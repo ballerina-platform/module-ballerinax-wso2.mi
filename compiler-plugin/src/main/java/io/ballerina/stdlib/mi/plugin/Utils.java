@@ -11,11 +11,11 @@ import org.objectweb.asm.MethodVisitor;
 import org.objectweb.asm.Opcodes;
 
 import java.io.BufferedReader;
+import java.io.FileOutputStream;
 import java.io.FileWriter;
 import java.io.IOException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
-import java.io.FileOutputStream;
 import java.net.URI;
 import java.net.URISyntaxException;
 import java.nio.charset.StandardCharsets;
@@ -40,7 +40,7 @@ public class Utils {
     /**
      * These are private utility functions used in the generateXml method
      */
-    private static String readXml(String fileName) throws IOException {
+    private static String readFile(String fileName) throws IOException {
         InputStream inputStream = Utils.class.getClassLoader().getResourceAsStream(fileName);
         assert inputStream != null;
         BufferedReader reader = new BufferedReader(new InputStreamReader(inputStream, StandardCharsets.UTF_8));
@@ -56,34 +56,43 @@ public class Utils {
     /**
      * These are private utility functions used in the generateXml method
      */
-    private static void writeXml(String fileName, String content) throws IOException {
+    private static void writeFile(String fileName, String content) throws IOException {
         FileWriter myWriter = new FileWriter(fileName);
         myWriter.write(content);
         myWriter.close();
     }
 
     /**
-     * Generate XML file using the provided template and model element.
+     * Generate file (XML/JSON) using the provided template and model element.
      *
      * @param templateName Name of the template file
      * @param outputName   Name of the output file
      * @param element      Model element(connector/component) to be used in the template
-     * @Note: This method generates the XMLs that is needed for the connector, which uses the ReadXml and WriteXml
-     * methods.
+     * @param extension    Extension of the file to be generated (e.g., "xml" or "json")
+     * @Note: This method generates the files needed for the connector, which uses the ReadXml and WriteXml methods.
      */
-    public static void generateXml(String templateName, String outputName, ModelElement element) {
+    private static void generateFile(String templateName, String outputName, ModelElement element, String extension) {
         try {
             Handlebars handlebar = new Handlebars();
-            String templateFileName = String.format("%s.xml", templateName);
-            String xmlContent = readXml(templateFileName);
-            Template template = handlebar.compileInline(xmlContent);
+            String templateFileName = String.format("%s.%s", templateName, extension);
+            String content = readFile(templateFileName);
+            Template template = handlebar.compileInline(content);
             String output = template.apply(element);
 
-            String outputFileName = String.format("%s.xml", outputName);
-            writeXml(outputFileName, output);
+            String outputFileName = String.format("%s.%s", outputName, extension);
+            writeFile(outputFileName, output);
         } catch (IOException e) {
             throw new RuntimeException(e);
         }
+    }
+
+    // Existing methods can now call the new generic method
+    public static void generateXml(String templateName, String outputName, ModelElement element) {
+        generateFile(templateName, outputName, element, "xml");
+    }
+
+    public static void generateJson(String templateName, String outputName, ModelElement element) {
+        generateFile(templateName, outputName, element, "json");
     }
 
     /**

@@ -88,6 +88,7 @@ public class Connector extends ModelElement {
     }
 
     public void setComponent(Component component) {
+        component.setParent(this);
         this.components.add(component);
     }
 
