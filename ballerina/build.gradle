@@ -39,9 +39,9 @@ build {
     doLast {
         exec {
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', "/c", "bal pack && bal push"
+                commandLine 'cmd', "/c", "bal pack && bal push --repository=local"
             } else {
-                commandLine 'sh', "-c", "bal pack && bal push"
+                commandLine 'sh', "-c", "bal pack && bal push --repository=local"
             }
         }
         println("Successfully pushed the MI Tools package to the local.")
@@ -57,9 +57,9 @@ publishBallerinaPackage {
     doLast {
         exec {
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', "/c", "bal pack && bal push --repository=local"
+                commandLine 'cmd', "/c", "bal pack && bal push"
             } else {
-                commandLine 'sh', "-c", "bal pack && bal push --repository=local"
+                commandLine 'sh', "-c", "bal pack && bal push"
             }
         }
         println("Successfully pushed the MI Tools package to the local.")
