@@ -33,18 +33,16 @@ tasks.register('localPublish') {
 }
 
 task release {
-    dependsOn publishBallerinaPackage
+    dependsOn("publishBallerinaPackage")
 }
 
-publishBallerinaPackage {
-    dependsOn(":mi-compiler-plugin:jar")
-    dependsOn("downloadDependencies")
+task publishBallerinaPackage {
     doLast {
         exec {
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', "/c", "bal pack && bal push --repository=local"
+                commandLine 'cmd', "/c", "bal pack && bal push"
             } else {
-                commandLine 'sh', "-c", "bal pack && bal push --repository=local"
+                commandLine 'sh', "-c", "bal pack && bal push"
             }
         }
         println("Successfully pushed the MI Tools package to the local.")

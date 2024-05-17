@@ -48,10 +48,10 @@ build {
     }
 }
 task release {
-    dependsOn publishBallerinaPackage
+    dependsOn("publishBallerinaPackage")
 }
 
-publishBallerinaPackage {
+task publishBallerinaPackage {
     dependsOn(":mi-compiler-plugin:jar")
     dependsOn("downloadDependencies")
     doLast {
@@ -62,7 +62,7 @@ publishBallerinaPackage {
                 commandLine 'sh', "-c", "bal pack && bal push"
             }
         }
-        println("Successfully pushed the MI Tools package to the local.")
+        println("Successfully pushed the MI Library package to the local.")
     }
 }
 
