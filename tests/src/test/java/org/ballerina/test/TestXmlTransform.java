@@ -16,50 +16,51 @@
 
 package org.ballerina.test;
 
-import io.ballerina.projects.Package;
-import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.Project;
-import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JvmTarget;
-import io.ballerina.projects.directory.ProjectLoader;
+import io.ballerina.stdlib.mi.Mediator;
+import io.ballerina.stdlib.mi.ModuleInfo;
+import org.apache.axiom.om.util.AXIOMUtil;
 import org.testng.Assert;
-import org.testng.annotations.BeforeClass;
-import org.testng.annotations.DataProvider;
 import org.testng.annotations.Test;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import javax.xml.stream.XMLStreamException;
 
 public class TestXmlTransform {
-    public static final Path RES_DIR = Paths.get("src/test/resources/ballerina").toAbsolutePath();
-    @BeforeClass
-    public void setup() {
+
+    @Test
+    public void testXmlTransform1() throws XMLStreamException {
+        String project = "project2";
+        ModuleInfo moduleInfo = new ModuleInfo("testOrg", project, "1");
+        Mediator mediator = new Mediator(moduleInfo);
+
+        TestMessageContext context = new TestMessageContext();
+        context.setProperty("paramFunctionName", "test");
+        context.setProperty("paramSize", 3);
+        context.setProperty("param0", "xmlA");
+        context.setProperty("xmlA", AXIOMUtil.stringToOM("<name>John</name>"));
+        context.setProperty("param1", "xmlB");
+        context.setProperty("xmlB", AXIOMUtil.stringToOM("<age>30</age>"));
+        context.setProperty("param2", "xmlC");
+        context.setProperty("xmlC", AXIOMUtil.stringToOM("<city>Colombo</city>"));
+        mediator.mediate(context);
+        Assert.assertEquals(context.getProperty("result"), "<name>John</name><apr30>8:99999</apr30>");
     }
 
-    @Test(dataProvider = "data-provider")
-    public void test(String projectPath) throws IOException {
-        Path path = getProjectPath(projectPath);
-        Project project = ProjectLoader.loadProject(path);
-        Package pkg = project.currentPackage();
-        PackageCompilation packageCompilation = pkg.getCompilation();
-        JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
-        Path jarPath = path.resolve("test.jar");
-        jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, jarPath);
-        Assert.assertEquals(packageCompilation.diagnosticResult().diagnosticCount(), 0);
-        Files.delete(jarPath);
-        Files.delete(Paths.get(projectPath + "-connector-0.1.0.zip").toAbsolutePath());
-    }
+    @Test
+    public void testXmlTransform2() throws XMLStreamException {
+        String project = "project3";
+        ModuleInfo moduleInfo = new ModuleInfo("testOrg", project, "1");
+        Mediator mediator = new Mediator(moduleInfo);
 
-    @DataProvider(name = "data-provider")
-    public Object[][] dataProvider() {
-        return new Object[][]{
-                {"project1"}
-        };
-    }
-
-    private Path getProjectPath(String path) {
-        return RES_DIR.resolve(path);
+        TestMessageContext context = new TestMessageContext();
+        context.setProperty("paramFunctionName", "test");
+        context.setProperty("paramSize", 3);
+        context.setProperty("param0", "xmlA");
+        context.setProperty("xmlA", AXIOMUtil.stringToOM("<name>John</name>"));
+        context.setProperty("param1", "xmlB");
+        context.setProperty("xmlB", AXIOMUtil.stringToOM("<age>31</age>"));
+        context.setProperty("param2", "xmlC");
+        context.setProperty("xmlC", AXIOMUtil.stringToOM("<city>Colombo</city>"));
+        mediator.mediate(context);
+        Assert.assertEquals(context.getProperty("result"), "<name>John</name><age>31</age><city>Colombo</city>");
     }
 }
