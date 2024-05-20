@@ -17,8 +17,15 @@
   ~ under the License.
   -->
 <template xmlns="http://ws.apache.org/ns/synapse" name="{{name}}">
+    <parameter name="Result" description="Component description"/>
+    {{#each arguments ~}}
+    <parameter name="{{name}}" description="Component description"/>
+    {{/each ~}}
     <sequence>
         {{#each params ~}}
+        <property name="param{{index}}" value="{{name}}"/>
+        {{/each ~}}
+        {{#each arguments ~}}
         <property name="param{{index}}" value="{{name}}"/>
         {{/each ~}}
         <class name="io.ballerina.stdlib.mi.Mediator"/>

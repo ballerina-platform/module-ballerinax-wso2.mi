@@ -30,6 +30,8 @@ public class Component extends ModelElement {
     private String name;
     private String description = "just a description";
     private ArrayList<Param> params = new ArrayList<>();
+    private ArrayList<Param> balFuncParams = new ArrayList<>();
+    private Connector parent;
 
     public Component(String name) {
         this.name = name;
@@ -56,6 +58,15 @@ public class Component extends ModelElement {
         this.name = name;
     }
 
+
+    public Connector getParent() {
+        return parent;
+    }
+
+    public void setParent(Connector parent) {
+        this.parent = parent;
+    }
+
     public String getDescription() {
         return description;
     }
@@ -68,6 +79,14 @@ public class Component extends ModelElement {
         return "component";
     }
 
+
+    public ArrayList<Param> getBalFuncParams() {
+        return balFuncParams;
+    }
+
+    public void addBalFuncParams(Param balParam) {
+        this.balFuncParams.add(balParam);
+    }
     public void generateInstanceXml(File connectorFolder) {
         File file = new File(connectorFolder, this.getName());
         if (!file.exists()) {
@@ -82,5 +101,13 @@ public class Component extends ModelElement {
             file.mkdir();
         }
         Utils.generateXml(TYPE_NAME + "_template", file + File.separator + this.getName() + "_template", this);
+    }
+
+    public void generateUIJson(File connectorFolder) {
+        File file = new File(connectorFolder, "uischema");
+        if (!file.exists()) {
+            file.mkdir();
+        }
+        Utils.generateJson(TYPE_NAME, file + File.separator + this.name, this);
     }
 }
