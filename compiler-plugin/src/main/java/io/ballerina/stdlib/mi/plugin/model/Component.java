@@ -30,7 +30,7 @@ public class Component extends ModelElement {
     private String name;
     private String description = "just a description";
     private ArrayList<Param> params = new ArrayList<>();
-    private ArrayList<Param> arguments = new ArrayList<>();
+    private ArrayList<Param> balFuncParameters = new ArrayList<>();
     private Connector parent;
 
     public Component(String name) {
@@ -80,12 +80,12 @@ public class Component extends ModelElement {
     }
 
 
-    public ArrayList<Param> getArguments() {
-        return arguments;
+    public ArrayList<Param> getBalFuncParameters() {
+        return balFuncParameters;
     }
 
-    public void addArgument(Param argument) {
-        this.arguments.add(argument);
+    public void balFuncParameters(Param argument) {
+        this.balFuncParameters.add(argument);
     }
     public void generateInstanceXml(File connectorFolder) {
         File file = new File(connectorFolder, this.getName());

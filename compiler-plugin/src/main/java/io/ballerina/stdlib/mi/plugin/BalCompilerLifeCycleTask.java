@@ -50,10 +50,6 @@ public class BalCompilerLifeCycleTask implements CompilerLifecycleTask<CompilerL
 
     private static void generateJsonFiles(Path connectorFolderPath, Connector connector) {
         File connectorFolder = new File(connectorFolderPath.toUri());
-        if (!connectorFolder.exists()) {
-            connectorFolder.mkdir();
-        }
-
         for (Component component : connector.getComponents()) {
             component.generateUIJson(connectorFolder);
         }
@@ -78,7 +74,6 @@ public class BalCompilerLifeCycleTask implements CompilerLifecycleTask<CompilerL
             Path destinationPath = Files.createTempDirectory(Connector.TEMP_PATH);
             generateXmlFiles(destinationPath, connector);
             generateJsonFiles(destinationPath, connector);
-//            Utils.generateJson("template","func7", connector);
             URI jarPath = getClass().getProtectionDomain().getCodeSource().getLocation().toURI();
             Utils.copyResources(getClass().getClassLoader(), destinationPath, jarPath, connector.getOrgName(),
                     connector.getModuleName(), connector.getModuleVersion());
