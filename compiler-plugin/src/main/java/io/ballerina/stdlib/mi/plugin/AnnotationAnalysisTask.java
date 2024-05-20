@@ -75,7 +75,7 @@ public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCo
                 ParameterSymbol parameterSymbol = parameterSymbols.get(i);
                 if (parameterSymbol.getName().isEmpty()) continue;
                 Param param = new Param(Integer.toString(i), parameterSymbol.getName().get());
-                component.balFuncParameters(param);
+                component.addBalFuncParams(param);
             }
         }
         Param sizeParam = new Param(SIZE, Integer.toString(noOfParams));
