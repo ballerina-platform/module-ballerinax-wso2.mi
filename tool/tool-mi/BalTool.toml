@@ -1,0 +1,5 @@
+[tool]
+id = "mi"
+
+[[dependency]]
+path = "../tool-mi-cli/build/libs/tool-mi-cli-1.0.0-SNAPSHOT.jar"

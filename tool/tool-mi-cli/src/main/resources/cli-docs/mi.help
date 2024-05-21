@@ -1,0 +1,16 @@
+NAME
+       bal mi - Ballerina WSO2 Micro Integrator Tool
+
+SYNOPSIS
+       bal mi [OPTIONS] [<arguments>]
+
+DESCRIPTION
+       The 'bal mi' command-line tool generates WSO2 Micro Integrator connector to execute Ballerina transformation.
+
+OPTIONS
+       -i, --input <ballerina project>
+           Path to Ballerina project that includes the transformation logic.
+
+EXAMPLES
+       Generate records and parser functions for a given EDI schema.
+           $ bal mi -i ballerina/project

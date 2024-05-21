@@ -53,3 +53,4 @@ allprojects {
         timestampedVersionRegex = '.*-\\d{8}-\\d{6}-\\w.*\$'
     }
 }
+
