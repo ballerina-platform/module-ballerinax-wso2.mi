@@ -36,7 +36,7 @@
                     "helpTip": "Component description"
                   }
                 }
-                {{#each arguments ~}}
+                {{#each balFuncParams ~}}
                 ,{
                   "type": "attribute",
                   "value": {
