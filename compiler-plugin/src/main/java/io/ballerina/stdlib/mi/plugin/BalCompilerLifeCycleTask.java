@@ -69,7 +69,6 @@ public class BalCompilerLifeCycleTask implements CompilerLifecycleTask<CompilerL
         connector.setName(descriptor.name().value());
         connector.setVersion(descriptor.version().value().toString());
 
-
         try {
             Path destinationPath = Files.createTempDirectory(Connector.TEMP_PATH);
             generateXmlFiles(destinationPath, connector);

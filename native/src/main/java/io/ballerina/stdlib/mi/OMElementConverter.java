@@ -35,7 +35,6 @@ import java.util.Set;
 public class OMElementConverter {
 
     public static BXml toBXml(OMElement omElement) {
-//            System.out.println("hello world");
         return getXmlItem(omElement);
     }
 
@@ -65,12 +64,6 @@ public class OMElementConverter {
 
 
     private static QName getQNameOMElement(OMElement omElement) {
-        // If prefix is not provided test case will fail
-//            if (omElement.getPrefix() == null) {
-//                return new QName(omElement.getNamespaceURI(), omElement.getLocalName());
-//            }else{
-//                return new QName(omElement.getNamespaceURI(),omElement.getLocalName(), omElement.getPrefix());
-//            }
         return new QName(omElement.getQName().getNamespaceURI(), omElement.getQName().getLocalPart(), omElement.getQName().getPrefix());
     }
 
@@ -85,8 +78,7 @@ public class OMElementConverter {
     }
 
     private static void addAttributes(OMElement omElement, BXmlItem xmlItem) {
-
-        // NOTE:Extracted the idea from  bvm/ballerina-runtime/src/main/java/io/ballerina/runtime/internal/XmlTreeBuilder.java
+        // NOTE: Extracted the idea from  bvm/ballerina-runtime/src/main/java/io/ballerina/runtime/internal/XmlTreeBuilder.java
         Iterator attributes = omElement.getAllAttributes();
         BMap<BString, BString> attributesMap = xmlItem.getAttributesMap();
         Set<QName> usedNS = new HashSet<>();
@@ -146,8 +138,6 @@ public class OMElementConverter {
         ArrayList<BXml> xmlList = new ArrayList<>();
 
         // CHECK: why we did like this way (getDescendants rather than getChildren)
-//            Iterator<OMNode> descendants ;
-//            var descendants = omElement.getDescendants(false);
         Iterator descendants = omElement.getChildren();
 
         while (descendants.hasNext()) {

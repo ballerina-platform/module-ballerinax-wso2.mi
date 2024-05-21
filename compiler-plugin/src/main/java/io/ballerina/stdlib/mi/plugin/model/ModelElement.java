@@ -28,5 +28,4 @@ public abstract class ModelElement {
         return null;
     }
 
-
 }
