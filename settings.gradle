@@ -19,6 +19,7 @@ include(':mi-ballerina')
 include(':mi-compiler-plugin')
 include(':tool-mi')
 include(':tool-mi-cli')
+include('mi-tests')
 
 project(':checkstyle').projectDir = file("build-config${File.separator}checkstyle")
 project(':mi-native').projectDir = file('native')
@@ -26,6 +27,7 @@ project(':mi-ballerina').projectDir = file('ballerina')
 project(':mi-compiler-plugin').projectDir = file('compiler-plugin')
 project(':tool-mi').projectDir = file("tool${File.separator}tool-mi")
 project(':tool-mi-cli').projectDir = file("tool${File.separator}tool-mi-cli")
+project(':mi-tests').projectDir = file('tests')
 
 gradleEnterprise {
     buildScan {

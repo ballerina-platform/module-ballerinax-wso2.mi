@@ -36,4 +36,10 @@ public class ModuleInfo {
     }
 
     public ModuleInfo() {}
+
+    public ModuleInfo(String orgName, String moduleName, String moduleVersion) {
+        ORG_NAME = orgName;
+        MODULE_NAME = moduleName;
+        MODULE_VERSION = moduleVersion;
+    }
 }

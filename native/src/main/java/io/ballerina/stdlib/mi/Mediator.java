@@ -32,11 +32,12 @@ public class Mediator extends SimpleMediator {
 
     public Mediator() {
         ModuleInfo moduleInfo = new ModuleInfo();
-        Module module = new Module(moduleInfo.getOrgName(), moduleInfo.getModuleName(), moduleInfo.getModuleVersion());
-        rt = Runtime.from(module);
+        init(moduleInfo);
+    }
 
-        rt.init();
-        rt.start();
+    // This constructor is added to test the mediator
+    public Mediator(ModuleInfo moduleInfo) {
+        init(moduleInfo);
     }
 
     private static String getResultProperty(SimpleMessageContext context) {
@@ -89,5 +90,10 @@ public class Mediator extends SimpleMediator {
         return null;
     }
 
-
+    private void init(ModuleInfo moduleInfo) {
+        Module module = new Module(moduleInfo.getOrgName(), moduleInfo.getModuleName(), moduleInfo.getModuleVersion());
+        rt = Runtime.from(module);
+        rt.init();
+        rt.start();
+    }
 }
