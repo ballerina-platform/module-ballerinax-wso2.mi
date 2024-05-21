@@ -19,10 +19,14 @@ package org.ballerina.test;
 import io.ballerina.stdlib.mi.Mediator;
 import io.ballerina.stdlib.mi.ModuleInfo;
 import org.apache.axiom.om.util.AXIOMUtil;
+import org.apache.synapse.mediators.template.TemplateContext;
 import org.testng.Assert;
 import org.testng.annotations.Test;
 
 import javax.xml.stream.XMLStreamException;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.Stack;
 
 public class TestXmlTransform {
 
@@ -36,13 +40,24 @@ public class TestXmlTransform {
         context.setProperty("paramFunctionName", "test");
         context.setProperty("paramSize", 3);
         context.setProperty("param0", "xmlA");
-        context.setProperty("xmlA", AXIOMUtil.stringToOM("<name>John</name>"));
         context.setProperty("param1", "xmlB");
-        context.setProperty("xmlB", AXIOMUtil.stringToOM("<age>30</age>"));
         context.setProperty("param2", "xmlC");
-        context.setProperty("xmlC", AXIOMUtil.stringToOM("<city>Colombo</city>"));
+
+        Stack<TemplateContext> stack = new Stack<>();
+        TemplateContext templateContext = new TemplateContext("testTemplateFunc", new ArrayList<>());
+        stack.push(templateContext);
+
+        HashMap<Object, Object> map = new HashMap<>();
+        map.put("xmlA", AXIOMUtil.stringToOM("<name>John</name>"));
+        map.put("xmlB", AXIOMUtil.stringToOM("<apr30>8:99999</apr30>"));
+        map.put("xmlC", AXIOMUtil.stringToOM("<city>Colombo</city>"));
+        map.put("Result", "res");
+        templateContext.setMappedValues(map);
+
+        context.setProperty("_SYNAPSE_FUNCTION_STACK", stack);
         mediator.mediate(context);
-        Assert.assertEquals(context.getProperty("result"), "<name>John</name><apr30>8:99999</apr30>");
+        Assert.assertEquals(context.getProperty("res").toString(),
+                "<may21><time>9:31</time><name>John</name><apr30>8:99999</apr30><city>Colombo</city></may21>");
     }
 
     @Test
@@ -53,14 +68,28 @@ public class TestXmlTransform {
 
         TestMessageContext context = new TestMessageContext();
         context.setProperty("paramFunctionName", "test");
-        context.setProperty("paramSize", 3);
+        context.setProperty("paramSize", 4);
         context.setProperty("param0", "xmlA");
-        context.setProperty("xmlA", AXIOMUtil.stringToOM("<name>John</name>"));
         context.setProperty("param1", "xmlB");
-        context.setProperty("xmlB", AXIOMUtil.stringToOM("<age>31</age>"));
         context.setProperty("param2", "xmlC");
-        context.setProperty("xmlC", AXIOMUtil.stringToOM("<city>Colombo</city>"));
+        context.setProperty("param3", "xmlD");
+
+        Stack<TemplateContext> stack = new Stack<>();
+        TemplateContext templateContext = new TemplateContext("testTemplateFunc", new ArrayList<>());
+        stack.push(templateContext);
+
+        HashMap<Object, Object> map = new HashMap<>();
+        map.put("xmlA", AXIOMUtil.stringToOM("<name>John</name>"));
+        map.put("xmlB", AXIOMUtil.stringToOM("<apr30>8:99999</apr30>"));
+        map.put("xmlC", AXIOMUtil.stringToOM("<city>Colombo</city>"));
+        map.put("xmlD", AXIOMUtil.stringToOM("<country>SriLanka</country>"));
+        map.put("Result", "r");
+        templateContext.setMappedValues(map);
+
+        context.setProperty("_SYNAPSE_FUNCTION_STACK", stack);
         mediator.mediate(context);
-        Assert.assertEquals(context.getProperty("result"), "<name>John</name><age>31</age><city>Colombo</city>");
+        Assert.assertEquals(context.getProperty("r").toString(),
+                "<may22><name>John</name><apr30>8:99999</apr30><city>Colombo</city>" +
+                        "<country>SriLanka</country></may22>");
     }
 }
