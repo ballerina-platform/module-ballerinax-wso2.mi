@@ -48,23 +48,7 @@ public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCo
     private static final String MODULE_NAME = "ModuleName";
     private static final String VERSION = "Version";
 
-    private static void setFunctionDescriptions(PackageDescriptor descriptor, String functionName, Component component) {
-        String orgName = descriptor.org().value();
-        String moduleName = descriptor.name().value();
-        String version = String.valueOf(descriptor.version().value().major());
-
-        Param functionNameParam = new Param(FUNCTION_NAME, functionName);
-        Param orgParam = new Param(ORG_NAME, orgName);
-        Param moduleParam = new Param(MODULE_NAME, moduleName);
-        Param versionParam = new Param(VERSION, version);
-
-        component.setParam(functionNameParam);
-        component.setParam(orgParam);
-        component.setParam(moduleParam);
-        component.setParam(versionParam);
-    }
-
-    private static void setArguments(FunctionSymbol functionSymbol, Component component) {
+    private static void setParameters(FunctionSymbol functionSymbol, Component component) {
         int noOfParams = 0;
         Optional<List<ParameterSymbol>> params = functionSymbol.typeDescriptor().params();
         if (params.isPresent()) {
@@ -79,7 +63,9 @@ public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCo
             }
         }
         Param sizeParam = new Param(SIZE, Integer.toString(noOfParams));
+        Param functionNameParam = new Param(FUNCTION_NAME, component.getName());
         component.setParam(sizeParam);
+        component.setParam(functionNameParam);
     }
 
     private static void setIcon(BallerinaToml ballerinaToml, Connector connector) {
@@ -146,9 +132,8 @@ public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCo
         Optional<String> functionName = functionSymbol.getName();
         if (functionName.isEmpty()) return;
         Component component = new Component(functionName.get());
-        setArguments(functionSymbol, component);
+        setParameters(functionSymbol, component);
 
-        setFunctionDescriptions(descriptor, functionName.get(), component);
         connector.setComponent(component);
     }
 }
