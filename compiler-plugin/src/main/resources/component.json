@@ -1,0 +1,59 @@
+{
+  "connectorName": "{{parent.name}}",
+  "operationName": "{{name}}",
+  "title": "CSV to Json",
+  "help": "<h1>CSV to JSON</h1> <b>Convert a CSV payload to JSON</b>",
+  "elements": [
+    {
+      "type": "attributeGroup",
+      "value": {
+        "groupName": "General",
+        "elements": [
+          {
+            "type": "attribute",
+            "value": {
+              "name": "description",
+              "displayName": "Description",
+              "inputType": "string",
+              "defaultValue": "Ballerina Connector",
+              "required": "false",
+              "helpTip": "Component description"
+            }
+          },
+          {
+            "type": "attributeGroup",
+            "value": {
+              "groupName": "Variables",
+              "elements": [
+                {
+                  "type": "attribute",
+                  "value": {
+                    "name": "Result",
+                    "displayName": "Result",
+                    "inputType": "string",
+                    "defaultValue": "",
+                    "required": "false",
+                    "helpTip": "Component description"
+                  }
+                }
+                {{#each balFuncParams ~}}
+                ,{
+                  "type": "attribute",
+                  "value": {
+                    "name": "{{name}}",
+                    "displayName": "{{name}}",
+                    "inputType": "string",
+                    "defaultValue": "",
+                    "required": "false",
+                    "helpTip": "Parameter Value (OMElement)"
+                  }
+                }
+                {{/each ~}}
+              ]
+            }
+          }
+        ]
+      }
+    }
+  ]
+}

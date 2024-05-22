@@ -52,12 +52,16 @@ dependencies {
     implementation "org.ballerinalang:ballerina-lang:${ballerinaLangVersion}"
     implementation "org.ballerinalang:ballerina-runtime:${ballerinaLangVersion}"
     implementation "org.ballerinalang:value:${ballerinaLangVersion}"
+    implementation "org.apache.ws.commons.axiom:axiom-api:${axiomVersion}"
+    implementation "org.wso2.carbon.module:module-core:${carbonModuleCoreVersion}"
+    implementation "org.apache.axis2.wso2:axis2:${axis2Version}"
+    testImplementation 'org.testng:testng:7.7.0'
 }
 
 checkstyle {
     toolVersion '7.8.2'
     configFile rootProject.file("build-config/checkstyle/build/checkstyle.xml")
-    configProperties = ["suppressionFile" : file("${rootDir}/build-config/checkstyle/build/suppressions.xml")]
+    configProperties = ["suppressionFile": file("${rootDir}/build-config/checkstyle/build/suppressions.xml")]
 }
 
 def excludePattern = '**/module-info.java'
@@ -76,7 +80,7 @@ spotbugsMain {
         text.enabled = true
     }
     def excludeFile = file("${rootDir}/spotbugs-exclude.xml")
-    if(excludeFile.exists()) {
+    if (excludeFile.exists()) {
         excludeFilter = excludeFile
     }
 }
