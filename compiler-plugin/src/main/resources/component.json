@@ -19,35 +19,41 @@
               "required": "false",
               "helpTip": "Component description"
             }
-          },
-          {
+          },{
             "type": "attributeGroup",
             "value": {
-              "groupName": "Variables",
+              "groupName": "Target",
               "elements": [
                 {
                   "type": "attribute",
                   "value": {
                     "name": "Result",
-                    "displayName": "Result",
+                    "displayName": "Target",
                     "inputType": "string",
                     "defaultValue": "",
                     "required": "false",
-                    "helpTip": "Component description"
+                    "helpTip": "Result of the operation to be stored in a property"
                   }
                 }
+              ]
+            }},
+          {
+            "type": "attributeGroup",
+            "value": {
+              "groupName": "Variables",
+              "elements": [
                 {{#each balFuncParams ~}}
-                ,{
+                {
                   "type": "attribute",
                   "value": {
                     "name": "{{name}}",
-                    "displayName": "{{name}}",
+                    "displayName": "{{name}} [xml]",
                     "inputType": "string",
                     "defaultValue": "",
                     "required": "false",
                     "helpTip": "Parameter Value (OMElement)"
                   }
-                }
+                },
                 {{/each ~}}
               ]
             }

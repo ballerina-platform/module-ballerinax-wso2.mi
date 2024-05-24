@@ -19,11 +19,11 @@
 package io.ballerina.mi.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
-import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.directory.ProjectLoader;
 import picocli.CommandLine;
 
@@ -34,6 +34,7 @@ import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.io.PrintStream;
 import java.nio.charset.StandardCharsets;
+import java.nio.file.FileSystems;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.Objects;
@@ -60,7 +61,7 @@ public class MiCmd implements BLauncherCmd {
             return;
         }
 
-        Path path = Path.of(sourcePath);
+        Path path = FileSystems.getDefault().getPath(sourcePath).toAbsolutePath().normalize();
         Project project = ProjectLoader.loadProject(path);
         Package pkg = project.currentPackage();
         PackageCompilation packageCompilation = pkg.getCompilation();
