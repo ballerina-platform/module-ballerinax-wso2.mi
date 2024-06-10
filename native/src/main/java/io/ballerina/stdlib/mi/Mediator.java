@@ -47,18 +47,17 @@ public class Mediator extends SimpleMediator {
     }
 
     private static String getResultProperty(SimpleMessageContext context) {
-        String result = context.lookupTemplateParameter(Constants.RESULT).toString();
-        if (result != null) {
-            return result;
-        }
-        return Constants.RESULT;
+        return context.lookupTemplateParameter(Constants.RESULT).toString();
     }
 
     public void mediate(SimpleMessageContext context) {
         Callback returnCallback = new Callback() {
             public void notifySuccess(Object result) {
                 log.info("Notify Success");
-                context.setProperty(getResultProperty(context), BXmlConverter.toOMElement((BXml) result));
+                OMElement omElement = BXmlConverter.toOMElement((BXml) result);
+                if (omElement != null) {
+                    context.setProperty(getResultProperty(context), BXmlConverter.toOMElement((BXml) result));
+                }
             }
 
             public void notifyFailure(BError result) {
