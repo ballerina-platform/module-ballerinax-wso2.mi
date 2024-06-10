@@ -19,7 +19,12 @@
 package io.ballerina.stdlib.mi.plugin;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.*;
+import io.ballerina.compiler.api.symbols.AnnotationSymbol;
+import io.ballerina.compiler.api.symbols.FunctionSymbol;
+import io.ballerina.compiler.api.symbols.ParameterSymbol;
+import io.ballerina.compiler.api.symbols.TypeDescKind;
+import io.ballerina.compiler.api.symbols.TypeSymbol;
+import io.ballerina.compiler.api.symbols.Symbol;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.projects.BallerinaToml;
@@ -46,7 +51,8 @@ public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCo
     private static final String FUNCTION_NAME = "FunctionName";
     private static final String SIZE = "Size";
 
-    private static void setParameters(SyntaxNodeAnalysisContext context, FunctionSymbol functionSymbol, Component component) {
+    private static void setParameters(SyntaxNodeAnalysisContext context, FunctionSymbol functionSymbol,
+                                      Component component) {
         int noOfParams = 0;
         Optional<List<ParameterSymbol>> params = functionSymbol.typeDescriptor().params();
         if (params.isPresent()) {

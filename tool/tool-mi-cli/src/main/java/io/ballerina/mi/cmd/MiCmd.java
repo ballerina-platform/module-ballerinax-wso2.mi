@@ -19,8 +19,10 @@
 package io.ballerina.mi.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
-import io.ballerina.projects.*;
+import io.ballerina.projects.JBallerinaBackend;
 import io.ballerina.projects.Package;
+import io.ballerina.projects.PackageCompilation;
+import io.ballerina.projects.Project;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import picocli.CommandLine;
