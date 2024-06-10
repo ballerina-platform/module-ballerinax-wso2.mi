@@ -23,7 +23,14 @@ import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlItem;
 import io.ballerina.runtime.internal.values.XmlPi;
-import org.apache.axiom.om.*;
+import org.apache.axiom.om.OMAbstractFactory;
+import org.apache.axiom.om.OMAttribute;
+import org.apache.axiom.om.OMComment;
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.OMFactory;
+import org.apache.axiom.om.OMNamespace;
+import org.apache.axiom.om.OMProcessingInstruction;
+import org.apache.axiom.om.OMText;
 import org.apache.commons.lang3.tuple.Pair;
 
 import java.util.HashMap;
@@ -45,9 +52,12 @@ public class BXmlConverter {
     }
 
     public static OMElement toOMElement(BXml bXml) {
-        BXmlItem xmlItem = (BXmlItem) bXml;
+        if (!(bXml instanceof BXmlItem xmlItem)) {
+            return null;
+        }
 
-        OMNamespace namespace = factory.createOMNamespace(xmlItem.getQName().getNamespaceURI(), xmlItem.getQName().getPrefix());
+        OMNamespace namespace = factory.createOMNamespace(xmlItem.getQName().getNamespaceURI(),
+                xmlItem.getQName().getPrefix());
         BMap<BString, BString> bMap = xmlItem.getAttributesMap();
 
         OMElement rootElement = factory.createOMElement(xmlItem.getQName().getLocalPart(), namespace);
@@ -68,8 +78,8 @@ public class BXmlConverter {
             if (!attribute.getKey().getValue().startsWith(BXmlItem.XMLNS_NS_URI_PREFIX)) {
                 //if this is a namespace
                 Pair<String, String> pair = extractNamespace(attribute.getKey().getValue());
-                OMNamespace ns = namespaceMap.get(pair.getLeft());
-                OMAttribute omattribute = factory.createOMAttribute(pair.getRight(), namespaceMap.get(pair.getLeft()), attribute.getValue().getValue());
+                OMAttribute omattribute = factory.createOMAttribute(pair.getRight(), namespaceMap.get(pair.getLeft()),
+                        attribute.getValue().getValue());
                 rootElement.addAttribute(omattribute);
                 //TODO: previously used OMAttribute creation method research why it was changed to attribute.
             }
@@ -86,7 +96,9 @@ public class BXmlConverter {
             switch (child.getNodeType()) {
                 case ELEMENT:
                     OMElement childElement = toOMElement(child);
-                    rootElement.addChild(childElement);
+                    if (childElement != null) {
+                        rootElement.addChild(childElement);
+                    }
                     break;
                 case TEXT:
                     OMText omText = factory.createOMText(rootElement, child.getTextValue());
@@ -98,7 +110,8 @@ public class BXmlConverter {
                     break;
                 case PI:
                     XmlPi xmlPi = (XmlPi) child;
-                    OMProcessingInstruction omProcessingInstruction = factory.createOMProcessingInstruction(null, xmlPi.getTarget(), xmlPi.getData());
+                    OMProcessingInstruction omProcessingInstruction = factory.createOMProcessingInstruction(null,
+                            xmlPi.getTarget(), xmlPi.getData());
                     rootElement.addChild(omProcessingInstruction);
                     break;
                 default:

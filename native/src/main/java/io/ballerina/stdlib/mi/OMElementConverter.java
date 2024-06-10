@@ -24,13 +24,20 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import io.ballerina.runtime.api.values.BXmlItem;
-import org.apache.axiom.om.*;
+import org.apache.axiom.om.OMAttribute;
+import org.apache.axiom.om.OMComment;
+import org.apache.axiom.om.OMElement;
+import org.apache.axiom.om.OMNamespace;
+import org.apache.axiom.om.OMNode;
+import org.apache.axiom.om.OMProcessingInstruction;
+import org.apache.axiom.om.OMText;
 
-import javax.xml.namespace.QName;
 import java.util.ArrayList;
 import java.util.HashSet;
 import java.util.Iterator;
 import java.util.Set;
+
+import javax.xml.namespace.QName;
 
 public class OMElementConverter {
 
@@ -64,7 +71,8 @@ public class OMElementConverter {
 
 
     private static QName getQNameOMElement(OMElement omElement) {
-        return new QName(omElement.getQName().getNamespaceURI(), omElement.getQName().getLocalPart(), omElement.getQName().getPrefix());
+        return new QName(omElement.getQName().getNamespaceURI(), omElement.getQName().getLocalPart(),
+                omElement.getQName().getPrefix());
     }
 
     private static QName getQNameOMAttribute(OMAttribute omAttribute) {
@@ -78,7 +86,8 @@ public class OMElementConverter {
     }
 
     private static void addAttributes(OMElement omElement, BXmlItem xmlItem) {
-        // NOTE: Extracted the idea from  bvm/ballerina-runtime/src/main/java/io/ballerina/runtime/internal/XmlTreeBuilder.java
+        // NOTE: Extracted the idea from
+        // bvm/ballerina-runtime/src/main/java/io/ballerina/runtime/internal/XmlTreeBuilder.java
         Iterator attributes = omElement.getAllAttributes();
         BMap<BString, BString> attributesMap = xmlItem.getAttributesMap();
         Set<QName> usedNS = new HashSet<>();
@@ -88,7 +97,8 @@ public class OMElementConverter {
             OMAttribute attribute = (OMAttribute) attributes.next();
             QName qName = getQNameOMAttribute(attribute);
             //CHECK: Good to put break point here and check the values
-            attributesMap.put(StringUtils.fromString(qName.toString()), StringUtils.fromString(attribute.getAttributeValue()));
+            attributesMap.put(StringUtils.fromString(qName.toString()),
+                    StringUtils.fromString(attribute.getAttributeValue()));
             if (attribute.getPrefix() != null) {
                 if (!attribute.getPrefix().isEmpty()) {
                     usedNS.add(qName);
