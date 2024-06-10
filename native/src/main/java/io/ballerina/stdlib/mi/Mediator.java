@@ -28,11 +28,17 @@ import org.wso2.carbon.module.core.SimpleMediator;
 import org.wso2.carbon.module.core.SimpleMessageContext;
 
 public class Mediator extends SimpleMediator {
-    private static Runtime rt = null;
+    private static volatile Runtime rt = null;
 
     public Mediator() {
-        ModuleInfo moduleInfo = new ModuleInfo();
-        init(moduleInfo);
+        if (rt == null) {
+            synchronized (Mediator.class) {
+                if (rt == null) {
+                    ModuleInfo moduleInfo = new ModuleInfo();
+                    init(moduleInfo);
+                }
+            }
+        }
     }
 
     // This constructor is added to test the mediator
