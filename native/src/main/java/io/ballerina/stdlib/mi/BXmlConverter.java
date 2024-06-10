@@ -119,10 +119,5 @@ public class BXmlConverter {
             }
         }
     }
-
-    private boolean isNamespace(String value) {
-        // starts with XmlItem.XMLNS_NS_URI_PREFIX true else false
-        return value.startsWith(BXmlItem.XMLNS_NS_URI_PREFIX);
-    }
 }
 

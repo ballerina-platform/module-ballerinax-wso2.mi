@@ -19,9 +19,9 @@
 package io.ballerina.stdlib.mi;
 
 public class ModuleInfo {
-    private static String ballerinaOrgName = "BALLERINA_ORG_NAME";
-    private static String ballerinaModuleName = "BALLERINA_MODULE_NAME";
-    private static String ballerinaModuleVersion = "BALLERINA_MODULE_VERSION";
+    private String ballerinaOrgName = "BALLERINA_ORG_NAME";
+    private String ballerinaModuleName = "BALLERINA_MODULE_NAME";
+    private String ballerinaModuleVersion = "BALLERINA_MODULE_VERSION";
 
     public String getOrgName() {
         return ballerinaOrgName;
