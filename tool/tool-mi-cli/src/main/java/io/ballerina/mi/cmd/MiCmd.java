@@ -19,12 +19,10 @@
 package io.ballerina.mi.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
+import io.ballerina.projects.*;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.Project;
-import io.ballerina.projects.JBallerinaBackend;
-import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.directory.ProjectLoader;
+import io.ballerina.tools.diagnostics.Diagnostic;
 import picocli.CommandLine;
 
 import java.io.BufferedReader;
@@ -64,6 +62,10 @@ public class MiCmd implements BLauncherCmd {
         Project project = ProjectLoader.loadProject(path);
         Package pkg = project.currentPackage();
         PackageCompilation packageCompilation = pkg.getCompilation();
+        for (Diagnostic diagnostic : packageCompilation.diagnosticResult().diagnostics()) {
+            printStream.println(diagnostic.toString());
+            return;
+        }
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
         Path bin = path.resolve("target").resolve("bin");
         try {

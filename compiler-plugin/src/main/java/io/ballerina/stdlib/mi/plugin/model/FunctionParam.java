@@ -16,11 +16,21 @@
  * under the License.
  */
 
-package io.ballerina.stdlib.mi;
+package io.ballerina.stdlib.mi.plugin.model;
 
-public class Constants {
-    public static final String FUNCTION_NAME = "paramFunctionName";
-    public static final String SIZE = "paramSize";
-    public static final String RESULT = "Result";
-    public static final String RETURN_TYPE = "returnType";
+public class FunctionParam extends Param {
+    private String paramType;
+
+    public FunctionParam(String index, String name, String type) {
+        super(index, name);
+        this.paramType = type;
+    }
+
+    public String getParamType() {
+        return paramType;
+    }
+
+    public void setParamType(String paramType) {
+        this.paramType = paramType;
+    }
 }

@@ -19,10 +19,7 @@
 package io.ballerina.stdlib.mi.plugin;
 
 import io.ballerina.compiler.api.SemanticModel;
-import io.ballerina.compiler.api.symbols.AnnotationSymbol;
-import io.ballerina.compiler.api.symbols.FunctionSymbol;
-import io.ballerina.compiler.api.symbols.ParameterSymbol;
-import io.ballerina.compiler.api.symbols.Symbol;
+import io.ballerina.compiler.api.symbols.*;
 import io.ballerina.compiler.syntax.tree.AnnotationNode;
 import io.ballerina.compiler.syntax.tree.FunctionDefinitionNode;
 import io.ballerina.projects.BallerinaToml;
@@ -32,10 +29,14 @@ import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.stdlib.mi.plugin.model.Component;
 import io.ballerina.stdlib.mi.plugin.model.Connector;
+import io.ballerina.stdlib.mi.plugin.model.FunctionParam;
 import io.ballerina.stdlib.mi.plugin.model.Param;
 import io.ballerina.toml.semantic.ast.TomlKeyValueNode;
 import io.ballerina.toml.semantic.ast.TomlStringValueNode;
 import io.ballerina.toml.semantic.ast.TomlTableNode;
+import io.ballerina.tools.diagnostics.DiagnosticFactory;
+import io.ballerina.tools.diagnostics.DiagnosticInfo;
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
 import java.util.List;
 import java.util.Optional;
@@ -44,11 +45,8 @@ public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCo
 
     private static final String FUNCTION_NAME = "FunctionName";
     private static final String SIZE = "Size";
-    private static final String ORG_NAME = "OrgName";
-    private static final String MODULE_NAME = "ModuleName";
-    private static final String VERSION = "Version";
 
-    private static void setParameters(FunctionSymbol functionSymbol, Component component) {
+    private static void setParameters(SyntaxNodeAnalysisContext context, FunctionSymbol functionSymbol, Component component) {
         int noOfParams = 0;
         Optional<List<ParameterSymbol>> params = functionSymbol.typeDescriptor().params();
         if (params.isPresent()) {
@@ -57,15 +55,36 @@ public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCo
 
             for (int i = 0; i < noOfParams; i++) {
                 ParameterSymbol parameterSymbol = parameterSymbols.get(i);
-                if (parameterSymbol.getName().isEmpty()) continue;
-                Param param = new Param(Integer.toString(i), parameterSymbol.getName().get());
-                component.addBalFuncParams(param);
+                Optional<String> optParamName = parameterSymbol.getName();
+                if (optParamName.isEmpty()) continue;
+                String paramType = getParamType(parameterSymbol.typeDescriptor().typeKind());
+                if (paramType == null) {
+                    DiagnosticInfo diagnosticInfo = new DiagnosticInfo("UNSUPPORTED_PARAM_100",
+                            "unsupported parameter type found", DiagnosticSeverity.ERROR);
+                    context.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo,
+                            parameterSymbol.getLocation().get()));
+                } else {
+                    FunctionParam param = new FunctionParam(Integer.toString(i), optParamName.get(), paramType);
+                    component.addBalFuncParams(param);
+                }
             }
         }
         Param sizeParam = new Param(SIZE, Integer.toString(noOfParams));
         Param functionNameParam = new Param(FUNCTION_NAME, component.getName());
         component.setParam(sizeParam);
         component.setParam(functionNameParam);
+        String returnType;
+        Optional<TypeSymbol> optReturnTypeSymbol = functionSymbol.typeDescriptor().returnTypeDescriptor();
+        returnType = optReturnTypeSymbol.isPresent() ?
+                optReturnTypeSymbol.get().typeKind().getName() : TypeDescKind.NIL.getName();
+        component.setBalFuncReturnType(returnType);
+    }
+
+    private static String getParamType(TypeDescKind typeKind) {
+        return switch (typeKind) {
+            case NIL, BOOLEAN, INT, STRING, FLOAT, DECIMAL, XML, JSON -> typeKind.getName();
+            default -> null;
+        };
     }
 
     private static void setIcon(BallerinaToml ballerinaToml, Connector connector) {
@@ -132,7 +151,7 @@ public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCo
         Optional<String> functionName = functionSymbol.getName();
         if (functionName.isEmpty()) return;
         Component component = new Component(functionName.get());
-        setParameters(functionSymbol, component);
+        setParameters(context, functionSymbol, component);
 
         connector.setComponent(component);
     }

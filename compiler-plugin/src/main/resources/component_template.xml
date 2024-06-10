@@ -27,7 +27,9 @@
         {{/each ~}}
         {{#each balFuncParams ~}}
         <property name="param{{index}}" value="{{name}}"/>
+        <property name="paramType{{index}}" value="{{paramType}}"/>
         {{/each ~}}
+        <property name="returnType" value="{{balFuncReturnType}}"/>
         <class name="io.ballerina.stdlib.mi.Mediator"/>
     </sequence>
 </template>
