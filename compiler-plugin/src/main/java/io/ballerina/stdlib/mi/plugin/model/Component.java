@@ -76,7 +76,6 @@ public class Component extends ModelElement {
         this.description = description;
     }
 
-    // TODO: check the usage of this
     public String getType() {
         return "component";
     }

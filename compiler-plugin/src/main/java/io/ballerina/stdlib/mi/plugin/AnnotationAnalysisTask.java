@@ -61,8 +61,6 @@ public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCo
 
             for (int i = 0; i < noOfParams; i++) {
                 ParameterSymbol parameterSymbol = parameterSymbols.get(i);
-                Optional<String> optParamName = parameterSymbol.getName();
-                if (optParamName.isEmpty()) continue;
                 String paramType = getParamType(parameterSymbol.typeDescriptor().typeKind());
                 if (paramType == null) {
                     DiagnosticInfo diagnosticInfo = new DiagnosticInfo("UNSUPPORTED_PARAM_100",
@@ -70,8 +68,11 @@ public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCo
                     context.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo,
                             parameterSymbol.getLocation().get()));
                 } else {
-                    FunctionParam param = new FunctionParam(Integer.toString(i), optParamName.get(), paramType);
-                    component.addBalFuncParams(param);
+                    Optional<String> optParamName = parameterSymbol.getName();
+                    if (optParamName.isPresent()) {
+                        FunctionParam param = new FunctionParam(Integer.toString(i), optParamName.get(), paramType);
+                        component.addBalFuncParams(param);
+                    }
                 }
             }
         }
@@ -79,9 +80,8 @@ public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCo
         Param functionNameParam = new Param(FUNCTION_NAME, component.getName());
         component.setParam(sizeParam);
         component.setParam(functionNameParam);
-        String returnType;
         Optional<TypeSymbol> optReturnTypeSymbol = functionSymbol.typeDescriptor().returnTypeDescriptor();
-        returnType = optReturnTypeSymbol.isPresent() ?
+        String returnType = optReturnTypeSymbol.isPresent() ?
                 optReturnTypeSymbol.get().typeKind().getName() : TypeDescKind.NIL.getName();
         component.setBalFuncReturnType(returnType);
     }
