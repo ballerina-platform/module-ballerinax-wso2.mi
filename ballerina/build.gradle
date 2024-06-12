@@ -36,7 +36,13 @@ dependencies {
 build {
     dependsOn(":mi-compiler-plugin:jar")
     dependsOn("downloadDependencies")
+}
+
+task localPublish {
+    dependsOn(":mi-compiler-plugin:jar")
+    dependsOn("downloadDependencies")
     doLast {
+        // Push the MI Tools package to the local repository
         exec {
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
                 commandLine 'cmd', "/c", "bal pack && bal push --repository=local"
@@ -44,9 +50,10 @@ build {
                 commandLine 'sh', "-c", "bal pack && bal push --repository=local"
             }
         }
-        println("Successfully pushed the MI Tools package to the local.")
+        println("Successfully pushed the MI Package to the local.")
     }
 }
+
 task release {
     dependsOn("publishBallerinaPackage")
 }
