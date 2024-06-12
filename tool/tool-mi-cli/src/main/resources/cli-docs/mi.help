@@ -12,5 +12,5 @@ OPTIONS
            Path to Ballerina project that includes the transformation logic.
 
 EXAMPLES
-       Generate records and parser functions for a given EDI schema.
+       Generate WSO2 micro integrator connector for Ballerina.
            $ bal mi -i ballerina/project

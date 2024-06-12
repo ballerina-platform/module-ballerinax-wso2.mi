@@ -20,6 +20,7 @@ package io.ballerina.mi.cmd;
 
 import io.ballerina.cli.BLauncherCmd;
 import io.ballerina.projects.JBallerinaBackend;
+import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;

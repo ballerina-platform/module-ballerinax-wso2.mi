@@ -55,11 +55,7 @@ public class Mediator extends SimpleMediator {
     }
 
     private static String getResultProperty(SimpleMessageContext context) {
-        String result = context.lookupTemplateParameter(Constants.RESULT).toString();
-        if (result != null) {
-            return result;
-        }
-        return Constants.RESULT;
+        return context.lookupTemplateParameter(Constants.RESULT).toString();
     }
 
     public void mediate(SimpleMessageContext context) {
