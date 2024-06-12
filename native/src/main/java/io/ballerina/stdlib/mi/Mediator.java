@@ -21,11 +21,28 @@ package io.ballerina.stdlib.mi;
 import io.ballerina.runtime.api.Module;
 import io.ballerina.runtime.api.Runtime;
 import io.ballerina.runtime.api.async.Callback;
+import io.ballerina.runtime.api.creators.ValueCreator;
+import io.ballerina.runtime.api.utils.JsonUtils;
+import io.ballerina.runtime.api.utils.StringUtils;
+import io.ballerina.runtime.api.values.BDecimal;
 import io.ballerina.runtime.api.values.BError;
+import io.ballerina.runtime.api.values.BMap;
+import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import org.apache.axiom.om.OMElement;
 import org.wso2.carbon.module.core.SimpleMediator;
 import org.wso2.carbon.module.core.SimpleMessageContext;
+
+import java.util.Objects;
+
+import static io.ballerina.stdlib.mi.Constants.BOOLEAN;
+import static io.ballerina.stdlib.mi.Constants.DECIMAL;
+import static io.ballerina.stdlib.mi.Constants.FLOAT;
+import static io.ballerina.stdlib.mi.Constants.INT;
+import static io.ballerina.stdlib.mi.Constants.JSON;
+import static io.ballerina.stdlib.mi.Constants.NIL;
+import static io.ballerina.stdlib.mi.Constants.STRING;
+import static io.ballerina.stdlib.mi.Constants.XML;
 
 public class Mediator extends SimpleMediator {
     private static volatile Runtime rt = null;
@@ -51,13 +68,21 @@ public class Mediator extends SimpleMediator {
     }
 
     public void mediate(SimpleMessageContext context) {
+        String balFunctionReturnType = context.getProperty(Constants.RETURN_TYPE).toString();
         Callback returnCallback = new Callback() {
             public void notifySuccess(Object result) {
                 log.info("Notify Success");
-                OMElement omElement = BXmlConverter.toOMElement((BXml) result);
-                if (omElement != null) {
-                    context.setProperty(getResultProperty(context), BXmlConverter.toOMElement((BXml) result));
+                Object res = result;
+                if (Objects.equals(balFunctionReturnType, XML)) {
+                    res = BXmlConverter.toOMElement((BXml) result);
+                } else if (Objects.equals(balFunctionReturnType, DECIMAL)) {
+                    res = ((BDecimal) result).value().toString();
+                } else if (Objects.equals(balFunctionReturnType, STRING)) {
+                    res = ((BString) res).getValue();
+                } else if (result instanceof BMap) {
+                    res = result.toString();
                 }
+                context.setProperty(getResultProperty(context), res);
             }
 
             public void notifyFailure(BError result) {
@@ -70,20 +95,40 @@ public class Mediator extends SimpleMediator {
                 getParameters(context));
     }
 
+    private Object[] getParameters(SimpleMessageContext context) {
+        Object[] args = new Object[Integer.parseInt(context.getProperty(Constants.SIZE).toString())];
+        for (int i = 0; i < args.length; i++) {
+            args[i] = getParameter(context, "param" + i, "paramType" + i);
+        }
+        return args;
+    }
+
+    private Object getParameter(SimpleMessageContext context, String value, String type) {
+        String paramName = context.getProperty(value).toString();
+        Object param = context.lookupTemplateParameter(paramName);
+        if (param == null) {
+            log.error("Error in getting the ballerina function parameter");
+            return null;
+        }
+        String paramType = context.getProperty(type).toString();
+        return switch (paramType) {
+            case NIL -> null;
+            case BOOLEAN -> Boolean.parseBoolean((String) param);
+            case INT -> Long.parseLong((String) param);
+            case STRING -> StringUtils.fromString((String) param);
+            case FLOAT -> Double.parseDouble((String) param);
+            case DECIMAL -> ValueCreator.createDecimalValue((String) param);
+            case JSON -> getBMapParameter(param);
+            default -> getBXmlParameter(context, value);
+        };
+    }
+
     private BXml getBXmlParameter(SimpleMessageContext context, String parameterName) {
         OMElement omElement = getOMElement(context, parameterName);
         if (omElement == null) {
             return null;
         }
         return OMElementConverter.toBXml(omElement);
-    }
-
-    private Object[] getParameters(SimpleMessageContext context) {
-        Object[] args = new Object[Integer.parseInt(context.getProperty(Constants.SIZE).toString())];
-        for (int i = 0; i < args.length; i++) {
-            args[i] = getBXmlParameter(context, "param" + i);
-        }
-        return args;
     }
 
     private OMElement getOMElement(SimpleMessageContext ctx, String value) {
@@ -93,6 +138,14 @@ public class Mediator extends SimpleMediator {
         }
         log.error("Error in getting the OMElement");
         return null;
+    }
+
+    private BMap getBMapParameter(Object param) {
+        if (param instanceof String) {
+            return (BMap) JsonUtils.parse((String) param);
+        } else {
+            return (BMap) JsonUtils.parse(param.toString());
+        }
     }
 
     private void init(ModuleInfo moduleInfo) {

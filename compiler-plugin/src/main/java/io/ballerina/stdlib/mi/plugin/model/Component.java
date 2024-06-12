@@ -30,7 +30,8 @@ public class Component extends ModelElement {
     private String name;
     private String description = "just a description";
     private ArrayList<Param> params = new ArrayList<>();
-    private ArrayList<Param> balFuncParams = new ArrayList<>();
+    private ArrayList<FunctionParam> balFuncParams = new ArrayList<>();
+    private String balFuncReturnType;
     private Connector parent;
 
     public Component(String name) {
@@ -79,14 +80,22 @@ public class Component extends ModelElement {
         return "component";
     }
 
+    public String getBalFuncReturnType() {
+        return balFuncReturnType;
+    }
 
-    public ArrayList<Param> getBalFuncParams() {
+    public void setBalFuncReturnType(String returnType) {
+        this.balFuncReturnType = returnType;
+    }
+
+    public ArrayList<FunctionParam> getBalFuncParams() {
         return balFuncParams;
     }
 
-    public void addBalFuncParams(Param balParam) {
-        this.balFuncParams.add(balParam);
+    public void addBalFuncParams(FunctionParam param) {
+        this.balFuncParams.add(param);
     }
+
     public void generateInstanceXml(File connectorFolder) {
         File file = new File(connectorFolder, this.getName());
         if (!file.exists()) {

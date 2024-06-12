@@ -22,4 +22,13 @@ public class Constants {
     public static final String FUNCTION_NAME = "paramFunctionName";
     public static final String SIZE = "paramSize";
     public static final String RESULT = "Result";
+    public static final String RETURN_TYPE = "returnType";
+    public static final String NIL = "nil";
+    public static final String BOOLEAN = "boolean";
+    public static final String INT = "int";
+    public static final String STRING = "string";
+    public static final String FLOAT = "float";
+    public static final String DECIMAL = "decimal";
+    public static final String JSON = "json";
+    public static final String XML = "xml";
 }
