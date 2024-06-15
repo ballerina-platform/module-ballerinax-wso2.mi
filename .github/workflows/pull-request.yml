@@ -1,0 +1,47 @@
+name: PR Build
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.run_id }}
+  cancel-in-progress: true
+
+on: pull_request
+
+jobs:
+  ubuntu-build:
+      name: Build
+      runs-on: ubuntu-latest
+      concurrency:
+        group: ${{ github.head_ref }}-ubuntu-build
+        cancel-in-progress: true
+      steps:
+          - name: Checkout Repository
+            uses: actions/checkout@v3
+
+          - name: Set Up Ballerina
+            uses: ballerina-platform/setup-ballerina@v1.1.0
+            with:
+              version: latest
+              
+          - name: Set up JDK 17
+            uses: actions/setup-java@v3
+            with:
+                distribution: 'temurin'
+                java-version: 17.0.7
+          
+          - name: Set ENV Variables
+            run: |
+                echo -e '${{ toJson(secrets) }}' | jq -r 'to_entries[] | .key + "=" + .value' >> $GITHUB_ENV 
+
+          - name: Grant execute permission for gradlew
+            run: chmod +x gradlew     
+
+          - name: Build the Package
+            env:
+              packageUser: ${{ github.actor }}
+              packagePAT: ${{ secrets.GITHUB_TOKEN }}
+            run: |
+                ./gradlew clean -x test -x check :mi-ballerina:localPublish && ./gradlew clean -x test -x check :tool-mi:localPublish
+                ./gradlew build
+
+          - name: Generate Codecov Report
+            uses: codecov/codecov-action@v3
