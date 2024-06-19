@@ -49,11 +49,11 @@ tasks.register('localPublish') {
 localPublish.dependsOn ":tool-mi-cli:build"
 
 task release {
-    dependsOn(":tool-mi-cli:build")
     dependsOn("publishBallerinaPackage")
 }
 
 task publishBallerinaPackage {
+    dependsOn(":tool-mi-cli:build")
     doLast {
         exec {
             if (Os.isFamily(Os.FAMILY_WINDOWS)) {
