@@ -34,6 +34,7 @@ import org.wso2.carbon.module.core.SimpleMediator;
 import org.wso2.carbon.module.core.SimpleMessageContext;
 
 import java.util.Objects;
+import java.util.concurrent.CountDownLatch;
 
 import static io.ballerina.stdlib.mi.Constants.BOOLEAN;
 import static io.ballerina.stdlib.mi.Constants.DECIMAL;
@@ -69,6 +70,7 @@ public class Mediator extends SimpleMediator {
 
     public void mediate(SimpleMessageContext context) {
         String balFunctionReturnType = context.getProperty(Constants.RETURN_TYPE).toString();
+        final CountDownLatch latch = new CountDownLatch(1);
         Callback returnCallback = new Callback() {
             public void notifySuccess(Object result) {
                 log.info("Notify Success");
@@ -83,16 +85,23 @@ public class Mediator extends SimpleMediator {
                     res = result.toString();
                 }
                 context.setProperty(getResultProperty(context), res);
+                latch.countDown();
             }
 
             public void notifyFailure(BError result) {
                 log.info("Notify Failure");
                 context.setProperty(Constants.RESULT, result.toString());
+                latch.countDown();
             }
         };
 
         rt.invokeMethodAsync(context.getProperty(Constants.FUNCTION_NAME).toString(), returnCallback,
                 getParameters(context));
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            log.error(e.getMessage());
+        }
     }
 
     private Object[] getParameters(SimpleMessageContext context) {
