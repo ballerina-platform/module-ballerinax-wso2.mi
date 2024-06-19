@@ -46,10 +46,12 @@ tasks.register('localPublish') {
         println("Successfully pushed the MI Tool to the local.")
     }
 }
+localPublish.dependsOn ":tool-mi-cli:build"
 
 task release {
     dependsOn("publishBallerinaPackage")
 }
+release.dependsOn ":tool-mi-cli:build"
 
 task publishBallerinaPackage {
     doLast {
@@ -63,8 +65,6 @@ task publishBallerinaPackage {
         println("Successfully pushed the MI Tool to the central.")
     }
 }
-
-localPublish.dependsOn ":tool-mi-cli:build"
 
 task build {
     dependsOn ":tool-mi-cli:build"
