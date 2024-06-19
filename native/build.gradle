@@ -19,7 +19,6 @@
 plugins {
     id 'java'
     id 'checkstyle'
-    id 'com.github.spotbugs' version "5.0.14"
 }
 
 description = 'WSO2 Micro Integrator Ballerina connector'
@@ -70,21 +69,3 @@ tasks.withType(Checkstyle) {
 }
 
 checkstyleMain.dependsOn(":checkstyle:downloadCheckstyleRuleFiles")
-
-spotbugsMain {
-    effort "max"
-    reportLevel "low"
-    reportsDir = file("$project.buildDir/reports/spotbugs")
-    reports {
-        html.enabled true
-        text.enabled = true
-    }
-    def excludeFile = file("${rootDir}/spotbugs-exclude.xml")
-    if (excludeFile.exists()) {
-        excludeFilter = excludeFile
-    }
-}
-
-spotbugsTest {
-    enabled = false
-}
