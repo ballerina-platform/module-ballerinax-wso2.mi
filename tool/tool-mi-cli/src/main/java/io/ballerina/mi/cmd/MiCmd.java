@@ -54,9 +54,9 @@ public class MiCmd implements BLauncherCmd {
 
     @Override
     public void execute() {
-        if (sourcePath == null) {
+        if (sourcePath == null || helpFlag) {
             StringBuilder stringBuilder = new StringBuilder();
-            printUsage(stringBuilder);
+            setHelpMessage(stringBuilder);
             printStream.println(stringBuilder);
             return;
         }
@@ -101,21 +101,7 @@ public class MiCmd implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder stringBuilder) {
-        Class<?> clazz = MiCmd.class;
-        ClassLoader classLoader = clazz.getClassLoader();
-        InputStream inputStream = classLoader.getResourceAsStream("cli-docs/mi.help");
-        if (inputStream != null) {
-            try (InputStreamReader inputStreamREader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
-                 BufferedReader br = new BufferedReader(inputStreamREader)) {
-                String content = br.readLine();
-                printStream.append(content);
-                while ((content = br.readLine()) != null) {
-                    printStream.append('\n').append(content);
-                }
-            } catch (IOException e) {
-                printStream.println("Helper text is not available.");
-            }
-        }
+        setHelpMessage(stringBuilder);
     }
 
     @Override
@@ -126,5 +112,23 @@ public class MiCmd implements BLauncherCmd {
     @Override
     public void setParentCmdParser(picocli.CommandLine commandLine) {
 
+    }
+
+    private void setHelpMessage(StringBuilder stringBuilder) {
+        Class<?> clazz = MiCmd.class;
+        ClassLoader classLoader = clazz.getClassLoader();
+        InputStream inputStream = classLoader.getResourceAsStream("cli-docs/mi.help");
+        if (inputStream != null) {
+            try (InputStreamReader inputStreamREader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
+                 BufferedReader br = new BufferedReader(inputStreamREader)) {
+                String content = br.readLine();
+                stringBuilder.append(content);
+                while ((content = br.readLine()) != null) {
+                    stringBuilder.append('\n').append(content);
+                }
+            } catch (IOException e) {
+                stringBuilder.append(e.getMessage());
+            }
+        }
     }
 }
