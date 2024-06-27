@@ -30,21 +30,22 @@ import io.ballerina.runtime.api.values.BMap;
 import io.ballerina.runtime.api.values.BString;
 import io.ballerina.runtime.api.values.BXml;
 import org.apache.axiom.om.OMElement;
-import org.wso2.carbon.module.core.SimpleMediator;
-import org.wso2.carbon.module.core.SimpleMessageContext;
+import org.apache.synapse.MessageContext;
+import org.apache.synapse.mediators.AbstractMediator;
+import org.apache.synapse.mediators.template.TemplateContext;
 
 import java.util.Objects;
+import java.util.Stack;
 
 import static io.ballerina.stdlib.mi.Constants.BOOLEAN;
 import static io.ballerina.stdlib.mi.Constants.DECIMAL;
 import static io.ballerina.stdlib.mi.Constants.FLOAT;
 import static io.ballerina.stdlib.mi.Constants.INT;
 import static io.ballerina.stdlib.mi.Constants.JSON;
-import static io.ballerina.stdlib.mi.Constants.NIL;
 import static io.ballerina.stdlib.mi.Constants.STRING;
 import static io.ballerina.stdlib.mi.Constants.XML;
 
-public class Mediator extends SimpleMediator {
+public class Mediator extends AbstractMediator {
     private static volatile Runtime rt = null;
 
     public Mediator() {
@@ -63,15 +64,14 @@ public class Mediator extends SimpleMediator {
         init(moduleInfo);
     }
 
-    private static String getResultProperty(SimpleMessageContext context) {
-        return context.lookupTemplateParameter(Constants.RESULT).toString();
+    private static String getResultProperty(MessageContext context) {
+        return lookupTemplateParameter(context, Constants.RESULT).toString();
     }
 
-    public void mediate(SimpleMessageContext context) {
+    public boolean mediate(MessageContext context) {
         String balFunctionReturnType = context.getProperty(Constants.RETURN_TYPE).toString();
         Callback returnCallback = new Callback() {
             public void notifySuccess(Object result) {
-                log.info("Notify Success");
                 Object res = result;
                 if (Objects.equals(balFunctionReturnType, XML)) {
                     res = BXmlConverter.toOMElement((BXml) result);
@@ -86,44 +86,50 @@ public class Mediator extends SimpleMediator {
             }
 
             public void notifyFailure(BError result) {
-                log.info("Notify Failure");
-                context.setProperty(Constants.RESULT, result.toString());
+                handleException(result.getMessage(), context);
             }
         };
 
-        rt.invokeMethodAsync(context.getProperty(Constants.FUNCTION_NAME).toString(), returnCallback,
-                getParameters(context));
-    }
-
-    private Object[] getParameters(SimpleMessageContext context) {
         Object[] args = new Object[Integer.parseInt(context.getProperty(Constants.SIZE).toString())];
-        for (int i = 0; i < args.length; i++) {
-            args[i] = getParameter(context, "param" + i, "paramType" + i);
+        if (!setParameters(args, context)) {
+            return false;
         }
-        return args;
+        rt.invokeMethodAsync(context.getProperty(Constants.FUNCTION_NAME).toString(), returnCallback, args);
+        return true;
     }
 
-    private Object getParameter(SimpleMessageContext context, String value, String type) {
+    private boolean setParameters(Object[] args, MessageContext context) {
+        for (int i = 0; i < args.length; i++) {
+            Object param = getParameter(context, "param" + i, "paramType" + i);
+            if (param == null) {
+                return false;
+            }
+            args[i] = param;
+        }
+        return true;
+    }
+
+    private Object getParameter(MessageContext context, String value, String type) {
         String paramName = context.getProperty(value).toString();
-        Object param = context.lookupTemplateParameter(paramName);
+        Object param = lookupTemplateParameter(context, paramName);
         if (param == null) {
-            log.error("Error in getting the ballerina function parameter");
+            log.error("Error in getting the ballerina function parameter: " + paramName);
             return null;
         }
         String paramType = context.getProperty(type).toString();
         return switch (paramType) {
-            case NIL -> null;
             case BOOLEAN -> Boolean.parseBoolean((String) param);
             case INT -> Long.parseLong((String) param);
             case STRING -> StringUtils.fromString((String) param);
             case FLOAT -> Double.parseDouble((String) param);
             case DECIMAL -> ValueCreator.createDecimalValue((String) param);
             case JSON -> getBMapParameter(param);
-            default -> getBXmlParameter(context, value);
+            case XML -> getBXmlParameter(context, value);
+            default -> null;
         };
     }
 
-    private BXml getBXmlParameter(SimpleMessageContext context, String parameterName) {
+    private BXml getBXmlParameter(MessageContext context, String parameterName) {
         OMElement omElement = getOMElement(context, parameterName);
         if (omElement == null) {
             return null;
@@ -131,13 +137,19 @@ public class Mediator extends SimpleMediator {
         return OMElementConverter.toBXml(omElement);
     }
 
-    private OMElement getOMElement(SimpleMessageContext ctx, String value) {
+    private OMElement getOMElement(MessageContext ctx, String value) {
         String param = ctx.getProperty(value).toString();
-        if (ctx.lookupTemplateParameter(param) != null) {
-            return (OMElement) ctx.lookupTemplateParameter(param);
+        if (lookupTemplateParameter(ctx, param) != null) {
+            return (OMElement) lookupTemplateParameter(ctx, param);
         }
         log.error("Error in getting the OMElement");
         return null;
+    }
+
+    public static Object lookupTemplateParameter(MessageContext ctx, String paramName) {
+        Stack funcStack = (Stack) ctx.getProperty(Constants.SYNAPSE_FUNCTION_STACK);
+        TemplateContext currentFuncHolder = (TemplateContext) funcStack.peek();
+        return currentFuncHolder.getParameterValue(paramName);
     }
 
     private BMap getBMapParameter(Object param) {

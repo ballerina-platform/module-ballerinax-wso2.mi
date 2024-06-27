@@ -46,6 +46,9 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import java.util.List;
 import java.util.Optional;
 
+import static io.ballerina.stdlib.mi.plugin.DiagnosticErrorCode.UNSUPPORTED_PARAM_TYPE;
+import static io.ballerina.stdlib.mi.plugin.DiagnosticErrorCode.UNSUPPORTED_RETURN_TYPE;
+
 public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisContext> {
 
     private static final String FUNCTION_NAME = "FunctionName";
@@ -61,10 +64,10 @@ public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCo
 
             for (int i = 0; i < noOfParams; i++) {
                 ParameterSymbol parameterSymbol = parameterSymbols.get(i);
-                String paramType = getParamType(parameterSymbol.typeDescriptor().typeKind());
+                String paramType = getParamTypeName(parameterSymbol.typeDescriptor().typeKind());
                 if (paramType == null) {
-                    DiagnosticInfo diagnosticInfo = new DiagnosticInfo("UNSUPPORTED_PARAM_100",
-                            "unsupported parameter type found", DiagnosticSeverity.ERROR);
+                    DiagnosticInfo diagnosticInfo = new DiagnosticInfo(UNSUPPORTED_PARAM_TYPE.diagnosticId(),
+                            UNSUPPORTED_PARAM_TYPE.message(), DiagnosticSeverity.ERROR);
                     context.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo,
                             parameterSymbol.getLocation().get()));
                 } else {
@@ -81,14 +84,31 @@ public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCo
         component.setParam(sizeParam);
         component.setParam(functionNameParam);
         Optional<TypeSymbol> optReturnTypeSymbol = functionSymbol.typeDescriptor().returnTypeDescriptor();
-        String returnType = optReturnTypeSymbol.isPresent() ?
-                optReturnTypeSymbol.get().typeKind().getName() : TypeDescKind.NIL.getName();
-        component.setBalFuncReturnType(returnType);
+        if (optReturnTypeSymbol.isEmpty()) {
+            component.setBalFuncReturnType(TypeDescKind.NIL.getName());
+        } else {
+            String returnType = getReturnTypeName(optReturnTypeSymbol.get().typeKind());
+            if (returnType == null) {
+                DiagnosticInfo diagnosticInfo = new DiagnosticInfo(UNSUPPORTED_RETURN_TYPE.diagnosticId(),
+                        UNSUPPORTED_RETURN_TYPE.message(), DiagnosticSeverity.ERROR);
+                context.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo,
+                        functionSymbol.getLocation().get()));
+            } else {
+                component.setBalFuncReturnType(returnType);
+            }
+        }
     }
 
-    private static String getParamType(TypeDescKind typeKind) {
+    private static String getParamTypeName(TypeDescKind typeKind) {
         return switch (typeKind) {
-            case NIL, BOOLEAN, INT, STRING, FLOAT, DECIMAL, XML, JSON -> typeKind.getName();
+            case BOOLEAN, INT, STRING, FLOAT, DECIMAL, XML, JSON -> typeKind.getName();
+            default -> null;
+        };
+    }
+
+    private static String getReturnTypeName(TypeDescKind typeKind) {
+        return switch (typeKind) {
+            case NIL, BOOLEAN, INT, STRING, FLOAT, DECIMAL, XML, JSON, ANY -> typeKind.getName();
             default -> null;
         };
     }
