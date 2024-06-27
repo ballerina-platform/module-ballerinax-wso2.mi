@@ -14,6 +14,7 @@ repositories {
 
 dependencies {
     implementation "org.ballerinalang:ballerina-lang:${ballerinaLangVersion}"
+    implementation "org.ballerinalang:ballerina-cli:${ballerinaLangVersion}"
     implementation "org.apache.ws.commons.axiom:axiom-api:${axiomVersion}"
     implementation "org.wso2.carbon.module:module-core:${carbonModuleCoreVersion}"
     implementation "org.apache.axis2.wso2:axis2:${axis2Version}"
@@ -73,7 +74,7 @@ task copyBallerinaJars(type: Copy) {
 compileTestJava.dependsOn("copyBallerinaJars")
 processTestResources.dependsOn("copyBallerinaJars")
 
-test.dependsOn(":mi-ballerina:build")
+test.dependsOn(":mi-ballerina:localPublish")
 test.dependsOn("unzipFile")
 test.dependsOn("copyBallerinaJars")
 

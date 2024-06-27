@@ -41,9 +41,9 @@ public class TestMediatorContent {
         Package pkg = project.currentPackage();
         PackageCompilation packageCompilation = pkg.getCompilation();
         JBallerinaBackend jBallerinaBackend = JBallerinaBackend.from(packageCompilation, JvmTarget.JAVA_17);
+        Assert.assertEquals(packageCompilation.diagnosticResult().diagnosticCount(), 0);
         Path jarPath = path.resolve("test.jar");
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, jarPath);
-        Assert.assertEquals(packageCompilation.diagnosticResult().diagnosticCount(), 0);
         // TODO: Extract the zip file and verify the content
         Files.delete(jarPath);
         Files.delete(Paths.get(projectPath + "-connector-0.1.0.zip").toAbsolutePath());
