@@ -34,6 +34,7 @@ jobs:
           git config user.email ${{ secrets.BALLERINA_BOT_EMAIL }}
           git checkout -b release-${VERSION}
           sed -i 's/\(.*\)tool-mi-cli-\(.*\)-SNAPSHOT.jar"/\1tool-mi-cli-${VERSION}-SNAPSHOT.jar"/g' tool/tool-mi/BalTool.toml
+          sed -i 's/\(.*\)mi-compiler-plugin-\(.*\)-SNAPSHOT.jar"/\1mi-compiler-plugin-${VERSION}-SNAPSHOT.jar"/g' ballerina/CompilerPlugin.toml
           git add gradle.properties
           git add tool/tool-mi/BalTool.toml
           git commit -m "Move dependencies to stable version" || echo "No changes to commit"
