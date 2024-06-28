@@ -2,7 +2,7 @@
 distribution = "2201.8.6"
 org = "ballerinax"
 name = "mi"
-version = "0.0.1"
+version = "0.0.2"
 distribution = "2201.8.6"
 
 [build-options]

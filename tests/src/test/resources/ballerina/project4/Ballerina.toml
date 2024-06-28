@@ -2,7 +2,7 @@
 org = "testOrg"
 name = "project4"
 version = "1.0.0"
-distribution = "2201.9.0"
+distribution = "2201.9.1"
 
 [build-options]
 observabilityIncluded = true
@@ -10,5 +10,5 @@ observabilityIncluded = true
 [[dependency]]
 org = "ballerinax"
 name = "mi"
-version = "0.0.1"
+version = "0.0.2"
 repository = "local"
