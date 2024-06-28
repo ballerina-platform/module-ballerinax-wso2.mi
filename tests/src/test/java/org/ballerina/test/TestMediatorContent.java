@@ -46,7 +46,7 @@ public class TestMediatorContent {
         jBallerinaBackend.emit(JBallerinaBackend.OutputType.EXEC, jarPath);
         // TODO: Extract the zip file and verify the content
         Files.delete(jarPath);
-        Files.delete(Paths.get(projectPath + "-connector-0.1.0.zip").toAbsolutePath());
+        Files.delete(Paths.get(projectPath + "-connector-0.0.1.zip").toAbsolutePath());
     }
 
     @DataProvider(name = "data-provider")
