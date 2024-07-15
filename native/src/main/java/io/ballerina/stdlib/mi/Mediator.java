@@ -36,6 +36,7 @@ import org.apache.synapse.mediators.template.TemplateContext;
 
 import java.util.Objects;
 import java.util.Stack;
+import java.util.concurrent.CountDownLatch;
 
 import static io.ballerina.stdlib.mi.Constants.BOOLEAN;
 import static io.ballerina.stdlib.mi.Constants.DECIMAL;
@@ -70,6 +71,7 @@ public class Mediator extends AbstractMediator {
 
     public boolean mediate(MessageContext context) {
         String balFunctionReturnType = context.getProperty(Constants.RETURN_TYPE).toString();
+        final CountDownLatch latch = new CountDownLatch(1);
         Callback returnCallback = new Callback() {
             public void notifySuccess(Object result) {
                 Object res = result;
@@ -83,10 +85,12 @@ public class Mediator extends AbstractMediator {
                     res = result.toString();
                 }
                 context.setProperty(getResultProperty(context), res);
+                latch.countDown();
             }
 
             public void notifyFailure(BError result) {
                 handleException(result.getMessage(), context);
+                latch.countDown();
             }
         };
 
@@ -95,6 +99,11 @@ public class Mediator extends AbstractMediator {
             return false;
         }
         rt.invokeMethodAsync(context.getProperty(Constants.FUNCTION_NAME).toString(), returnCallback, args);
+        try {
+            latch.await();
+        } catch (InterruptedException e) {
+            log.error(e.getMessage());
+        }
         return true;
     }
 

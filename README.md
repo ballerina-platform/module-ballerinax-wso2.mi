@@ -13,7 +13,7 @@ the environment of WSO2 Micro Integrator.
 First, you need to pull the `mi` tool which is used to create the Ballerina connector.
 
 ```bash
-bal pull mi
+bal tool pull mi
 ```
 
 ### Write Ballerina Transformation
