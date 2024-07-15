@@ -63,6 +63,103 @@ Above command generates the connector zip in the same location.
    ./gradlew test
    ```
 
+## Performance Test Description for WSO2 MI Connector
+
+### Overview
+
+The performance test for the WSO2 MI connector was conducted using JMeter with 60 users. 
+The aim was to evaluate the throughput per second for different payload sizes using 
+three different transformation methods: Ballerina JSON transformation, Ballerina record transformation, 
+and Java class mediator.
+
+### Results
+
+The following table shows the throughput per second for each transformation method across different payload sizes:
+
+| Payload Size | Ballerina JSON transformation | Ballerina record transformation | Java class mediator |
+|--------------|-------------------------------|---------------------------------|---------------------|
+| 50B          | 13629.09                      | 12587.48                        | 15914.99            |
+| 1024B        | 8151.94                       | 8032.21                         | 13035.26            |
+| 10240B       | 1522.99                       | 1548.53                         | 12807.91            |
+| 102400B      | 118.60                        | 118.79                          | 4792.20             |
+
+### Test Code
+The specific code used for each transformation method is provided below:
+
+#### Ballerina JSON Transformation:
+
+```ballerina
+function getPayloadLenFromJson(json j) returns decimal {
+    json|error payload = j.payload;
+    if payload is error {
+        return -1;
+    }
+    string str = <string> payload;
+    decimal len = 0;
+    foreach var _ in str {
+        len = decimal:sum(len, 1);
+    }
+    return len;
+}
+```
+
+#### Ballerina Record Transformation:
+
+```ballerina
+type Payload record {|
+    string size;
+    string payload;
+|};
+
+function getPayloadLenFromRecord(json j) returns decimal {
+    Payload|error payload = j.cloneWithType();
+    if payload is error {
+        return -1;
+    }
+    string str = payload.payload;
+    decimal len = 0;
+    foreach var _ in str {
+        len = decimal:sum(len, 1);
+    }
+    return len;
+}
+```
+
+#### Java Class Mediator:
+
+```Java
+import java.math.BigDecimal;
+
+import org.apache.synapse.MessageContext;
+import org.apache.synapse.commons.json.JsonUtil;
+import org.apache.synapse.core.axis2.Axis2MessageContext;
+import org.apache.synapse.mediators.AbstractMediator;
+
+import com.google.gson.JsonElement;
+import com.google.gson.JsonObject;
+import com.google.gson.JsonParser;
+
+public class PayloadLength extends AbstractMediator { 
+	
+	private final JsonParser jsonParser = new JsonParser();
+
+	public boolean mediate(MessageContext context) {
+            String jsonString = JsonUtil.jsonPayloadToString(((Axis2MessageContext) context).getAxis2MessageContext());
+            JsonElement jsonElement = jsonParser.parse(jsonString);
+            JsonObject jsonObject = jsonElement.getAsJsonObject();
+            String payload = jsonObject.get("payload").getAsString();
+            
+            BigDecimal len = new BigDecimal(0);
+            for (int i=0; i < payload.length(); i++) {
+                len = len.add(new BigDecimal(1));
+            }
+            
+            context.setProperty("result", len.toString());
+            return true;
+	}
+}
+```
+
 ## Contribute to Ballerina
 
 As an open-source project, Ballerina welcomes contributions from the community.
