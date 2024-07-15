@@ -2,7 +2,7 @@
 org = "org"
 name = "project1"
 version = "0.0.1"
-distribution = "2201.9.1"
+distribution = "2201.9.2"
 
 [build-options]
 observabilityIncluded = true
