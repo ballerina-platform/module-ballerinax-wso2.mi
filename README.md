@@ -36,7 +36,7 @@ Ballerina function that contains `@mi:ConnectorInfo` annotation maps with a comp
 Finally, use the `bal mi` command to generate the Ballerina connector for the WSO2 Micro Integrator.
 
 ```bash
-bal mi <path_to_ballerina_project>
+bal mi -i <path_to_ballerina_project>
 ```
 
 Above command generates the connector zip in the same location.
