@@ -294,6 +294,78 @@ public class TestTransform {
                 "{\"name\":\"John\",\"age\":23,\"city\":\"Colombo\",\"country\":\"Sri Lanka\"}");
     }
 
+    @Test
+    public void testXmlReturn1() throws XMLStreamException {
+        String project = "project3";
+        ModuleInfo moduleInfo = new ModuleInfo("testOrg", project, "1");
+        Mediator mediator = new Mediator(moduleInfo);
+
+        List<Property> properties = new ArrayList<>() {{
+            add(new Property("paramFunctionName", "testXmlReturn"));
+            add(new Property("paramSize", 1));
+            add(new Property("param0", "x"));
+            add(new Property("paramType0", "xml"));
+            add(new Property("returnType", "xml"));
+        }};
+        TestMessageContext context = createMessageContext(properties);
+
+        Stack<TemplateContext> stack = new Stack<>();
+        TemplateContext templateContext = new TemplateContext("testTemplateFunc", new ArrayList<>());
+        stack.push(templateContext);
+
+        HashMap<Object, Object> map = new HashMap<>();
+        map.put("x", AXIOMUtil.stringToOM("<Document><FIToFICstmrCdtTrf><GrpHdr><MsgId>123489</MsgId><CreDtTm" +
+                ">0111522180</CreDtTm><NbOfTxs>1</NbOfTxs><SttlmInf><SttlmMtd>INDA</SttlmMtd></SttlmInf></GrpHdr" +
+                "><CdtTrfTxInf><PmtId><EndToEndId>12348912a456789123</EndToEndId></PmtId><IntrBkSttlmAmt " +
+                "Ccy=\"USD\">500000</IntrBkSttlmAmt><ChrgBr>DEBT</ChrgBr><Dbtr><number>1</number></Dbtr><CdtrAgt" +
+                "><FinInstnId>100009</FinInstnId></CdtrAgt></CdtTrfTxInf></FIToFICstmrCdtTrf></Document>"));
+        map.put("Result", "r");
+        templateContext.setMappedValues(map);
+
+        context.setProperty("_SYNAPSE_FUNCTION_STACK", stack);
+        mediator.mediate(context);
+        Assert.assertEquals(context.getProperty("r").toString(),
+                "<Document><FIToFICstmrCdtTrf><GrpHdr><MsgId>123489</MsgId><CreDtTm>0111522180</CreDtTm><NbOfTxs>1" +
+                        "</NbOfTxs><SttlmInf><SttlmMtd>INDA</SttlmMtd></SttlmInf></GrpHdr><CdtTrfTxInf><PmtId" +
+                        "><EndToEndId>12348912a456789123</EndToEndId></PmtId><IntrBkSttlmAmt " +
+                        "Ccy=\"USD\">500000</IntrBkSttlmAmt><ChrgBr>DEBT</ChrgBr><Dbtr><number>1</number></Dbtr" +
+                        "><CdtrAgt><FinInstnId>100009</FinInstnId></CdtrAgt></CdtTrfTxInf></FIToFICstmrCdtTrf" +
+                        "></Document>");
+    }
+
+    @Test
+    public void testXmlReturn2() throws XMLStreamException {
+        String project = "project3";
+        ModuleInfo moduleInfo = new ModuleInfo("testOrg", project, "1");
+        Mediator mediator = new Mediator(moduleInfo);
+
+        List<Property> properties = new ArrayList<>() {{
+            add(new Property("paramFunctionName", "testXmlReturn"));
+            add(new Property("paramSize", 1));
+            add(new Property("param0", "x"));
+            add(new Property("paramType0", "xml"));
+            add(new Property("returnType", "xml"));
+        }};
+        TestMessageContext context = createMessageContext(properties);
+
+        Stack<TemplateContext> stack = new Stack<>();
+        TemplateContext templateContext = new TemplateContext("testTemplateFunc", new ArrayList<>());
+        stack.push(templateContext);
+
+        HashMap<Object, Object> map = new HashMap<>();
+        map.put("x", AXIOMUtil.stringToOM("<library xmlns:bk=\"http://example.com/book\" xmlns:auth=\"http://example" +
+                ".com/author\"><bk:Book bk:id=\"001\"><bk:Title>1984</bk:Title><bk:Author " +
+                "auth:country=\"UK\"><auth:Name>George Orwell</auth:Name></bk:Author></bk:Book></library>"));
+        map.put("Result", "r");
+        templateContext.setMappedValues(map);
+
+        context.setProperty("_SYNAPSE_FUNCTION_STACK", stack);
+        mediator.mediate(context);
+        Assert.assertEquals(context.getProperty("r").toString(),
+                "<library><bk:Book xmlns:bk=\"http://example.com/book\" " +
+                        "bk:id=\"001\"><bk:Title>1984</bk:Title><bk:Author xmlns:auth=\"http://example.com/author\" " +
+                        "auth:country=\"UK\"><auth:Name>George Orwell</auth:Name></bk:Author></bk:Book></library>");
+    }
 
     private TestMessageContext createMessageContext(List<Property> properties) {
         TestMessageContext context = new TestMessageContext();
