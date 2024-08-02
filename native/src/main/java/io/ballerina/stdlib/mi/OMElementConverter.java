@@ -76,13 +76,7 @@ public class OMElementConverter {
     }
 
     private static QName getQNameOMAttribute(OMAttribute omAttribute) {
-        // If prefix is not provided test case will fail
-        if (omAttribute.getPrefix() == null) {
-            return new QName(omAttribute.getNamespaceURI(), omAttribute.getLocalName());
-        } else {
-            return new QName(omAttribute.getNamespaceURI(), omAttribute.getLocalName(), omAttribute.getPrefix());
-        }
-
+        return omAttribute.getQName();
     }
 
     private static void addAttributes(OMElement omElement, BXmlItem xmlItem) {
@@ -99,10 +93,8 @@ public class OMElementConverter {
             //CHECK: Good to put break point here and check the values
             attributesMap.put(StringUtils.fromString(qName.toString()),
                     StringUtils.fromString(attribute.getAttributeValue()));
-            if (attribute.getPrefix() != null) {
-                if (!attribute.getPrefix().isEmpty()) {
-                    usedNS.add(qName);
-                }
+            if (!qName.getPrefix().isEmpty()) {
+                usedNS.add(qName);
             }
         }
         if (omElement.getQName().getPrefix() != null) {
