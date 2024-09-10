@@ -10,7 +10,7 @@ distribution-version = "2201.9.2"
 [[package]]
 org = "ballerinax"
 name = "mi"
-version = "0.1.1"
+version = "0.1.2"
 modules = [
 	{org = "ballerinax", packageName = "mi", moduleName = "mi"}
 ]
