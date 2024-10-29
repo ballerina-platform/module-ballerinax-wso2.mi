@@ -21,6 +21,10 @@ package io.ballerina.stdlib.mi.plugin;
 public enum DiagnosticErrorCode {
     UNSUPPORTED_PARAM_TYPE("MIE001", "unsupported parameter type found"),
     UNSUPPORTED_RETURN_TYPE("MIE002", "unsupported return type found"),
+    SERVICE_DEF_NOT_ALLOWED("MIE003",
+            "service definition is not allowed when `ballerinax/mi` connector is in use"),
+    DYNAMIC_SERVICE_REGISTER_NOT_ALLOWED("MIE004",
+            "dynamic listener registering not allowed when `ballerinax/mi` connector is in use");
     ;
 
     private final String diagnosticId;

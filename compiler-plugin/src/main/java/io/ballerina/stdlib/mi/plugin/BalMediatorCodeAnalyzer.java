@@ -29,5 +29,9 @@ public class BalMediatorCodeAnalyzer extends CodeAnalyzer {
         codeAnalysisContext.addSyntaxNodeAnalysisTask(
                 new AnnotationAnalysisTask(), SyntaxKind.ANNOTATION
         );
+        codeAnalysisContext.addSyntaxNodeAnalysisTask(new ServiceDefinitionAnalysisTask(),
+                SyntaxKind.SERVICE_DECLARATION);
+        codeAnalysisContext.addSyntaxNodeAnalysisTask(new DynamicServiceRegisterAnalysisTask(),
+                SyntaxKind.FUNCTION_CALL);
     }
 }
