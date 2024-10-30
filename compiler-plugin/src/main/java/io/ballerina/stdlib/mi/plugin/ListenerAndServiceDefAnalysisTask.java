@@ -18,17 +18,23 @@
 
 package io.ballerina.stdlib.mi.plugin;
 
+import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
-public class ServiceDefinitionAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisContext> {
+public class ListenerAndServiceDefAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisContext> {
 
     @Override
     public void perform(SyntaxNodeAnalysisContext context) {
-        DiagnosticErrorCode diagnosticCode = DiagnosticErrorCode.SERVICE_DEF_NOT_ALLOWED;
+        DiagnosticErrorCode diagnosticCode;
+        if (context.node() instanceof ServiceDeclarationNode) {
+            diagnosticCode = DiagnosticErrorCode.SERVICE_DEF_NOT_ALLOWED;
+        } else {
+            diagnosticCode = DiagnosticErrorCode.LISTENER_DECLARATION_NOT_ALLOWED;
+        }
         DiagnosticInfo diagnosticInfo =
                 new DiagnosticInfo(diagnosticCode.diagnosticId(), diagnosticCode.message(), DiagnosticSeverity.ERROR);
         context.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, context.node().location()));

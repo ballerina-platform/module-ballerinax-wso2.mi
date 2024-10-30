@@ -37,7 +37,8 @@ service class EchoService {
     }
 }
 
-http:Listener httpListener = check new (9090);
+listener http:Listener httpListener = check new (9090);
+http:Listener httpListener2 = check new (9091);
 
 http:Service helloService = service object {
     resource function get greeting() returns string {
@@ -45,10 +46,47 @@ http:Service helloService = service object {
     }
 };
 
+var obj = object {
+    public function 'start() returns error? {
+    }
+
+    public function gracefulStop() returns error? {
+    }
+
+    public function immediateStop() returns error? {
+    }
+
+    public function attach() returns error? {
+    }
+
+    public function detach() returns error? {
+    }
+};
+
+
+
+class ListenerClass {
+    public function 'start() returns error? {
+    }
+
+    public function gracefulStop() returns error? {
+    }
+
+    public function immediateStop() returns error? {
+    }
+
+    public function attach() returns error? {
+    }
+
+    public function detach() returns error? {
+    }
+}
+
 @mi:ConnectorInfo {
 }
 function registerServiceDynamically() {
-    error? e = httpListener.attach(helloService, "foo/bar");
-    e = httpListener.'start();
-    runtime:registerListener(httpListener);
+    error? e = httpListener2.attach(helloService, "foo/bar");
+    e = httpListener2.'start();
+    runtime:registerListener(httpListener2);
+    ListenerClass cls = new();
 }

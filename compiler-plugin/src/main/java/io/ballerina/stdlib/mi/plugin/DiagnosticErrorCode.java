@@ -23,8 +23,11 @@ public enum DiagnosticErrorCode {
     UNSUPPORTED_RETURN_TYPE("MIE002", "unsupported return type found"),
     SERVICE_DEF_NOT_ALLOWED("MIE003",
             "service definition is not allowed when `ballerinax/mi` connector is in use"),
-    DYNAMIC_SERVICE_REGISTER_NOT_ALLOWED("MIE004",
-            "dynamic listener registering not allowed when `ballerinax/mi` connector is in use");
+    LISTENER_DECLARATION_NOT_ALLOWED("MIE004",
+            "listener declaration not allowed when `ballerinax/mi` connector is in use"),
+    LISTENER_SHAPE_VAR_NOT_ALLOWED("MIE005",
+            "defining variables with a type that has the shape of `Listener` is not allowed when the `ballerinax/mi` " +
+                    "connector is in use.");
     ;
 
     private final String diagnosticId;
