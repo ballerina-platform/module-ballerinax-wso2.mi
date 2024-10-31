@@ -59,13 +59,13 @@ public class TestMediatorGenNegativeTests {
         Diagnostic[] errorDiagnosticsList = diagnosticResult.diagnostics().stream()
                 .filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR))
                 .toArray(Diagnostic[]::new);
-        Assert.assertEquals(errorDiagnosticsList.length, 6);
+        Assert.assertEquals(errorDiagnosticsList.length, 8);
         validateError(errorDiagnosticsList, 0, "service definition is not allowed when `ballerinax/mi` connector is in use",
                 22, 1);
         validateError(errorDiagnosticsList, 1, "service definition is not allowed when `ballerinax/mi` connector is in use",
                 28, 1);
         validateError(errorDiagnosticsList, 2,
-                "listener declaration not allowed when `ballerinax/mi` connector is in use", 40, 1);
+                "listener declaration is not allowed when `ballerinax/mi` connector is in use", 40, 1);
         validateError(errorDiagnosticsList, 3,
                 "defining variables with a type that has the shape of `Listener` is not allowed when the " +
                         "`ballerinax/mi` connector is in use.", 41, 1);
@@ -74,8 +74,13 @@ public class TestMediatorGenNegativeTests {
                         "`ballerinax/mi` connector is in use.", 49, 1);
         validateError(errorDiagnosticsList, 5,
                 "defining variables with a type that has the shape of `Listener` is not allowed when the " +
-                        "`ballerinax/mi` connector is in use.", 91, 5);
-
+                        "`ballerinax/mi` connector is in use.", 76, 1);
+        validateError(errorDiagnosticsList, 6,
+                "defining variables with a type that has the shape of `Listener` is not allowed when the " +
+                        "`ballerinax/mi` connector is in use.", 117, 5);
+        validateError(errorDiagnosticsList, 7,
+                "defining variables with a type that has the shape of `Listener` is not allowed when the " +
+                        "`ballerinax/mi` connector is in use.", 121, 5);
     }
 
     private void validateError(Diagnostic[] diagnostics, int errorIndex, String expectedErrMsg, int expectedErrLine,

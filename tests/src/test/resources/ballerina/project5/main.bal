@@ -46,7 +46,7 @@ http:Service helloService = service object {
     }
 };
 
-var obj = object {
+var obj1 = object {
     public function 'start() returns error? {
     }
 
@@ -64,6 +64,35 @@ var obj = object {
 };
 
 
+var obj2 = object {
+    public function 'start() returns error? {
+    }
+
+    public function gracefulStop() returns error? {
+    }
+
+};
+
+var obj3 = object {
+    public function 'start() returns error? {
+    }
+
+    public function gracefulStop() returns error? {
+    }
+
+    public function immediateStop() returns error? {
+    }
+
+    public function attach() returns error? {
+    }
+
+    public function detach() returns error? {
+    }
+
+    public function bar() {
+
+    }
+};
 
 class ListenerClass {
     public function 'start() returns error? {
@@ -85,6 +114,7 @@ class ListenerClass {
 @mi:ConnectorInfo {
 }
 function registerServiceDynamically() {
+    http:Listener|error? httpListener3 = new (9092);
     error? e = httpListener2.attach(helloService, "foo/bar");
     e = httpListener2.'start();
     runtime:registerListener(httpListener2);

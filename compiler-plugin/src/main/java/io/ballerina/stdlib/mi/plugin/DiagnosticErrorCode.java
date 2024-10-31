@@ -24,7 +24,7 @@ public enum DiagnosticErrorCode {
     SERVICE_DEF_NOT_ALLOWED("MIE003",
             "service definition is not allowed when `ballerinax/mi` connector is in use"),
     LISTENER_DECLARATION_NOT_ALLOWED("MIE004",
-            "listener declaration not allowed when `ballerinax/mi` connector is in use"),
+            "listener declaration is not allowed when `ballerinax/mi` connector is in use"),
     LISTENER_SHAPE_VAR_NOT_ALLOWED("MIE005",
             "defining variables with a type that has the shape of `Listener` is not allowed when the `ballerinax/mi` " +
                     "connector is in use.");

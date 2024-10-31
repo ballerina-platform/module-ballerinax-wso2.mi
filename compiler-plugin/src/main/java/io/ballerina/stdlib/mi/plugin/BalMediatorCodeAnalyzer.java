@@ -24,6 +24,11 @@ import io.ballerina.projects.plugins.CodeAnalyzer;
 
 import java.util.List;
 
+/**
+ * Compiler plugin for Ballerina MI Mediator
+ *
+ * @since 0.1.0
+ */
 public class BalMediatorCodeAnalyzer extends CodeAnalyzer {
 
     @Override

@@ -18,6 +18,7 @@
 
 package io.ballerina.stdlib.mi.plugin;
 
+import io.ballerina.compiler.api.impl.symbols.BallerinaUnionTypeSymbol;
 import io.ballerina.compiler.api.symbols.IntersectionTypeSymbol;
 import io.ballerina.compiler.api.symbols.ObjectTypeSymbol;
 import io.ballerina.compiler.api.symbols.Symbol;
@@ -31,12 +32,19 @@ import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Optional;
 
+/**
+ * Analysis task that emits error diagnostics for local and module-level variable declarations with a type that match
+ * the shape of the `Listener` type found in the code.
+ *
+ * @since 0.1.3
+ */
 public class VariableDeclarationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisContext> {
 
-    final List<String> methods = List.of("start", "gracefulStop", "immediateStop", "attach", "detach");
+    private final List<String> methods = List.of("start", "gracefulStop", "immediateStop", "attach", "detach");
 
     @Override
     public void perform(SyntaxNodeAnalysisContext context) {
@@ -44,17 +52,26 @@ public class VariableDeclarationAnalysisTask implements AnalysisTask<SyntaxNodeA
         if (symbol.isEmpty() || !(symbol.get() instanceof VariableSymbol)) {
             return;
         }
+
         TypeSymbol typeSymbol = getRawType(((VariableSymbol) symbol.get()).typeDescriptor());
-        if (!(typeSymbol instanceof ObjectTypeSymbol objectTypeSymbol)) {
-            return;
+        List<ObjectTypeSymbol> objectTypeSymbols = new ArrayList<>();
+        if (typeSymbol.typeKind() == TypeDescKind.UNION) {
+            objectTypeSymbols = getObjectTypeMembers((BallerinaUnionTypeSymbol) typeSymbol);
+        } else if (typeSymbol.typeKind() == TypeDescKind.OBJECT) {
+            objectTypeSymbols.add((ObjectTypeSymbol) typeSymbol);
         }
-        List<String> classMethods = objectTypeSymbol.methods().keySet().stream().toList();
-        if (classMethods.containsAll(methods)) {
+
+        for (ObjectTypeSymbol objectTypeSymbol : objectTypeSymbols) {
+            List<String> classMethods = objectTypeSymbol.methods().keySet().stream().toList();
+            if (!classMethods.containsAll(methods)) {
+                continue;
+            }
             DiagnosticErrorCode diagnosticCode = DiagnosticErrorCode.LISTENER_SHAPE_VAR_NOT_ALLOWED;
             DiagnosticInfo diagnosticInfo =
                     new DiagnosticInfo(diagnosticCode.diagnosticId(), diagnosticCode.message(),
                             DiagnosticSeverity.ERROR);
             context.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, context.node().location()));
+            return;
         }
     }
 
@@ -76,4 +93,16 @@ public class VariableDeclarationAnalysisTask implements AnalysisTask<SyntaxNodeA
         return typeDescriptor;
     }
 
+    private List<ObjectTypeSymbol> getObjectTypeMembers(BallerinaUnionTypeSymbol unionTypeSymbol) {
+        ArrayList<ObjectTypeSymbol> objectTypes = new ArrayList<>();
+        for (TypeSymbol member : unionTypeSymbol.memberTypeDescriptors()) {
+            member = getRawType(member);
+            if (member.typeKind() == TypeDescKind.OBJECT) {
+                objectTypes.add((ObjectTypeSymbol) member);
+            } else if (member.typeKind() == TypeDescKind.UNION) {
+                objectTypes.addAll(getObjectTypeMembers((BallerinaUnionTypeSymbol) member));
+            }
+        }
+        return objectTypes;
+    }
 }

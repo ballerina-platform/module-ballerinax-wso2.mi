@@ -18,19 +18,24 @@
 
 package io.ballerina.stdlib.mi.plugin;
 
-import io.ballerina.compiler.syntax.tree.ServiceDeclarationNode;
+import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
 import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 
+/**
+ *  Analysis task that emit error diagnostic for service and listener declarations found in the code.
+ *
+ * @since 0.1.3
+ */
 public class ListenerAndServiceDefAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisContext> {
 
     @Override
     public void perform(SyntaxNodeAnalysisContext context) {
         DiagnosticErrorCode diagnosticCode;
-        if (context.node() instanceof ServiceDeclarationNode) {
+        if (context.node().kind() == SyntaxKind.SERVICE_DECLARATION) {
             diagnosticCode = DiagnosticErrorCode.SERVICE_DEF_NOT_ALLOWED;
         } else {
             diagnosticCode = DiagnosticErrorCode.LISTENER_DECLARATION_NOT_ALLOWED;
@@ -39,5 +44,4 @@ public class ListenerAndServiceDefAnalysisTask implements AnalysisTask<SyntaxNod
                 new DiagnosticInfo(diagnosticCode.diagnosticId(), diagnosticCode.message(), DiagnosticSeverity.ERROR);
         context.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, context.node().location()));
     }
-
 }
