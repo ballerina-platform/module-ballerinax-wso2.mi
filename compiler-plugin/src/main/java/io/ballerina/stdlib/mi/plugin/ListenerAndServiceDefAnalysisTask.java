@@ -18,6 +18,7 @@
 
 package io.ballerina.stdlib.mi.plugin;
 
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
@@ -35,13 +36,14 @@ public class ListenerAndServiceDefAnalysisTask implements AnalysisTask<SyntaxNod
     @Override
     public void perform(SyntaxNodeAnalysisContext context) {
         DiagnosticErrorCode diagnosticCode;
-        if (context.node().kind() == SyntaxKind.SERVICE_DECLARATION) {
+        Node node = context.node();
+        if (node.kind() == SyntaxKind.SERVICE_DECLARATION) {
             diagnosticCode = DiagnosticErrorCode.SERVICE_DEF_NOT_ALLOWED;
         } else {
             diagnosticCode = DiagnosticErrorCode.LISTENER_DECLARATION_NOT_ALLOWED;
         }
         DiagnosticInfo diagnosticInfo =
                 new DiagnosticInfo(diagnosticCode.diagnosticId(), diagnosticCode.message(), DiagnosticSeverity.ERROR);
-        context.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, context.node().location()));
+        context.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, node.location()));
     }
 }

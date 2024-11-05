@@ -26,6 +26,7 @@ import io.ballerina.compiler.api.symbols.TypeDescKind;
 import io.ballerina.compiler.api.symbols.TypeReferenceTypeSymbol;
 import io.ballerina.compiler.api.symbols.TypeSymbol;
 import io.ballerina.compiler.api.symbols.VariableSymbol;
+import io.ballerina.compiler.syntax.tree.Node;
 import io.ballerina.projects.plugins.AnalysisTask;
 import io.ballerina.projects.plugins.SyntaxNodeAnalysisContext;
 import io.ballerina.tools.diagnostics.DiagnosticFactory;
@@ -48,16 +49,18 @@ public class VariableDeclarationAnalysisTask implements AnalysisTask<SyntaxNodeA
 
     @Override
     public void perform(SyntaxNodeAnalysisContext context) {
-        Optional<Symbol> symbol = context.semanticModel().symbol(context.node());
+        Node node = context.node();
+        Optional<Symbol> symbol = context.semanticModel().symbol(node);
         if (symbol.isEmpty() || !(symbol.get() instanceof VariableSymbol)) {
             return;
         }
 
         TypeSymbol typeSymbol = getRawType(((VariableSymbol) symbol.get()).typeDescriptor());
         List<ObjectTypeSymbol> objectTypeSymbols = new ArrayList<>();
-        if (typeSymbol.typeKind() == TypeDescKind.UNION) {
+        TypeDescKind typeDescKind = typeSymbol.typeKind();
+        if (typeDescKind == TypeDescKind.UNION) {
             objectTypeSymbols = getObjectTypeMembers((BallerinaUnionTypeSymbol) typeSymbol);
-        } else if (typeSymbol.typeKind() == TypeDescKind.OBJECT) {
+        } else if (typeDescKind == TypeDescKind.OBJECT) {
             objectTypeSymbols.add((ObjectTypeSymbol) typeSymbol);
         }
 
@@ -70,25 +73,26 @@ public class VariableDeclarationAnalysisTask implements AnalysisTask<SyntaxNodeA
             DiagnosticInfo diagnosticInfo =
                     new DiagnosticInfo(diagnosticCode.diagnosticId(), diagnosticCode.message(),
                             DiagnosticSeverity.ERROR);
-            context.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, context.node().location()));
+            context.reportDiagnostic(DiagnosticFactory.createDiagnostic(diagnosticInfo, node.location()));
             return;
         }
     }
 
     private TypeSymbol getRawType(TypeSymbol typeDescriptor) {
-        if (typeDescriptor.typeKind() == TypeDescKind.INTERSECTION) {
+        TypeDescKind typeDescKind = typeDescriptor.typeKind();
+        if (typeDescKind == TypeDescKind.INTERSECTION) {
             return getRawType(((IntersectionTypeSymbol) typeDescriptor).effectiveTypeDescriptor());
         }
-        if (typeDescriptor.typeKind() == TypeDescKind.TYPE_REFERENCE) {
-            TypeReferenceTypeSymbol typeRef = (TypeReferenceTypeSymbol) typeDescriptor;
-            if (typeRef.typeDescriptor().typeKind() == TypeDescKind.INTERSECTION) {
-                return getRawType(((IntersectionTypeSymbol) typeRef.typeDescriptor()).effectiveTypeDescriptor());
+        if (typeDescKind == TypeDescKind.TYPE_REFERENCE) {
+            TypeSymbol typeSymbol = ((TypeReferenceTypeSymbol) typeDescriptor).typeDescriptor();
+            TypeDescKind refTypeDescKind = typeSymbol.typeKind();
+            if (refTypeDescKind == TypeDescKind.INTERSECTION) {
+                return getRawType(((IntersectionTypeSymbol) typeSymbol).effectiveTypeDescriptor());
             }
-            TypeSymbol rawType = typeRef.typeDescriptor();
-            if (rawType.typeKind() == TypeDescKind.TYPE_REFERENCE) {
-                return getRawType(rawType);
+            if (refTypeDescKind == TypeDescKind.TYPE_REFERENCE) {
+                return getRawType(typeSymbol);
             }
-            return rawType;
+            return typeSymbol;
         }
         return typeDescriptor;
     }
