@@ -22,6 +22,13 @@ import io.ballerina.compiler.syntax.tree.SyntaxKind;
 import io.ballerina.projects.plugins.CodeAnalysisContext;
 import io.ballerina.projects.plugins.CodeAnalyzer;
 
+import java.util.List;
+
+/**
+ * Compiler plugin for Ballerina MI Mediator
+ *
+ * @since 0.1.0
+ */
 public class BalMediatorCodeAnalyzer extends CodeAnalyzer {
 
     @Override
@@ -29,5 +36,9 @@ public class BalMediatorCodeAnalyzer extends CodeAnalyzer {
         codeAnalysisContext.addSyntaxNodeAnalysisTask(
                 new AnnotationAnalysisTask(), SyntaxKind.ANNOTATION
         );
+        codeAnalysisContext.addSyntaxNodeAnalysisTask(new ListenerAndServiceDefAnalysisTask(),
+                List.of(SyntaxKind.SERVICE_DECLARATION, SyntaxKind.LISTENER_DECLARATION));
+        codeAnalysisContext.addSyntaxNodeAnalysisTask(new VariableDeclarationAnalysisTask(),
+                List.of(SyntaxKind.MODULE_VAR_DECL, SyntaxKind.LOCAL_VAR_DECL));
     }
 }
