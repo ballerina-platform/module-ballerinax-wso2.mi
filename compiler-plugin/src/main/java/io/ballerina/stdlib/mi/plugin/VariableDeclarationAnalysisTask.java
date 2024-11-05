@@ -97,9 +97,10 @@ public class VariableDeclarationAnalysisTask implements AnalysisTask<SyntaxNodeA
         ArrayList<ObjectTypeSymbol> objectTypes = new ArrayList<>();
         for (TypeSymbol member : unionTypeSymbol.memberTypeDescriptors()) {
             member = getRawType(member);
-            if (member.typeKind() == TypeDescKind.OBJECT) {
+            TypeDescKind typeDescKind = member.typeKind();
+            if (typeDescKind == TypeDescKind.OBJECT) {
                 objectTypes.add((ObjectTypeSymbol) member);
-            } else if (member.typeKind() == TypeDescKind.UNION) {
+            } else if (typeDescKind == TypeDescKind.UNION) {
                 objectTypes.addAll(getObjectTypeMembers((BallerinaUnionTypeSymbol) member));
             }
         }
