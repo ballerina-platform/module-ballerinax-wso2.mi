@@ -1,0 +1,23 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api context="/price-calculation" name="price-calculation" xmlns="http://ws.apache.org/ns/synapse">
+     <resource methods="POST" uri-template="/">
+        <inSequence>
+            <bal_price_calculation.calculateTotal>
+                <Result>total</Result>
+                <invoice>{$body/*}</invoice>
+            </bal_price_calculation.calculateTotal>
+            <payloadFactory media-type="xml" template-type="default">
+                <format>
+                    <total>
+                    $1</total>
+                </format>
+                <args>
+                    <arg expression="$ctx:total" evaluator="xml" />
+                </args>
+            </payloadFactory>
+            <respond />
+        </inSequence>
+        <faultSequence>
+        </faultSequence>
+    </resource>
+</api>
