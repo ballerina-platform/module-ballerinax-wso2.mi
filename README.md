@@ -1,9 +1,9 @@
-# Ballerina Connector for WSO2 Micro Integrator
+# Ballerina Connector SDK for WSO2 Micro Integrator
 
 ## Overview
 
-The Ballerina connector for WSO2 Micro Integrator allows you to run Ballerina transformations on WSO2 Micro Integrator. 
-This integration enables you to leverage the powerful transformation capabilities of Ballerina within 
+The Ballerina Connector SDK for WSO2 Micro Integrator enables the generation of connectors that allow WSO2 Micro Integrator to run Ballerina transformations.
+This integration enables you to leverage the powerful transformation capabilities of Ballerina within
 the environment of WSO2 Micro Integrator.
 
 ## Steps to Create Ballerina Connector
@@ -18,13 +18,13 @@ bal tool pull mi
 
 ### Write Ballerina Transformation
 
-Next, you need to write the Ballerina transformation in a Ballerina project. 
+Next, you need to write the Ballerina transformation in a Ballerina project.
 Create a new Ballerina project or use an existing one and write your transformation logic.
 For example,
 
 ```
 @mi:ConnectorInfo {}
-public function GPA(xml rawMarks, xml credits) returns xml {
+public function gpa(xml rawMarks, xml credits) returns xml {
    // Your logic to calculate the GPA
 }
 ```
@@ -40,6 +40,8 @@ bal mi -i <path_to_ballerina_project>
 ```
 
 Above command generates the connector zip in the same location.
+
+To add this generated connector to a WSO2 Micro Integrator project follow the instruction specified [here](https://mi.docs.wso2.com/en/latest/develop/creating-artifacts/adding-connectors/).
 
 ## Local Build
 
