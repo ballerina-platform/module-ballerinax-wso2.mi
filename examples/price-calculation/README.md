@@ -36,27 +36,27 @@ Follow these steps to invoke the sample using the connector:
 
 4. Send an HTTP POST request to the following resource with a payload as specified:
 
-```bash
-curl --location 'http://localhost:8290/price-calculation' \
---header 'Content-Type: application/xml' \
---data '<items>
-      <item>
-         <name>book</name>
-         <price>180</price>
-      </item>
-      <item>
-         <name>pen</name>
-         <price>25</price>
-      </item>
-      <item>
-         <name>pencil</name>
-         <price>12</price>
-      </item>
-   </items>`'
-```
+   ```bash
+   curl --location 'http://localhost:8290/price-calculation' \
+   --header 'Content-Type: application/xml' \
+   --data '<items>
+         <item>
+            <name>book</name>
+            <price>180</price>
+         </item>
+         <item>
+            <name>pen</name>
+            <price>25</price>
+         </item>
+         <item>
+            <name>pencil</name>
+            <price>12</price>
+         </item>
+      </items>`'
+   ```
 
-Output:
+   Output:
 
-```xml
-<total xmlns="http://ws.apache.org/ns/synapse">217</total>
-```
+   ```xml
+   <total xmlns="http://ws.apache.org/ns/synapse">217</total>
+   ```
