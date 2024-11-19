@@ -8,14 +8,13 @@
             </bal_price_calculation.calculateTotal>
             <payloadFactory media-type="xml" template-type="default">
                 <format>
-                    <total>
-                    $1</total>
+                    <total>$1</total>
                 </format>
                 <args>
-                    <arg expression="$ctx:total" evaluator="xml" />
+                    <arg expression="$ctx:total" evaluator="xml"/>
                 </args>
             </payloadFactory>
-            <respond />
+            <respond/>
         </inSequence>
         <faultSequence>
         </faultSequence>

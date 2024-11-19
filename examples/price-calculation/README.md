@@ -24,14 +24,14 @@ This would output a result in the following format.
 
 Follow these steps to invoke the sample using the connector:
 
-1. The `bal-price-calculation` folder contains the ballerina code for the connector. Invoke the following command to generate the connector:
+1. The `bal-price-calculation` folder contains the Ballerina code for the connector. Invoke the following command to generate the connector:
     ```bash
     bal mi -i <ballerina-project>
     ```
 
-2. A zip file of the connector will be generated. Add this zip file to the MI project following the approach described [here](https://mi.docs.wso2.com/en/latest/develop/creating-artifacts/adding-connectors/).
+2. A zip file of the connector will be generated. Add this zip file to the MI project inside the folder `mi-price-calculation` following the approach described [here](https://mi.docs.wso2.com/en/latest/develop/creating-artifacts/adding-connectors/).
 
-3. Once the connector is added, start the MI server.
+3. Once the connector is added, run the MI project.
 
 4. Send an HTTP POST request to the following resource with a payload as specified:
 

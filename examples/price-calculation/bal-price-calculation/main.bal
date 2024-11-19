@@ -1,6 +1,6 @@
 import ballerinax/mi;
 
-@mi:ConnectorInfo {}
+@mi:ConnectorInfo
 public function calculateTotal(xml invoice) returns xml {
     xml<xml:Element> prices = invoice/**/<price>;
     int total = from xml:Element element in prices

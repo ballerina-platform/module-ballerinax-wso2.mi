@@ -1,7 +1,6 @@
 [server]
 hostname = "localhost"
 hot_deployment = false
-# offset  = 10
 
 [user_store]
 type = "read_only_ldap"
