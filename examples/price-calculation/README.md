@@ -25,11 +25,12 @@ This would output a result in the following format.
 Follow these steps to invoke the sample using the connector:
 
 1. The `bal-price-calculation` folder contains the Ballerina code for the connector. Invoke the following command to generate the connector:
+
     ```bash
     bal mi -i <ballerina-project>
     ```
 
-2. A zip file of the connector will be generated. Add this zip file to the MI project inside the folder `mi-price-calculation` following the approach described [here](https://mi.docs.wso2.com/en/latest/develop/creating-artifacts/adding-connectors/).
+2. A ZIP file of the connector will be generated. Add this ZIP file to the MI project inside the folder `mi-price-calculation` following the approach described [here](https://mi.docs.wso2.com/en/latest/develop/creating-artifacts/adding-connectors/).
 
 3. Once the connector is added, run the MI project.
 
@@ -55,6 +56,7 @@ curl --location 'http://localhost:8290/price-calculation' \
 ```
 
 Output:
+
 ```xml
 <total xmlns="http://ws.apache.org/ns/synapse">217</total>
 ```
