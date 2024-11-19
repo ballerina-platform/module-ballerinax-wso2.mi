@@ -2,7 +2,7 @@
 
 ## Overview
 
-The Ballerina Connector SDK for WSO2 Micro Integrator enables the generation of connectors that allow WSO2 Micro Integrator to run Ballerina transformations.
+The Ballerina Connector SDK for the WSO2 Micro Integrator enables the generation of connectors that allow the WSO2 MI to run Ballerina transformations.
 This integration enables you to leverage the powerful transformation capabilities of Ballerina within
 the environment of WSO2 Micro Integrator.
 
