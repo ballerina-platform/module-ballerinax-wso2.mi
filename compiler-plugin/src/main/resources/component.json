@@ -10,17 +10,6 @@
         "groupName": "General",
         "elements": [
           {
-            "type": "attribute",
-            "value": {
-              "name": "description",
-              "displayName": "Description",
-              "inputType": "string",
-              "defaultValue": "Ballerina Connector",
-              "required": "false",
-              "helpTip": "Component description"
-            }
-          },
-          {
             "type": "attributeGroup",
             "value": {
               "groupName": "Variables",
