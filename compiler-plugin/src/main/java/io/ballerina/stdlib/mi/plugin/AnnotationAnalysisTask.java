@@ -46,8 +46,8 @@ import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import java.util.List;
 import java.util.Optional;
 
-import static io.ballerina.stdlib.mi.plugin.DiagnosticErrorCode.UNSUPPORTED_PARAM_TYPE;
-import static io.ballerina.stdlib.mi.plugin.DiagnosticErrorCode.UNSUPPORTED_RETURN_TYPE;
+import static io.ballerina.stdlib.mi.plugin.DiagnosticCode.UNSUPPORTED_PARAM_TYPE;
+import static io.ballerina.stdlib.mi.plugin.DiagnosticCode.UNSUPPORTED_RETURN_TYPE;
 
 public class AnnotationAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisContext> {
 

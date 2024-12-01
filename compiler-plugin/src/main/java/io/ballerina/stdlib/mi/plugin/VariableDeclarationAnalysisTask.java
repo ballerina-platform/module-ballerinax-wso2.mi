@@ -69,7 +69,7 @@ public class VariableDeclarationAnalysisTask implements AnalysisTask<SyntaxNodeA
             if (!classMethods.containsAll(methods)) {
                 continue;
             }
-            DiagnosticErrorCode diagnosticCode = DiagnosticErrorCode.LISTENER_SHAPE_VAR_NOT_ALLOWED;
+            DiagnosticCode diagnosticCode = DiagnosticCode.LISTENER_SHAPE_VAR_NOT_ALLOWED;
             DiagnosticInfo diagnosticInfo =
                     new DiagnosticInfo(diagnosticCode.diagnosticId(), diagnosticCode.message(),
                             DiagnosticSeverity.ERROR);

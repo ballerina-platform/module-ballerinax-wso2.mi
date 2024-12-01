@@ -35,12 +35,12 @@ public class ListenerAndServiceDefAnalysisTask implements AnalysisTask<SyntaxNod
 
     @Override
     public void perform(SyntaxNodeAnalysisContext context) {
-        DiagnosticErrorCode diagnosticCode;
+        DiagnosticCode diagnosticCode;
         Node node = context.node();
         if (node.kind() == SyntaxKind.SERVICE_DECLARATION) {
-            diagnosticCode = DiagnosticErrorCode.SERVICE_DEF_NOT_ALLOWED;
+            diagnosticCode = DiagnosticCode.SERVICE_DEF_NOT_ALLOWED;
         } else {
-            diagnosticCode = DiagnosticErrorCode.LISTENER_DECLARATION_NOT_ALLOWED;
+            diagnosticCode = DiagnosticCode.LISTENER_DECLARATION_NOT_ALLOWED;
         }
         DiagnosticInfo diagnosticInfo =
                 new DiagnosticInfo(diagnosticCode.diagnosticId(), diagnosticCode.message(), DiagnosticSeverity.ERROR);
