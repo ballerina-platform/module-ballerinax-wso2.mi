@@ -1,0 +1,14 @@
+[package]
+org = "testOrg"
+name = "annotation_code_action"
+version = "0.1.0"
+distribution = "2201.9.2"
+
+[build-options]
+observabilityIncluded = true
+
+[[dependency]]
+org = "ballerinax"
+name = "mi"
+version = "0.1.3"
+repository = "local"

@@ -18,23 +18,31 @@
 
 package io.ballerina.stdlib.mi.plugin;
 
-public enum DiagnosticErrorCode {
-    UNSUPPORTED_PARAM_TYPE("MIE001", "unsupported parameter type found"),
-    UNSUPPORTED_RETURN_TYPE("MIE002", "unsupported return type found"),
+import io.ballerina.tools.diagnostics.DiagnosticSeverity;
+import static io.ballerina.tools.diagnostics.DiagnosticSeverity.ERROR;
+import static io.ballerina.tools.diagnostics.DiagnosticSeverity.INTERNAL;
+
+public enum DiagnosticCode {
+    UNSUPPORTED_PARAM_TYPE("MIE001", "unsupported parameter type found", ERROR),
+    UNSUPPORTED_RETURN_TYPE("MIE002", "unsupported return type found", ERROR),
     SERVICE_DEF_NOT_ALLOWED("MIE003",
-            "service definition is not allowed when `ballerinax/mi` connector is in use"),
+            "service definition is not allowed when `ballerinax/mi` connector is in use", ERROR),
     LISTENER_DECLARATION_NOT_ALLOWED("MIE004",
-            "listener declaration is not allowed when `ballerinax/mi` connector is in use"),
+            "listener declaration is not allowed when `ballerinax/mi` connector is in use", ERROR),
     LISTENER_SHAPE_VAR_NOT_ALLOWED("MIE005",
             "defining variables with a type that has the shape of `Listener` is not allowed when the `ballerinax/mi` " +
-                    "connector is in use.");
+                    "connector is in use.", ERROR),
+    MI_ANNOTATION_ADD("MI_HINT_001", "MI Annotation can be added", INTERNAL)
     ;
 
     private final String diagnosticId;
     private final String message;
-    DiagnosticErrorCode(String diagnosticId, String message) {
+    private final DiagnosticSeverity severity;
+
+    DiagnosticCode(String diagnosticId, String message, DiagnosticSeverity severity) {
         this.diagnosticId = diagnosticId;
         this.message = message;
+        this.severity = severity;
     }
 
     public String diagnosticId() {
@@ -42,5 +50,8 @@ public enum DiagnosticErrorCode {
     }
     public String message() {
         return message;
+    }
+    public DiagnosticSeverity severity() {
+        return severity;
     }
 }
