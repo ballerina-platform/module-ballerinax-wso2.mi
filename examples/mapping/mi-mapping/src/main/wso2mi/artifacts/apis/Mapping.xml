@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api context="/mapping" name="Mapping" xmlns="http://ws.apache.org/ns/synapse">
+    <resource methods="POST" uri-template="/">
+        <inSequence>
+            <bal_mapping.mapPatient>
+                <Result>res</Result>
+                <payload>{json-eval($.)}</payload>
+            </bal_mapping.mapPatient>
+            <payloadFactory media-type="json" template-type="default">
+                <format>{ "result": $1 }</format>
+                <args>
+                    <arg expression="$ctx:res" evaluator="json" />
+                </args>
+            </payloadFactory>
+            <respond />
+        </inSequence>
+        <faultSequence>
+        </faultSequence>
+    </resource>
+</api>
