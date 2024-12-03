@@ -24,6 +24,8 @@ import io.ballerina.projects.JvmTarget;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.PackageCompilation;
 import io.ballerina.projects.Project;
+import io.ballerina.projects.util.ProjectConstants;
+import io.ballerina.projects.util.ProjectUtils;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import picocli.CommandLine;
@@ -41,23 +43,53 @@ import java.util.Objects;
 
 @CommandLine.Command(name = "mi", description = "Generate MI connector")
 public class MiCmd implements BLauncherCmd {
+
     private static final String CMD_NAME = "mi";
+    private final String HELP_FILE = "cli-docs/mi.help";
     private final PrintStream printStream;
+    private final PrintStream printErrStream;
     @CommandLine.Option(names = {"--help", "-h"}, usageHelp = true)
     private boolean helpFlag;
     @CommandLine.Option(names = {"--input", "-i"}, description = "Ballerina project path")
     private String sourcePath;
+    @CommandLine.Option(names = {"--generate-template", "-g"}, description = "Ballerina file name")
+    private String fileName;
 
     public MiCmd() {
         this.printStream = System.out;
+        this.printErrStream = System.err;
     }
 
     @Override
     public void execute() {
-        if (sourcePath == null || helpFlag) {
+        if (sourcePath == null && fileName == null && helpFlag) {
             StringBuilder stringBuilder = new StringBuilder();
-            setHelpMessage(stringBuilder);
+            readResourceFile(HELP_FILE, stringBuilder);
             printStream.println(stringBuilder);
+            return;
+        }
+
+        if (fileName != null) {
+            Path currentDir = Path.of(System.getProperty(ProjectConstants.USER_DIR));
+            if (!ProjectUtils.isBallerinaProject(currentDir)) {
+                printErrStream.println("Current directory is not a Ballerina Project");
+                return;
+            }
+
+            Path targetFile = currentDir.resolve(fileName);
+            if (Files.exists(targetFile)) {
+                printErrStream.println("A file with the specified name already exists in the Ballerina Project");
+                return;
+            }
+
+            StringBuilder stringBuilder = new StringBuilder();
+            readResourceFile("generate_cmd_templates/generate.bal", stringBuilder);
+            try {
+                Files.createFile(currentDir.resolve(fileName));
+                Files.writeString(targetFile, stringBuilder);
+            } catch (IOException e) {
+                printErrStream.println("Could not create the file due to: " + e.getMessage());
+            }
             return;
         }
 
@@ -101,7 +133,7 @@ public class MiCmd implements BLauncherCmd {
 
     @Override
     public void printLongDesc(StringBuilder stringBuilder) {
-        setHelpMessage(stringBuilder);
+        readResourceFile(HELP_FILE, stringBuilder);
     }
 
     @Override
@@ -114,10 +146,10 @@ public class MiCmd implements BLauncherCmd {
 
     }
 
-    private void setHelpMessage(StringBuilder stringBuilder) {
+    private void readResourceFile(String resource, StringBuilder stringBuilder) {
         Class<?> clazz = MiCmd.class;
         ClassLoader classLoader = clazz.getClassLoader();
-        InputStream inputStream = classLoader.getResourceAsStream("cli-docs/mi.help");
+        InputStream inputStream = classLoader.getResourceAsStream(resource);
         if (inputStream != null) {
             try (InputStreamReader inputStreamREader = new InputStreamReader(inputStream, StandardCharsets.UTF_8);
                  BufferedReader br = new BufferedReader(inputStreamREader)) {
