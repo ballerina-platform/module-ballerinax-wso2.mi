@@ -11,6 +11,12 @@ OPTIONS
        -i, --input <ballerina project>
            Path to Ballerina project that includes the transformation logic.
 
+       -g, --generate-template <file-name>
+           Generate a Ballerina file with mi module imported and a template function.
+
 EXAMPLES
        Generate WSO2 micro integrator connector for Ballerina.
            $ bal mi -i ballerina/project
+
+       Generate a template Ballerina file.
+           $ bal mi -g gen.bal

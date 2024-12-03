@@ -16,6 +16,8 @@
  * under the License.
  */
 
+import org.apache.tools.ant.taskdefs.condition.Os
+
 plugins {
     id 'java'
 }
@@ -50,4 +52,56 @@ dependencies {
     implementation 'info.picocli:picocli:4.0.1'
     implementation "org.ballerinalang:ballerina-lang:${ballerinaLangVersion}"
     implementation "org.ballerinalang:ballerina-tools-api:${ballerinaLangVersion}"
+
+    testImplementation 'org.testng:testng:7.7.0'
+}
+
+test {
+    systemProperty "ballerina.home", "build/ballerina/ballerina-${ballerinaLangVersion}-swan-lake/" +
+            "distributions/ballerina-${ballerinaLangVersion}"
+    useTestNG() {
+        suites 'src/test/resources/testng.xml'
+    }
+    dependencies {
+        implementation fileTree(dir: 'src/test/resources/libs', include: '*.jar')
+    }
+}
+
+task downloadBallerina(type: Download) {
+    src([
+            "https://dist.ballerina.io/downloads/${ballerinaLangVersion}/" +
+                    "ballerina-${ballerinaLangVersion}-swan-lake.zip"
+    ])
+    dest file("build")
+    overwrite false
+}
+
+task unzipFile(type: Copy) {
+    dependsOn("downloadBallerina")
+    from(zipTree("build/ballerina-${ballerinaLangVersion}-swan-lake.zip"))
+    into("build/ballerina")
+}
+
+task copyBallerinaJars(type: Copy) {
+    dependsOn("buildBallerinaProject")
+    projects.each { project ->
+        from("src/test/resources/ballerina/${project}/target/bin/${project}.jar")
+        into('src/test/resources/libs')
+    }
+}
+compileTestJava.dependsOn("copyBallerinaJars")
+processTestResources.dependsOn("copyBallerinaJars")
+
+test.dependsOn(":mi-ballerina:localPublish")
+test.dependsOn("unzipFile")
+test.dependsOn("copyBallerinaJars")
+
+task buildBallerinaProject {
+    exec {
+        if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+            commandLine 'cmd', "/c", "bal build src/test/resources/ballerina/gen"
+        } else {
+            commandLine 'sh', "-c", "bal build src/test/resources/ballerina/gen"
+        }
+    }
 }
