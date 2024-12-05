@@ -1,0 +1,68 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<api context="/type-processing" name="TypeProcessing" xmlns="http://ws.apache.org/ns/synapse">
+    <resource methods="POST" uri-template="/">
+        <inSequence>
+            <property name="type" expression="json-eval($.type)" scope="default" type="STRING" />
+            <switch source="get-property('type')">
+                <case regex="string">
+                    <bal_type_processing.doubleString>
+                        <Result>res</Result>
+                        <s>{json-eval($.val)}</s>
+                    </bal_type_processing.doubleString>
+                </case>
+                <case regex="integer">
+                    <bal_type_processing.doubleInt>
+                        <Result>res</Result>
+                        <n>{json-eval($.val)}</n>
+                    </bal_type_processing.doubleInt>
+                </case>
+                <case regex="boolean">
+                    <bal_type_processing.invertBoolean>
+                        <Result>res</Result>
+                        <b>{json-eval($.val)}</b>
+                    </bal_type_processing.invertBoolean>
+                </case>
+                <case regex="float">
+                    <bal_type_processing.reciprocalFloat>
+                        <Result>res</Result>
+                        <f>{json-eval($.val)}</f>
+                    </bal_type_processing.reciprocalFloat>
+                </case>
+                <case regex="decimal">
+                    <bal_type_processing.addConstantToDecimal>
+                        <Result>res</Result>
+                        <d>{json-eval($.val)}</d>
+                    </bal_type_processing.addConstantToDecimal>
+                </case>
+                <case regex="json">
+                    <bal_type_processing.getJsonNameProperty>
+                        <Result>res</Result>
+                        <j>{json-eval($.val)}</j>
+                    </bal_type_processing.getJsonNameProperty>
+                </case>
+                <case regex="xml">
+                    <property name="jsonPayload" expression="json-eval($.val)" scope="default" type="STRING"/>
+                    <property name="xmlVal" expression="get-property('jsonPayload')" scope="default" type="OM"/>
+                    <bal_type_processing.getXmlNameElement>
+                        <Result>xmlRes</Result>
+                        <x>{$ctx:xmlVal}</x>
+                    </bal_type_processing.getXmlNameElement>
+                    <property name="res" expression="json-eval($ctx:xmlRes)" scope="default" type="STRING"/>
+                </case>
+                <default>
+                    <log level="custom">
+                        <property name="message" value="Unknown type" />
+                    </log>
+                </default>
+            </switch>
+            <payloadFactory media-type="json" template-type="default">
+                <format>{"result":$1 }</format>
+                <args>
+                    <arg expression="$ctx:res" evaluator="json" />
+                </args>
+            </payloadFactory>
+            <respond />
+        </inSequence>
+        <faultSequence />
+    </resource>
+</api>
