@@ -127,11 +127,11 @@ public class Mediator extends AbstractMediator {
         }
         String paramType = context.getProperty(type).toString();
         return switch (paramType) {
-            case BOOLEAN -> Boolean.parseBoolean((String) param);
-            case INT -> Long.parseLong((String) param);
-            case STRING -> StringUtils.fromString((String) param);
-            case FLOAT -> Double.parseDouble((String) param);
-            case DECIMAL -> ValueCreator.createDecimalValue((String) param);
+            case BOOLEAN -> Boolean.parseBoolean(param.toString());
+            case INT -> Long.parseLong(param.toString());
+            case STRING -> StringUtils.fromString(param.toString());
+            case FLOAT -> Double.parseDouble(param.toString());
+            case DECIMAL -> ValueCreator.createDecimalValue(param.toString());
             case JSON -> getBMapParameter(param);
             case XML -> getBXmlParameter(context, value);
             default -> null;
