@@ -1,5 +1,3 @@
-import org.apache.tools.ant.taskdefs.condition.Os
-
 plugins {
     id 'java'
     id "de.undercouch.download" version "5.4.0"
@@ -15,6 +13,7 @@ repositories {
 dependencies {
     implementation "org.ballerinalang:ballerina-lang:${ballerinaLangVersion}"
     implementation "org.ballerinalang:ballerina-cli:${ballerinaLangVersion}"
+    implementation "org.ballerinalang:ballerina-tools-api:${ballerinaLangVersion}"
     implementation "org.apache.ws.commons.axiom:axiom-api:${axiomVersion}"
     implementation "org.wso2.carbon.module:module-core:${carbonModuleCoreVersion}"
     implementation "org.apache.axis2.wso2:axis2:${axis2Version}"
@@ -22,20 +21,7 @@ dependencies {
     testImplementation 'org.testng:testng:7.7.0'
 }
 
-def projects = ['project2', 'project3']
-
-task buildBallerinaProjects {
-    doLast {
-        def command = projects.collect { "bal build src/test/resources/ballerina/$it" }.join(' && ')
-        exec {
-            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', "/c", command
-            } else {
-                commandLine 'sh', "-c", command
-            }
-        }
-    }
-}
+def projects = ['project1']
 
 test {
     systemProperty "ballerina.home", "build/ballerina/ballerina-${ballerinaLangVersion}-swan-lake/" +
@@ -63,24 +49,13 @@ task unzipFile(type: Copy) {
     into("build/ballerina")
 }
 
-task copyBallerinaJars(type: Copy) {
-    dependsOn("buildBallerinaProjects")
-    projects.each { project ->
-        from("src/test/resources/ballerina/${project}/target/bin/${project}.jar")
-        into('src/test/resources/libs')
-    }
-}
-compileTestJava.dependsOn("copyBallerinaJars")
-processTestResources.dependsOn("copyBallerinaJars")
 
 test.dependsOn(":mi-ballerina:localPublish")
 test.dependsOn("unzipFile")
-test.dependsOn("copyBallerinaJars")
 
 task deleteFiles(type: Delete) {
     doLast {
         projects.each { project ->
-            delete("src/test/resources/libs/${project}.jar")
             delete("src/test/resources/ballerina/${project}/target")
         }
     }

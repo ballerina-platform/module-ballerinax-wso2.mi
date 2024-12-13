@@ -22,7 +22,6 @@ import io.ballerina.projects.Project;
 import io.ballerina.projects.Package;
 import io.ballerina.projects.directory.ProjectLoader;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.text.LinePosition;
 import org.testng.Assert;
@@ -30,15 +29,29 @@ import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.stream.Collectors;
 
-public class TestMediatorGenNegativeTests {
+/**
+ * Perform module compilation related tests.
+ *
+ * @since 0.1.3
+ */
+public class ModuleCompilationTests {
+
     public static final Path RES_DIR = Paths.get("src/test/resources/ballerina").toAbsolutePath();
 
     @Test
-    public void test() {
-        Path path = RES_DIR.resolve("project4");
+    public void testProjectCompilation() {
+        Path path = RES_DIR.resolve("project1");
+        Project project = ProjectLoader.loadProject(path);
+        Package pkg = project.currentPackage();
+        PackageCompilation packageCompilation = pkg.getCompilation();
+        DiagnosticResult diagnosticResult = packageCompilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0);
+    }
+
+    @Test
+    public void testUnsupportedParamAndReturnType() {
+        Path path = RES_DIR.resolve("project2");
         Project project = ProjectLoader.loadProject(path);
         Package pkg = project.currentPackage();
         PackageCompilation packageCompilation = pkg.getCompilation();
@@ -51,7 +64,7 @@ public class TestMediatorGenNegativeTests {
 
     @Test
     public void testErrorsOnServiceDefinition() {
-        Path path = RES_DIR.resolve("project5");
+        Path path = RES_DIR.resolve("project3");
         Project project = ProjectLoader.loadProject(path);
         Package pkg = project.currentPackage();
         PackageCompilation packageCompilation = pkg.getCompilation();
@@ -60,9 +73,11 @@ public class TestMediatorGenNegativeTests {
                 .filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR))
                 .toArray(Diagnostic[]::new);
         Assert.assertEquals(errorDiagnosticsList.length, 8);
-        validateError(errorDiagnosticsList, 0, "service definition is not allowed when `ballerinax/mi` connector is in use",
+        validateError(errorDiagnosticsList, 0,
+                "service definition is not allowed when `ballerinax/mi` connector is in use",
                 22, 1);
-        validateError(errorDiagnosticsList, 1, "service definition is not allowed when `ballerinax/mi` connector is in use",
+        validateError(errorDiagnosticsList, 1,
+                "service definition is not allowed when `ballerinax/mi` connector is in use",
                 28, 1);
         validateError(errorDiagnosticsList, 2,
                 "listener declaration is not allowed when `ballerinax/mi` connector is in use", 40, 1);
@@ -84,7 +99,7 @@ public class TestMediatorGenNegativeTests {
     }
 
     private void validateError(Diagnostic[] diagnostics, int errorIndex, String expectedErrMsg, int expectedErrLine,
-                                     int expectedErrCol) {
+                               int expectedErrCol) {
         Diagnostic diagnostic = diagnostics[errorIndex];
         Assert.assertEquals(diagnostic.message(), expectedErrMsg);
         LinePosition linePosition = diagnostic.location().lineRange().startLine();
