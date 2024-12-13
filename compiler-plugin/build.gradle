@@ -39,30 +39,13 @@ dependencies {
     implementation group: 'org.ow2.asm', name: 'asm', version: "${asmVersion}"
 }
 
-task("copyFiles") {
-    dependsOn ":mi-native:build"
-    doLast {
-        mkdir("src/main/resources/mediator-classes")
-        copy {
-            from("../native/build/classes/java/main")
-            into("src/main/resources/mediator-classes")
-        }
-    }
-}
 
 jar {
-    dependsOn("copyFiles")
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE
     from('src/main/resources') {
         include '**/*.class'
     }
 }
-
-task("deleteFolder") {
-    delete("src/main/resources/mediator-classes")
-}
-
-clean.dependsOn("deleteFolder")
 
 test {
     useJUnitPlatform()

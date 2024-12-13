@@ -72,5 +72,4 @@ release {
 
 task build {
     dependsOn ":mi-ballerina:build"
-    dependsOn ":tool-mi:build"
 }
