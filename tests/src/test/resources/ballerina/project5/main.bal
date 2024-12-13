@@ -17,7 +17,7 @@
 import ballerina/graphql;
 import ballerina/http;
 import ballerina/lang.runtime;
-import ballerinax/mi;
+import wso2/mi;
 
 service / on new http:Listener(9090) {
     resource function get greeting() returns string {

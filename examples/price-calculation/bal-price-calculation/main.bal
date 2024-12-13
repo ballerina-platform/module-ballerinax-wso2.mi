@@ -1,4 +1,4 @@
-import ballerinax/mi;
+import wso2/mi;
 
 @mi:ConnectorInfo
 public function calculateTotal(xml invoice) returns xml {
