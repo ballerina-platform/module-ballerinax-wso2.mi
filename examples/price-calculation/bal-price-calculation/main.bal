@@ -1,6 +1,6 @@
 import wso2/mi;
 
-@mi:ConnectorInfo
+@mi:Operation
 public function calculateTotal(xml invoice) returns xml {
     xml<xml:Element> prices = invoice/**/<price>;
     int total = from xml:Element element in prices

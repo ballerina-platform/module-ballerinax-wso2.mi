@@ -111,7 +111,7 @@ class ListenerClass {
     }
 }
 
-@mi:ConnectorInfo {
+@mi:Operation {
 }
 function registerServiceDynamically() {
     http:Listener|error? httpListener3 = new (9092);

@@ -25,7 +25,7 @@ import java.util.ArrayList;
 
 public class Component extends ModelElement {
 
-    public static final String ANNOTATION_QUALIFIER = "ConnectorInfo";
+    public static final String ANNOTATION_QUALIFIER = "Operation";
     private static final String TYPE_NAME = "component";
     private String name;
     private String description = "just a description";
