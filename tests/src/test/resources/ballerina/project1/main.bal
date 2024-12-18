@@ -1,6 +1,6 @@
-import ballerinax/mi;
+import wso2/mi;
 
-@mi:ConnectorInfo {
+@mi:Operation {
 }
 public function test(xml xmlA, xml xmlB, xml xmlC) returns xml {
     xml ans =xml `<apr30>8:585555551</apr30>`;

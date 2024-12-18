@@ -14,7 +14,7 @@
 // specific language governing permissions and limitations
 // under the License.
 
-public type ConnectorInformation record {|
+public type ConnectorOperation record {|
 |};
 
-public const annotation ConnectorInformation ConnectorInfo on function;
+public const annotation ConnectorOperation Operation on function;
