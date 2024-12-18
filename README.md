@@ -1,19 +1,21 @@
-# Ballerina Connector SDK for WSO2 Micro Integrator
+# WSO2 Micro Integrator Module Generator SDK for Ballerina
 
 ## Overview
 
-The Ballerina Connector SDK for the WSO2 Micro Integrator enables the generation of connectors that allow the WSO2 MI to run Ballerina transformations.
+The WSO2 Micro Integrator Module Generator SDK for Ballerina enables the generation of modules that allow the WSO2 MI to run Ballerina transformations.
 This integration enables you to leverage the powerful transformation capabilities of Ballerina within
-the environment of WSO2 Micro Integrator.
+the environment of WSO2 Micro Integrator. Unlike Class Mediators, Ballerina is a cloud-native programming language with 
+built-in support for JSON and XML, making data transformations simpler. It also allows the use of available Ballerina language 
+modules and connectors, enabling enhanced functionality and easier connectivity with external systems.
 
-## Steps to Create Ballerina Connector
+## Steps to Create Module for WSO2 MI from Ballerina
 
-### Pull `mi` Tool
+### Pull `mi-module-gen` Tool
 
-First, you need to pull the `mi` tool which is used to create the Ballerina connector.
+First, you need to pull the `mi-module-gen` tool which is used to create the WSO2 MI module.
 
 ```bash
-bal tool pull mi
+bal tool pull mi-module-gen
 ```
 
 ### Write Ballerina Transformation
@@ -29,23 +31,23 @@ public function gpa(xml rawMarks, xml credits) returns xml {
 }
 ```
 
-Ballerina function that contains `@mi:ConnectorInfo` annotation maps with a component in Ballerina connector.
+Ballerina function that contains `@mi:ConnectorInfo` annotation maps with an operation in the Ballerina connector.
 
-### Generate the connector
+### Generate the module
 
-Finally, use the `bal mi` command to generate the Ballerina connector for the WSO2 Micro Integrator.
+Finally, use the `bal mi-module-gen` command to generate the WSO2 Micro Integrator module from Ballerina project.
 
 ```bash
-bal mi -i <path_to_ballerina_project>
+bal mi-module-gen <path_to_ballerina_project>
 ```
 
-Above command generates the connector zip in the same location.
+Above command generates the module zip in the same location.
 
-To add this generated connector to a WSO2 Micro Integrator project follow the instruction specified [here](https://mi.docs.wso2.com/en/latest/develop/creating-artifacts/adding-connectors/).
+To add this generated module to a WSO2 Micro Integrator project follow the instruction specified [here](https://mi.docs.wso2.com/en/latest/develop/creating-artifacts/adding-connectors/).
 
 ## Local Build
 
-1. Clone the repository [module-ballerinax-wso2.mi](https://github.com/ballerina-platform/module-ballerinax-wso2.mi.git)
+1. Clone the repository [ballerina-module-wso2-mi](https://github.com/wso2-extensions/ballerina-module-wso2-mi.git)
 
 2. Build the compiler plugin and publish locally:
 
@@ -65,11 +67,11 @@ To add this generated connector to a WSO2 Micro Integrator project follow the in
    ./gradlew test
    ```
 
-## Performance Test Description for WSO2 MI Connector
+## Performance Test Description for WSO2 MI Module
 
 ### Overview
 
-The performance test for the WSO2 MI connector was conducted using JMeter with 60 users. 
+The performance test for the WSO2 MI module was conducted using JMeter with 60 users. 
 The aim was to evaluate the throughput per second for different payload sizes using 
 three different transformation methods: Ballerina JSON transformation, Ballerina record transformation, 
 and Java class mediator.
