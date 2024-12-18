@@ -4,7 +4,9 @@
 
 The WSO2 Micro Integrator Module Generator SDK for Ballerina enables the generation of modules that allow the WSO2 MI to run Ballerina transformations.
 This integration enables you to leverage the powerful transformation capabilities of Ballerina within
-the environment of WSO2 Micro Integrator.
+the environment of WSO2 Micro Integrator. Unlike Class Mediators, Ballerina is a cloud-native programming language with 
+built-in support for JSON and XML, making data transformations simpler. It also allows the use of available Ballerina language 
+modules and connectors, enabling enhanced functionality and easier connectivity with external systems.
 
 ## Steps to Create Module for WSO2 MI from Ballerina
 
@@ -29,7 +31,7 @@ public function gpa(xml rawMarks, xml credits) returns xml {
 }
 ```
 
-Ballerina function that contains `@mi:ConnectorInfo` annotation maps with a component in Ballerina connector.
+Ballerina function that contains `@mi:ConnectorInfo` annotation maps with an operation in the Ballerina connector.
 
 ### Generate the module
 
