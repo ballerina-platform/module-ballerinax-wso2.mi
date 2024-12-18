@@ -20,6 +20,7 @@
 
 <suite name="ballerina-module-wso2-mi-test-suite" time-out="120000">
     <test name="wso2-mi-module-test">
+        <parameter name="enableJBallerinaTests" value="true"/>
         <packages>
             <package name="org.ballerina.test.*"/>
         </packages>

@@ -18,9 +18,11 @@ package org.ballerina.test;
 
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.Project;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.directory.ProjectLoader;
+import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.tools.diagnostics.Diagnostic;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.text.LinePosition;
@@ -37,13 +39,13 @@ import java.nio.file.Paths;
  */
 public class ModuleCompilationTests {
 
-    public static final Path RES_DIR = Paths.get("src/test/resources/ballerina").toAbsolutePath();
+    public static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/ballerina").toAbsolutePath();
+    private static final Path DISTRIBUTION_PATH = Paths.get("../", "target", "ballerina-runtime")
+            .toAbsolutePath();
 
     @Test
     public void testProjectCompilation() {
-        Path path = RES_DIR.resolve("project1");
-        Project project = ProjectLoader.loadProject(path);
-        Package pkg = project.currentPackage();
+        Package pkg = loadPackage("project1");
         PackageCompilation packageCompilation = pkg.getCompilation();
         DiagnosticResult diagnosticResult = packageCompilation.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 0);
@@ -51,9 +53,7 @@ public class ModuleCompilationTests {
 
     @Test
     public void testUnsupportedParamAndReturnType() {
-        Path path = RES_DIR.resolve("project2");
-        Project project = ProjectLoader.loadProject(path);
-        Package pkg = project.currentPackage();
+        Package pkg = loadPackage("project2");
         PackageCompilation packageCompilation = pkg.getCompilation();
         DiagnosticResult diagnosticResult = packageCompilation.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 2);
@@ -64,9 +64,7 @@ public class ModuleCompilationTests {
 
     @Test
     public void testErrorsOnServiceDefinition() {
-        Path path = RES_DIR.resolve("project3");
-        Project project = ProjectLoader.loadProject(path);
-        Package pkg = project.currentPackage();
+        Package pkg = loadPackage("project3");
         PackageCompilation packageCompilation = pkg.getCompilation();
         DiagnosticResult diagnosticResult = packageCompilation.diagnosticResult();
         Diagnostic[] errorDiagnosticsList = diagnosticResult.diagnostics().stream()
@@ -105,5 +103,13 @@ public class ModuleCompilationTests {
         LinePosition linePosition = diagnostic.location().lineRange().startLine();
         Assert.assertEquals(linePosition.line() + 1, expectedErrLine);
         Assert.assertEquals(linePosition.offset() + 1, expectedErrCol);
+    }
+
+    static Package loadPackage(String path) {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve(path);
+        Environment environment = EnvironmentBuilder.getBuilder().setBallerinaHome(DISTRIBUTION_PATH).build();
+        ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
+        BuildProject project = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        return project.currentPackage();
     }
 }

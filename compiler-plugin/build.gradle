@@ -20,6 +20,8 @@ plugins {
     id 'java'
 }
 
+description = 'Ballerina - Module WSO2 MI Compiler Plugin'
+
 group = project.group
 version = project.version
 
@@ -38,7 +40,6 @@ dependencies {
     implementation group: 'org.apache.commons', name: 'commons-compress', version: "${commonsCompressVersion}"
     implementation group: 'org.ow2.asm', name: 'asm', version: "${asmVersion}"
 }
-
 
 jar {
     duplicatesStrategy = DuplicatesStrategy.EXCLUDE

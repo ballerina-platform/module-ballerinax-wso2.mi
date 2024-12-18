@@ -18,60 +18,111 @@
 
 import org.apache.tools.ant.taskdefs.condition.Os
 
+buildscript {
+    repositories {
+        maven {
+            url = 'https://maven.pkg.github.com/ballerina-platform/plugin-gradle'
+            credentials {
+                username System.getenv("packageUser")
+                password System.getenv("packagePAT")
+            }
+        }
+    }
+    dependencies {
+        classpath "io.ballerina:plugin-gradle:${project.ballerinaGradlePluginVersion}"
+    }
+}
+
 plugins {
-    id 'java'
     id "de.undercouch.download" version "5.4.0"
 }
 
-group = project.group
-version = project.version
+description = 'Ballerina - Module WSO2 MI'
 
-repositories {
-    mavenCentral()
-}
+def packageName = "mi"
+def packageOrg = "wso2"
 
-dependencies {
-}
+def tomlVersion = stripBallerinaExtensionVersion("${project.version}")
+def ballerinaTomlFilePlaceHolder = new File("${project.rootDir}/build-config/resources/Ballerina.toml")
+def ballerinaTomlFile = new File("$project.projectDir/Ballerina.toml")
+def compilerPluginTomlFilePlaceHolder = new File("${project.rootDir}/build-config/resources/CompilerPlugin.toml")
+def compilerPluginTomlFile = new File("$project.projectDir/CompilerPlugin.toml")
 
-build {
-    dependsOn(":mi-compiler-plugin:jar")
-    dependsOn("downloadDependencies")
-}
-
-task localPublish {
-    dependsOn(":mi-compiler-plugin:jar")
-    dependsOn("downloadDependencies")
-    doLast {
-        // Push the MI Tools package to the local repository
-        exec {
-            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', "/c", "bal pack && bal push --repository=local"
-            } else {
-                commandLine 'sh', "-c", "bal pack && bal push --repository=local"
-            }
+def stripBallerinaExtensionVersion(String extVersion) {
+    if (extVersion.matches(project.ext.timestampedVersionRegex)) {
+        def splitVersion = extVersion.split('-');
+        if (splitVersion.length > 3) {
+            def strippedValues = splitVersion[0..-4]
+            return strippedValues.join('-')
+        } else {
+            return extVersion
         }
-        println("Successfully pushed the MI Package to the local.")
+    } else {
+        return extVersion.replace("${project.ext.snapshotVersion}", "")
     }
 }
 
-task release {
-    dependsOn("publishBallerinaPackage")
+apply plugin: 'io.ballerina.plugin'
+
+ballerina {
+    testCoverageParam = "--code-coverage --coverage-format=xml"
+    packageOrganization = packageOrg
+    module = packageName
+    langVersion = ballerinaLangVersion
 }
 
-task publishBallerinaPackage {
-    dependsOn(":mi-compiler-plugin:jar")
-    dependsOn("downloadDependencies")
+task updateTomlFiles {
     doLast {
-        exec {
-            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
-                commandLine 'cmd', "/c", "bal pack && bal push"
-            } else {
-                commandLine 'sh', "-c", "bal pack && bal push"
-            }
-        }
-        println("Successfully pushed the MI Library package to the local.")
+        def newBallerinaToml = ballerinaTomlFilePlaceHolder.text.replace("@toml.version@", tomlVersion)
+        ballerinaTomlFile.text = newBallerinaToml
+
+        def newCompilerPluginToml = compilerPluginTomlFilePlaceHolder.text.replace("@project.version@", project.version)
+        compilerPluginTomlFile.text = newCompilerPluginToml
     }
 }
+
+task commitTomlFiles {
+    doLast {
+        project.exec {
+            ignoreExitValue true
+            if (Os.isFamily(Os.FAMILY_WINDOWS)) {
+                commandLine 'cmd', '/c', "git commit -m \"[Automated] Update the toml files\" Ballerina.toml Dependencies.toml CompilerPlugin.toml "
+            } else {
+                commandLine 'sh', '-c', "git commit -m '[Automated] Update the toml files' Ballerina.toml Dependencies.toml CompilerPlugin.toml"
+            }
+        }
+    }
+}
+
+publishing {
+    publications {
+        maven(MavenPublication) {
+            artifact source: createArtifactZip, extension: 'zip'
+        }
+    }
+    repositories {
+        maven {
+            name = "GitHubPackages"
+            url = uri("https://maven.pkg.github.com/ballerina-platform/module-${packageOrg}-${packageName}")
+            credentials {
+                username = System.getenv("publishUser")
+                password = System.getenv("publishPAT")
+            }
+        }
+    }
+}
+
+clean {
+    delete 'build'
+}
+
+updateTomlFiles.dependsOn copyStdlibs
+build.dependsOn "generatePomFileForMavenPublication"
+build.dependsOn ":${packageName}-compiler-plugin:build"
+build.dependsOn "downloadDependencies"
+
+publishToMavenLocal.dependsOn build
+publish.dependsOn build
 
 task downloadDependencies(type: Download) {
     src([

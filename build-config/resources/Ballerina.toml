@@ -1,0 +1,11 @@
+[package]
+org = "wso2"
+name = "mi"
+version = "@toml.version@"
+authors = ["Ballerina"]
+keywords = ["wso2-mi"]
+repository = "https://github.com/wso2-extensions/ballerina-module-wso2-mi.git"
+license = ["Apache-2.0"]
+distribution = "2201.9.2"
+export = ["mi"]
+readme = "Package.md"

@@ -17,10 +17,7 @@
  */
 
 plugins {
-    id "com.github.spotbugs-base" version "${spotbugsPluginVersion}"
-    id "com.github.johnrengelman.shadow" version "${shadowJarPluginVersion}"
-    id "de.undercouch.download" version "${downloadPluginVersion}"
-    id "net.researchgate.release" version "${releasePluginVersion}"
+    id 'net.researchgate.release'
 }
 
 allprojects {
@@ -58,9 +55,24 @@ allprojects {
     }
 }
 
+subprojects {
+
+    configurations {
+        jbalTools
+        ballerinaStdLibs
+    }
+
+    dependencies {
+        jbalTools ("org.ballerinalang:jballerina-tools:${ballerinaLangVersion}") {
+            transitive = false
+        }
+    }
+}
+
 def moduleVersion = project.version.replace("-SNAPSHOT", "")
 
 release {
+    buildTasks = ['build']
     failOnSnapshotDependencies = true
     versionPropertyFile = 'gradle.properties'
     tagTemplate = 'v${version}'
@@ -72,4 +84,5 @@ release {
 
 task build {
     dependsOn ":mi-ballerina:build"
+    dependsOn ":mi-tests:test"
 }
