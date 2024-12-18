@@ -8,10 +8,10 @@ dependencies-toml-version = "2"
 distribution-version = "2201.9.2"
 
 [[package]]
-org = "ballerinax"
+org = "wso2"
 name = "mi"
 version = "0.1.3"
 modules = [
-	{org = "ballerinax", packageName = "mi", moduleName = "mi"}
+	{org = "wso2", packageName = "mi", moduleName = "mi"}
 ]
 

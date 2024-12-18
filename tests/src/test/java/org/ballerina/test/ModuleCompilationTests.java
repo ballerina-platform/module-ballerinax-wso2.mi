@@ -18,11 +18,12 @@ package org.ballerina.test;
 
 import io.ballerina.projects.DiagnosticResult;
 import io.ballerina.projects.PackageCompilation;
-import io.ballerina.projects.Project;
 import io.ballerina.projects.Package;
-import io.ballerina.projects.directory.ProjectLoader;
+import io.ballerina.projects.ProjectEnvironmentBuilder;
+import io.ballerina.projects.directory.BuildProject;
+import io.ballerina.projects.environment.Environment;
+import io.ballerina.projects.environment.EnvironmentBuilder;
 import io.ballerina.tools.diagnostics.Diagnostic;
-import io.ballerina.tools.diagnostics.DiagnosticInfo;
 import io.ballerina.tools.diagnostics.DiagnosticSeverity;
 import io.ballerina.tools.text.LinePosition;
 import org.testng.Assert;
@@ -30,17 +31,29 @@ import org.testng.annotations.Test;
 
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.stream.Collectors;
 
-public class TestMediatorGenNegativeTests {
-    public static final Path RES_DIR = Paths.get("src/test/resources/ballerina").toAbsolutePath();
+/**
+ * Perform module compilation related tests.
+ *
+ * @since 0.1.3
+ */
+public class ModuleCompilationTests {
+
+    public static final Path RESOURCE_DIRECTORY = Paths.get("src/test/resources/ballerina").toAbsolutePath();
+    private static final Path DISTRIBUTION_PATH = Paths.get("../", "target", "ballerina-runtime")
+            .toAbsolutePath();
 
     @Test
-    public void test() {
-        Path path = RES_DIR.resolve("project4");
-        Project project = ProjectLoader.loadProject(path);
-        Package pkg = project.currentPackage();
+    public void testProjectCompilation() {
+        Package pkg = loadPackage("project1");
+        PackageCompilation packageCompilation = pkg.getCompilation();
+        DiagnosticResult diagnosticResult = packageCompilation.diagnosticResult();
+        Assert.assertEquals(diagnosticResult.diagnosticCount(), 0);
+    }
+
+    @Test
+    public void testUnsupportedParamAndReturnType() {
+        Package pkg = loadPackage("project2");
         PackageCompilation packageCompilation = pkg.getCompilation();
         DiagnosticResult diagnosticResult = packageCompilation.diagnosticResult();
         Assert.assertEquals(diagnosticResult.diagnosticCount(), 2);
@@ -51,18 +64,18 @@ public class TestMediatorGenNegativeTests {
 
     @Test
     public void testErrorsOnServiceDefinition() {
-        Path path = RES_DIR.resolve("project5");
-        Project project = ProjectLoader.loadProject(path);
-        Package pkg = project.currentPackage();
+        Package pkg = loadPackage("project3");
         PackageCompilation packageCompilation = pkg.getCompilation();
         DiagnosticResult diagnosticResult = packageCompilation.diagnosticResult();
         Diagnostic[] errorDiagnosticsList = diagnosticResult.diagnostics().stream()
                 .filter(r -> r.diagnosticInfo().severity().equals(DiagnosticSeverity.ERROR))
                 .toArray(Diagnostic[]::new);
         Assert.assertEquals(errorDiagnosticsList.length, 8);
-        validateError(errorDiagnosticsList, 0, "service definition is not allowed when `ballerinax/mi` connector is in use",
+        validateError(errorDiagnosticsList, 0,
+                "service definition is not allowed when `ballerinax/mi` connector is in use",
                 22, 1);
-        validateError(errorDiagnosticsList, 1, "service definition is not allowed when `ballerinax/mi` connector is in use",
+        validateError(errorDiagnosticsList, 1,
+                "service definition is not allowed when `ballerinax/mi` connector is in use",
                 28, 1);
         validateError(errorDiagnosticsList, 2,
                 "listener declaration is not allowed when `ballerinax/mi` connector is in use", 40, 1);
@@ -84,11 +97,19 @@ public class TestMediatorGenNegativeTests {
     }
 
     private void validateError(Diagnostic[] diagnostics, int errorIndex, String expectedErrMsg, int expectedErrLine,
-                                     int expectedErrCol) {
+                               int expectedErrCol) {
         Diagnostic diagnostic = diagnostics[errorIndex];
         Assert.assertEquals(diagnostic.message(), expectedErrMsg);
         LinePosition linePosition = diagnostic.location().lineRange().startLine();
         Assert.assertEquals(linePosition.line() + 1, expectedErrLine);
         Assert.assertEquals(linePosition.offset() + 1, expectedErrCol);
+    }
+
+    static Package loadPackage(String path) {
+        Path projectDirPath = RESOURCE_DIRECTORY.resolve(path);
+        Environment environment = EnvironmentBuilder.getBuilder().setBallerinaHome(DISTRIBUTION_PATH).build();
+        ProjectEnvironmentBuilder projectEnvironmentBuilder = ProjectEnvironmentBuilder.getBuilder(environment);
+        BuildProject project = BuildProject.load(projectEnvironmentBuilder, projectDirPath);
+        return project.currentPackage();
     }
 }

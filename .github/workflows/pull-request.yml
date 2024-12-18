@@ -40,8 +40,7 @@ jobs:
               packageUser: ${{ github.actor }}
               packagePAT: ${{ secrets.GITHUB_TOKEN }}
             run: |
-                ./gradlew clean -x test -x check :mi-ballerina:localPublish && ./gradlew clean -x test -x check :tool-mi:localPublish
-                ./gradlew build
+                ./gradlew clean build
 
           - name: Generate Codecov Report
             uses: codecov/codecov-action@v3
