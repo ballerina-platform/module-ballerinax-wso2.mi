@@ -68,7 +68,7 @@ public class FunctionAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCont
                 continue;
             }
             Optional<ModuleSymbol> module = annotationSymbol.getModule();
-            if (module.isPresent() && module.get().getName().isPresent() && module.get().getName().get().equals("mi")) {
+            if (module.isPresent() && module.get().nameEquals("mi")) {
                 return true;
             }
         }
@@ -76,14 +76,7 @@ public class FunctionAnalysisTask implements AnalysisTask<SyntaxNodeAnalysisCont
     }
 
     private boolean checkFunctionParametersAndQualifiers(FunctionSymbol functionSymbol) {
-        boolean isPublic = false;
-        for (Qualifier qualifier : functionSymbol.qualifiers()) {
-            if (qualifier.name().equals(Qualifier.PUBLIC.name())) {
-                isPublic = true;
-                break;
-            }
-        }
-        if (!isPublic) {
+        if (functionSymbol.qualifiers().stream().noneMatch(q -> q == Qualifier.PUBLIC)) {
             return false;
         }
         Optional<List<ParameterSymbol>> params = functionSymbol.typeDescriptor().params();
