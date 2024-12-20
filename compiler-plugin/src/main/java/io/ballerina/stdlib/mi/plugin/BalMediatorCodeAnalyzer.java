@@ -40,5 +40,6 @@ public class BalMediatorCodeAnalyzer extends CodeAnalyzer {
                 List.of(SyntaxKind.SERVICE_DECLARATION, SyntaxKind.LISTENER_DECLARATION));
         codeAnalysisContext.addSyntaxNodeAnalysisTask(new VariableDeclarationAnalysisTask(),
                 List.of(SyntaxKind.MODULE_VAR_DECL, SyntaxKind.LOCAL_VAR_DECL));
+        codeAnalysisContext.addSyntaxNodeAnalysisTask(new FunctionAnalysisTask(), SyntaxKind.FUNCTION_DEFINITION);
     }
 }

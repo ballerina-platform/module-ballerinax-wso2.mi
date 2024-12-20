@@ -20,6 +20,10 @@ package io.ballerina.stdlib.mi.plugin;
 
 import io.ballerina.projects.plugins.CompilerPlugin;
 import io.ballerina.projects.plugins.CompilerPluginContext;
+import io.ballerina.projects.plugins.codeaction.CodeAction;
+import io.ballerina.stdlib.mi.plugin.codeaction.MIAnnotationCodeAction;
+
+import java.util.List;
 
 public class MICompilerPlugin extends CompilerPlugin {
 
@@ -27,6 +31,13 @@ public class MICompilerPlugin extends CompilerPlugin {
     public void init(CompilerPluginContext compilerPluginContext) {
         compilerPluginContext.addCodeAnalyzer(new BalMediatorCodeAnalyzer());
         compilerPluginContext.addCompilerLifecycleListener(new BalLifecycleListener());
+        getCodeActions().forEach(compilerPluginContext::addCodeAction);
+    }
+
+    private List<CodeAction> getCodeActions() {
+        return List.of(
+                new MIAnnotationCodeAction()
+        );
     }
 }
 
